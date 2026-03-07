@@ -9,14 +9,14 @@ export default function HorizontalScroll() {
     <div className="overflow-hidden py-12 bg-section-alt">
       <div className="flex gap-8 px-8 overflow-x-auto snap-x snap-mandatory scrollbar-hide">
         {projects.map((p, i) => (
-          <Link key={i} href={`/work/${p.slug}`} className="flex-shrink-0 w-[85vw] md:w-[620px] snap-start group">
-            <div className="relative aspect-[16/10] overflow-hidden">
-              <Image src={p.heroImage} alt={p.title} fill className="object-cover transition-transform group-hover:scale-105 duration-700" />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
+          <Link key={i} href={`/work/${p.slug}`} className="flex-shrink-0 w-[85vw] md:w-[620px] snap-start group relative">
+            <div className="relative aspect-[16/7] md:aspect-[21/9] overflow-hidden">
+              <Image src={p.heroImage} alt={p.title} fill className="object-cover transition-transform group-hover:scale-[1.04] duration-300 ease-out" />
+              <div className="absolute inset-0 bg-black/20 group-hover:bg-black/60 transition-colors duration-300" />
             </div>
-            <div className="mt-6">
-              <h3 className="font-serif text-4xl group-hover:text-accent transition-colors">{p.title}</h3>
-              <p className="text-text-secondary mt-2">{p.year} • {p.location}</p>
+            <div className="absolute inset-0 flex flex-col justify-end p-8 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+              <h3 className="font-serif text-5xl text-white">{p.title}</h3>
+              <p className="text-text-secondary mt-2 tracking-widest uppercase text-sm font-medium">{p.year} • {p.location}</p>
             </div>
           </Link>
         ))}

@@ -13,7 +13,7 @@ const categories = ['All', 'Landscapes', 'Portraits', 'Urban'] as const;
 
 export default function MasonryGrid() {
   const [activeFilter, setActiveFilter] = useState<'All' | 'Landscapes' | 'Portraits' | 'Urban'>('All');
-  const [lightbox, setLightbox] = useState<{image: string; title: string} | null>(null);
+  const [lightbox, setLightbox] = useState<{ image: string; title: string } | null>(null);
 
   const filtered = activeFilter === 'All' ? projects : projects.filter(p => p.category === activeFilter);
 
@@ -30,16 +30,17 @@ export default function MasonryGrid() {
           {filtered.map((p, i) => (
             <motion.div key={p.slug} initial={{ opacity: 0, y: 80 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 40 }} transition={{ delay: i * 0.04 }} className="mb-6 break-inside-avoid">
               <TiltCard>
-                <Link href={`/work/${p.slug}`}>
+                <Link href={`/work/${p.slug}`} className="group block relative">
                   <motion.div layoutId={`image-${p.slug}`} className="relative overflow-hidden cursor-pointer">
-                    <Image src={p.heroImage} alt={p.title} width={800} height={1200} className="w-full" sizes="(max-width: 768px) 100vw, 50vw" />
+                    <Image src={p.heroImage} alt={p.title} width={800} height={1200} className="w-full transition-transform duration-300 ease-out group-hover:scale-[1.04]" sizes="(max-width: 768px) 100vw, 50vw" />
+                    <div className="absolute inset-0 bg-black/10 group-hover:bg-black/60 transition-colors duration-300 pointer-events-none" />
                   </motion.div>
+                  <div className="absolute inset-0 flex flex-col justify-end p-6 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none">
+                    <h3 className="font-serif text-3xl text-white">{p.title}</h3>
+                    <p className="text-white/80 mt-1 text-sm tracking-wide">{p.shortDesc}</p>
+                  </div>
                 </Link>
               </TiltCard>
-              <Link href={`/work/${p.slug}`} className="block mt-6 group">
-                <h3 className="font-serif text-3xl group-hover:text-accent transition-colors">{p.title}</h3>
-                <p className="text-text-secondary mt-1 text-sm tracking-wide">{p.shortDesc}</p>
-              </Link>
             </motion.div>
           ))}
         </AnimatePresence>

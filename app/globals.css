@@ -12,4 +12,19 @@
     font-family: var(--font-serif);
     letter-spacing: -0.025em;
   }
+  
+  /* Cinematic link micro-interaction */
+  a {
+    transition: color 0.3s ease;
+  }
+  p a {
+    text-decoration: underline;
+    text-underline-offset: 4px;
+    text-decoration-color: transparent;
+    transition: all 0.3s ease;
+  }
+  p a:hover {
+    color: var(--color-accent, #C6A95E);
+    text-decoration-color: var(--color-accent, #C6A95E);
+  }
 }

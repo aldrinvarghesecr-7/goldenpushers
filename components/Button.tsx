@@ -11,13 +11,13 @@ interface ButtonProps {
   type?: 'button' | 'submit' | 'reset';   // ← This was missing
 }
 
-export default function Button({ 
-  children, 
-  href, 
-  onClick, 
+export default function Button({
+  children,
+  href,
+  onClick,
   variant = 'outline',
   className = "",
-  type = 'button' 
+  type = 'button'
 }: ButtonProps) {
 
   const base = "px-12 py-5 text-sm tracking-[3px] font-medium border transition-all duration-300 relative overflow-hidden";
@@ -28,7 +28,7 @@ export default function Button({
   const content = (
     <motion.button
       type={type}                    // ← Forwarded to real <button>
-      whileHover={{ scale: 1.015 }}
+      whileHover={{ scale: 1.05 }}
       whileTap={{ scale: 0.985 }}
       className={`${base} ${styles} ${className}`}
     >

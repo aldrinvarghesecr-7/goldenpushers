@@ -42,9 +42,15 @@ export default function Navbar() {
 
       <AnimatePresence>
         {isOpen && (
-          <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }} className="md:hidden bg-primary border-t border-white/10">
+          <motion.div
+            initial={{ opacity: 0, height: 0, y: -10 }}
+            animate={{ opacity: 1, height: "auto", y: 0 }}
+            exit={{ opacity: 0, height: 0, y: -10 }}
+            transition={{ duration: 0.4, ease: [0.23, 1, 0.32, 1] }}
+            className="md:hidden bg-primary border-t border-white/10"
+          >
             <div className="flex flex-col px-8 py-8 text-lg tracking-widest">
-              {links.map(l => <Link key={l.href} href={l.href} onClick={() => setIsOpen(false)} className="py-4 hover:text-accent">{l.label}</Link>)}
+              {links.map(l => <Link key={l.href} href={l.href} onClick={() => setIsOpen(false)} className="py-4 hover:text-accent font-serif tracking-widest">{l.label}</Link>)}
             </div>
           </motion.div>
         )}
