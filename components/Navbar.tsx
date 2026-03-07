@@ -25,13 +25,13 @@ export default function Navbar() {
   ];
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-[100] mix-blend-difference transition-all duration-500">
+    <nav className={`fixed top-0 left-0 right-0 z-[100] transition-colors duration-500 ${scrolled ? 'bg-primary/95 backdrop-blur-md shadow-lg border-b border-white/5' : 'bg-transparent'}`}>
       <div className="max-w-7xl mx-auto px-8 flex items-center justify-between h-20 text-white">
         <Link href="/" className="text-2xl tracking-[4px] font-serif hover:opacity-80 transition-opacity">{siteConfig.title}</Link>
 
         <div className="hidden md:flex gap-x-12 text-sm tracking-widest uppercase font-medium">
           {links.map(l => (
-            <Link key={l.href} href={l.href} className={`hover:text-accent transition-colors duration-300 ${pathname === l.href ? 'text-accent' : 'text-white'}`}>{l.label}</Link>
+            <Link key={l.href} href={l.href} className={`hover:text-accent transition-colors duration-300 ${pathname === l.href ? 'text-accent' : 'text-white/80'}`}>{l.label}</Link>
           ))}
         </div>
 
@@ -49,8 +49,8 @@ export default function Navbar() {
             transition={{ duration: 0.4, ease: [0.23, 1, 0.32, 1] }}
             className="md:hidden bg-primary border-t border-white/10"
           >
-            <div className="flex flex-col px-8 py-8 text-lg tracking-widest">
-              {links.map(l => <Link key={l.href} href={l.href} onClick={() => setIsOpen(false)} className="py-4 hover:text-accent font-serif tracking-widest">{l.label}</Link>)}
+            <div className="flex flex-col px-8 py-8 text-lg tracking-widest text-white">
+              {links.map(l => <Link key={l.href} href={l.href} onClick={() => setIsOpen(false)} className="py-4 hover:text-accent font-serif tracking-widest transition-colors">{l.label}</Link>)}
             </div>
           </motion.div>
         )}

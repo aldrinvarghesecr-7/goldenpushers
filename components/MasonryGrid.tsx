@@ -9,10 +9,10 @@ import TiltCard from './TiltCard';
 
 const Lightbox = dynamic(() => import('./Lightbox'), { ssr: false });
 
-const categories = ['All', 'Landscapes', 'Portraits', 'Urban'] as const;
+const categories = ['All', 'Wedding Storytelling', 'Portraits', 'Corporate Productions', 'Private Events'] as const;
 
 export default function MasonryGrid() {
-  const [activeFilter, setActiveFilter] = useState<'All' | 'Landscapes' | 'Portraits' | 'Urban'>('All');
+  const [activeFilter, setActiveFilter] = useState<'All' | 'Wedding Storytelling' | 'Portraits' | 'Corporate Productions' | 'Private Events'>('All');
   const [lightbox, setLightbox] = useState<{ image: string; title: string } | null>(null);
 
   const filtered = activeFilter === 'All' ? projects : projects.filter(p => p.category === activeFilter);

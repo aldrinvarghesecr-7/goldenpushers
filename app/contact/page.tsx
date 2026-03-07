@@ -19,28 +19,36 @@ export default function Contact() {
           <h1 className="font-serif text-7xl text-center">Let’s Begin.</h1>
         </SectionReveal>
 
-        <form onSubmit={handleSubmit} className="mt-20 space-y-12">
+        <form action="https://formsubmit.co/goldenpushers@gmail.com" method="POST" className="mt-20 space-y-12">
+          {/* Prevent redirect on submission (optional but recommended for UX) */}
+          <input type="hidden" name="_next" value="http://localhost:3000/contact?submitted=true" />
+          <input type="hidden" name="_subject" value="New Inquiry - Golden Pushers!" />
+          <input type="hidden" name="_captcha" value="false" />
+
           <div>
-             <input 
-  type="text" 
-  placeholder="YOUR NAME" 
-  className="w-full bg-transparent border-b border-white/20 pb-5 text-2xl placeholder:text-text-muted focus:border-accent focus:ring-1 focus:ring-accent/30 focus:outline-none" 
-  required 
-/>
+            <input
+              type="text"
+              name="name"
+              placeholder="YOUR NAME"
+              className="w-full bg-transparent border-b border-white/20 pb-5 text-2xl placeholder:text-text-muted focus:border-accent focus:ring-1 focus:ring-accent/30 focus:outline-none"
+              required
+            />
 
-<input 
-  type="email" 
-  placeholder="YOUR EMAIL" 
-  className="w-full bg-transparent border-b border-white/20 pb-5 text-2xl placeholder:text-text-muted focus:border-accent focus:ring-1 focus:ring-accent/30 focus:outline-none" 
-  required 
-/>
+            <input
+              type="email"
+              name="email"
+              placeholder="YOUR EMAIL"
+              className="w-full bg-transparent border-b border-white/20 pb-5 text-2xl placeholder:text-text-muted focus:border-accent focus:ring-1 focus:ring-accent/30 focus:outline-none mt-12"
+              required
+            />
 
-<textarea 
-  placeholder="TELL US ABOUT YOUR VISION..." 
-  rows={5} 
-  className="w-full bg-transparent border-b border-white/20 pb-5 text-2xl placeholder:text-text-muted focus:border-accent focus:ring-1 focus:ring-accent/30 focus:outline-none resize-y" 
-  required 
-/>
+            <textarea
+              name="message"
+              placeholder="TELL US ABOUT YOUR VISION..."
+              rows={5}
+              className="w-full bg-transparent border-b border-white/20 pb-5 text-2xl placeholder:text-text-muted focus:border-accent focus:ring-1 focus:ring-accent/30 focus:outline-none resize-y mt-12"
+              required
+            />
           </div>
 
           <Button type="submit" variant="primary" className="w-full">
