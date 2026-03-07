@@ -34,11 +34,13 @@ export default function MasonryGrid() {
                   <motion.div layoutId={`image-${p.slug}`} className="relative overflow-hidden cursor-pointer">
                     <Image src={p.heroImage} alt={p.title} width={800} height={1200} className="w-full transition-transform duration-300 ease-out group-hover:scale-[1.04]" sizes="(max-width: 768px) 100vw, 50vw" />
                     <div className="absolute inset-0 bg-black/10 group-hover:bg-black/60 transition-colors duration-300 pointer-events-none" />
+                    <div className="absolute inset-0 flex flex-col items-center justify-center p-6 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none text-center bg-black/40">
+                      <p className="text-accent tracking-[4px] uppercase text-[10px] font-semibold mb-2">Featuring</p>
+                      <h3 className="font-serif text-3xl text-white tracking-widest uppercase">{p.title}</h3>
+                      <div className="h-px w-8 bg-accent/50 my-4" />
+                      <p className="text-white/90 text-xs tracking-widest uppercase">{p.shortDesc}</p>
+                    </div>
                   </motion.div>
-                  <div className="absolute inset-0 flex flex-col justify-end p-6 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none">
-                    <h3 className="font-serif text-3xl text-white">{p.title}</h3>
-                    <p className="text-white/80 mt-1 text-sm tracking-wide">{p.shortDesc}</p>
-                  </div>
                 </Link>
               </TiltCard>
             </motion.div>

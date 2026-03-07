@@ -13,10 +13,12 @@ export default function HorizontalScroll() {
             <div className="relative aspect-[16/7] md:aspect-[21/9] overflow-hidden">
               <Image src={p.heroImage} alt={p.title} fill className="object-cover transition-transform group-hover:scale-[1.04] duration-300 ease-out" />
               <div className="absolute inset-0 bg-black/20 group-hover:bg-black/60 transition-colors duration-300" />
-            </div>
-            <div className="absolute inset-0 flex flex-col justify-end p-8 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-              <h3 className="font-serif text-5xl text-white">{p.title}</h3>
-              <p className="text-text-secondary mt-2 tracking-widest uppercase text-sm font-medium">{p.year} • {p.location}</p>
+              <div className="absolute inset-0 flex flex-col items-center justify-center p-8 opacity-0 group-hover:opacity-100 transition-opacity duration-300 text-center">
+                <p className="text-accent tracking-[6px] uppercase text-xs font-semibold mb-4">Starring</p>
+                <h3 className="font-serif text-5xl md:text-6xl text-white tracking-widest uppercase">{p.title}</h3>
+                <div className="h-px w-12 bg-accent/50 my-6" />
+                <p className="text-white/80 tracking-widest uppercase text-sm font-medium">{p.year} • {p.location}</p>
+              </div>
             </div>
           </Link>
         ))}

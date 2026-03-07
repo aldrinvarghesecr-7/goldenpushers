@@ -5,6 +5,8 @@ import MasonryGrid from '@/components/MasonryGrid';
 import Button from '@/components/Button';
 import SceneTitle from '@/components/SceneTitle';
 import InstagramArchive from '@/components/InstagramArchive';
+import QuoteMoment from '@/components/QuoteMoment';
+import MidpageInteraction from '@/components/MidpageInteraction';
 
 export default function Home() {
   return (
@@ -18,6 +20,8 @@ export default function Home() {
         <p className="text-xl text-text-secondary mt-10">Every frame is a deliberate moment between me and the world.</p>
       </SectionReveal>
 
+      <QuoteMoment text="STYLE IS AN ATTITUDE." />
+
       <section className="py-12 bg-section-alt relative">
         <div className="max-w-7xl mx-auto px-8">
           <SceneTitle title="SCENE 02 — THE STORY" />
@@ -29,6 +33,8 @@ export default function Home() {
         </div>
       </section>
 
+      <MidpageInteraction />
+
       <section className="py-24 bg-primary relative">
         <div className="max-w-7xl mx-auto px-8">
           <SceneTitle title="SCENE 03 — THE COLLECTION" className="text-center" />
@@ -36,6 +42,8 @@ export default function Home() {
           <MasonryGrid />
         </div>
       </section>
+
+      <QuoteMoment text="NOT JUST CLOTHING. A STATEMENT." />
 
       <section className="py-24 bg-primary border-t border-white/5 relative">
         <div className="max-w-7xl mx-auto px-8 mb-16">

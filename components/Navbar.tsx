@@ -29,9 +29,9 @@ export default function Navbar() {
       <div className="max-w-7xl mx-auto px-8 flex items-center justify-between h-20">
         <Link href="/" className="text-2xl tracking-[4px] font-serif">{siteConfig.title}</Link>
 
-        <div className="hidden md:flex gap-x-10 text-sm tracking-widest">
+        <div className="hidden md:flex gap-x-12 text-sm tracking-widest uppercase font-medium">
           {links.map(l => (
-            <Link key={l.href} href={l.href} className={`hover:text-accent transition-colors ${pathname === l.href ? 'text-accent' : ''}`}>{l.label}</Link>
+            <Link key={l.href} href={l.href} className={`hover:text-accent transition-colors duration-300 ${pathname === l.href ? 'text-accent' : 'text-white'}`}>{l.label}</Link>
           ))}
         </div>
 
