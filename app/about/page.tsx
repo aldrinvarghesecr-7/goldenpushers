@@ -32,22 +32,59 @@ export default function About() {
         </div>
       </SectionReveal>
 
-      <SectionReveal className="mt-32 max-w-4xl mx-auto px-8 relative">
+      <SectionReveal className="mt-32 max-w-7xl mx-auto px-8 relative">
         <SceneTitle title="SCENE 02 — THE ARSENAL" />
-        <h2 className="text-4xl md:text-6xl font-serif tracking-tight mb-10">What We Do</h2>
-        <div className="prose prose-invert prose-lg md:prose-xl max-w-none text-text-secondary">
-          <p className="mb-8">
-            At GoldenPushers, we combine creative storytelling with professional-grade equipment and experienced cinematographers to produce high-quality content that stands out. Our specialization includes:
-          </p>
-          <ul className="list-disc pl-6 space-y-4 text-white/80 marker:text-accent">
-            <li>Wedding Storytelling & Cinematic Wedding Films</li>
-            <li>Pre-Wedding and Post-Wedding Shoots</li>
-            <li>Corporate Events & Corporate Headshots</li>
-            <li>Podcast Recording & Production</li>
-            <li>Private Events & Celebrations</li>
-            <li>Baptisms & Religious Ceremonies</li>
-            <li>Professional Photo & Video Editing</li>
-          </ul>
+        <h2 className="text-4xl md:text-6xl font-serif tracking-tight mb-6">What We Do</h2>
+        <p className="text-xl text-text-secondary max-w-2xl mb-16">
+          At GoldenPushers, we combine creative storytelling with professional-grade equipment to produce high-quality content that stands out.
+        </p>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {[
+            {
+              title: "Wedding Storytelling",
+              desc: "Cinematic, documentary-style wedding films that capture the raw emotion, scale, and intimacy of your most important day.",
+              icon: "01"
+            },
+            {
+              title: "Corporate Productions",
+              desc: "Premium brand storytelling, corporate headshots, and event coverage designed to elevate your company's visual identity.",
+              icon: "02"
+            },
+            {
+              title: "Podcast Recording",
+              desc: "Professional multi-camera podcast production and crisp audio recording right out of our bespoke studio setup.",
+              icon: "03"
+            },
+            {
+              title: "Pre & Post Weddings",
+              desc: "Curated, stylized locational shoots built around your narrative, setting the stage before and after the main event.",
+              icon: "04"
+            },
+            {
+              title: "Private Events",
+              desc: "Discreet, high-end coverage of exclusive celebrations, baptisms, and religious ceremonies without disrupting the moment.",
+              icon: "05"
+            },
+            {
+              title: "Post-Production",
+              desc: "Expert color grading, sound design, and narrative editing that transforms scattered footage into a cohesive film.",
+              icon: "06"
+            }
+          ].map((service) => (
+            <div key={service.title} className="group relative border border-white/10 p-8 hover:bg-white/5 transition-colors duration-500 overflow-hidden flex flex-col justify-between min-h-[300px]">
+              {/* Background accent layer */}
+              <div className="absolute inset-x-0 bottom-0 h-1 bg-accent transform scale-x-0 origin-left group-hover:scale-x-100 transition-transform duration-500 ease-out" />
+
+              <div>
+                <span className="font-serif tracking-widest text-accent text-sm mb-6 block">{service.icon}</span>
+                <h3 className="text-2xl font-serif mb-4 group-hover:text-white transition-colors">{service.title}</h3>
+                <p className="text-text-secondary leading-relaxed text-sm md:text-base">
+                  {service.desc}
+                </p>
+              </div>
+            </div>
+          ))}
         </div>
       </SectionReveal>
 

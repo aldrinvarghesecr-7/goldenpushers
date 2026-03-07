@@ -25,9 +25,9 @@ export default function Navbar() {
   ];
 
   return (
-    <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${scrolled ? 'bg-primary/95 backdrop-blur-md border-b border-white/10' : 'bg-transparent'}`}>
-      <div className="max-w-7xl mx-auto px-8 flex items-center justify-between h-20">
-        <Link href="/" className="text-2xl tracking-[4px] font-serif">{siteConfig.title}</Link>
+    <nav className="fixed top-0 left-0 right-0 z-[100] mix-blend-difference transition-all duration-500">
+      <div className="max-w-7xl mx-auto px-8 flex items-center justify-between h-20 text-white">
+        <Link href="/" className="text-2xl tracking-[4px] font-serif hover:opacity-80 transition-opacity">{siteConfig.title}</Link>
 
         <div className="hidden md:flex gap-x-12 text-sm tracking-widest uppercase font-medium">
           {links.map(l => (
