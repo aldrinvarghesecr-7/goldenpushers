@@ -1,7 +1,7 @@
 export const siteConfig = {
   name: "Aldrin",
   fullName: "Aldrin Criro",
-  title: "GOLDEN PUSHERS",
+  title: "GOLDEN PUSHERS PRODUCTION",
   tagline: "Cinematic Fine Art Photography",
   bio: "Chasing light across continents. Based in India. Exhibited worldwide.",
   email: "hello@aldrincriro.com",

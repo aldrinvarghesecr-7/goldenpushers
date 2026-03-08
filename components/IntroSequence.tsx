@@ -33,8 +33,8 @@ export default function IntroSequence() {
                         animate={{ opacity: 1 }}
                         transition={{ duration: 1, ease: "easeIn" }}
                     >
-                        <h1 className="text-4xl md:text-6xl font-serif tracking-[0.2em] text-white/90 uppercase">
-                            Golden Pushers
+                        <h1 className="text-4xl md:text-6xl font-serif tracking-[0.2em] text-white/90 uppercase text-center">
+                            Golden Pushers Production
                         </h1>
                     </motion.div>
                 </motion.div>

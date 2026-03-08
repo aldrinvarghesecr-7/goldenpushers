@@ -5,13 +5,13 @@ export default function Footer() {
 
         {/* Main Title Credit */}
         <div>
-          <h2 className="font-serif text-3xl md:text-5xl tracking-widest text-white uppercase">Golden Pushers</h2>
+          <h2 className="font-serif text-3xl md:text-5xl tracking-widest text-white uppercase">Golden Pushers Production</h2>
         </div>
 
         {/* Directed By Block */}
         <div className="space-y-2">
           <p className="text-xs tracking-[4px] text-text-muted uppercase">Directed By</p>
-          <p className="font-serif tracking-widest text-xl text-white">Golden Pushers</p>
+          <p className="font-serif tracking-widest text-xl text-white">Golden Pushers Production</p>
         </div>
 
         {/* Social / Link Block */}
@@ -30,7 +30,7 @@ export default function Footer() {
         {/* Legal / Copyright Footer */}
         <div className="pt-16 space-y-4">
           <p className="text-xs text-text-muted tracking-widest uppercase opacity-60">
-            © {new Date().getFullYear()} Golden Pushers SA. All rights reserved.
+            © {new Date().getFullYear()} Golden Pushers Production LLP. All rights reserved.
           </p>
         </div>
 

@@ -22,7 +22,7 @@ export default function Contact() {
         <form action="https://formsubmit.co/goldenpushers@gmail.com" method="POST" className="mt-20 space-y-12">
           {/* Prevent redirect on submission (optional but recommended for UX) */}
           <input type="hidden" name="_next" value="http://localhost:3000/contact?submitted=true" />
-          <input type="hidden" name="_subject" value="New Inquiry - Golden Pushers!" />
+          <input type="hidden" name="_subject" value="New Inquiry - Golden Pushers Production!" />
           <input type="hidden" name="_captcha" value="false" />
 
           <div>
