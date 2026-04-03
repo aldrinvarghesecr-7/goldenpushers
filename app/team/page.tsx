@@ -32,7 +32,7 @@ export default function Team() {
                       src={member.image}
                       alt={member.name}
                       fill
-                      className="object-cover transition-transform duration-700 ease-out group-hover:scale-[1.04]"
+                      className="object-cover origin-center transform-gpu will-change-transform transition-all duration-700 ease-[cubic-bezier(0.23,1,0.32,1)] group-hover:scale-[1.04]"
                       sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                     />
                     <div className="absolute inset-0 bg-black/10 transition-colors duration-500 pointer-events-none" />
