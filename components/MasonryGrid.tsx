@@ -32,7 +32,7 @@ export default function MasonryGrid() {
               <TiltCard>
                 <Link href={`/work/${p.slug}`} className="group block relative">
                   <motion.div layoutId={`image-${p.slug}`} className="relative overflow-hidden cursor-pointer">
-                    <Image src={p.heroImage} alt={p.title} width={800} height={1200} className="w-full transition-transform duration-300 ease-out group-hover:scale-[1.04]" sizes="(max-width: 768px) 100vw, 50vw" />
+                    <Image src={p.heroImage} alt={p.title} width={800} height={1200} className="w-full origin-center transform-gpu will-change-transform transition-transform duration-700 ease-[cubic-bezier(0.23,1,0.32,1)] group-hover:scale-[1.04]" sizes="(max-width: 768px) 100vw, 50vw" />
                     <div className="absolute inset-0 bg-black/10 group-hover:bg-black/60 transition-colors duration-300 pointer-events-none" />
                     <div className="absolute inset-0 flex flex-col items-center justify-center p-6 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none text-center bg-black/40">
                       <p className="text-accent tracking-[4px] uppercase text-[10px] font-semibold mb-2">Featuring</p>

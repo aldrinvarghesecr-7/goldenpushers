@@ -29,7 +29,7 @@ export default function InstagramArchive() {
                                 src={post.image}
                                 alt={post.alt}
                                 fill
-                                className="object-cover transition-transform duration-500 ease-out group-hover:scale-105"
+                                className="object-cover origin-center transform-gpu will-change-transform transition-transform duration-700 ease-[cubic-bezier(0.23,1,0.32,1)] group-hover:scale-[1.05]"
                             />
                         </ImageReveal>
                         <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-colors duration-300 z-10" />
