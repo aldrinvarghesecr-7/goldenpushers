@@ -1,4 +1,6 @@
 import SectionReveal from '@/components/SectionReveal';
+import GlassCard from '@/components/GlassCard';
+import ImageReveal from '@/components/ImageReveal';
 
 import Image from 'next/image';
 
@@ -94,7 +96,7 @@ export default function About() {
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {category.services.map((service, index) => (
-                  <div key={service.title} className="group relative border border-white/10 p-8 hover:border-white/30 transition-all duration-500 overflow-hidden flex flex-col justify-between min-h-[300px]">
+                  <GlassCard key={service.title} className="p-8 group flex flex-col justify-between min-h-[300px]">
                     {/* Background Image */}
                     <div className="absolute inset-0 z-0 bg-black">
                       <Image
@@ -115,7 +117,7 @@ export default function About() {
                         {service.desc}
                       </p>
                     </div>
-                  </div>
+                  </GlassCard>
                 ))}
               </div>
             </div>
@@ -129,24 +131,26 @@ export default function About() {
           <h2 className="text-4xl md:text-6xl font-serif tracking-tight mb-16">The Visionaries</h2>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 text-center max-w-5xl mx-auto">
-            {teamMembers.map((member) => (
-              <div key={member.name} className="group relative break-inside-avoid flex flex-col items-center">
-                <div className="relative aspect-[3/4] overflow-hidden mb-6 w-[200px] md:w-[240px] rounded-lg shadow-2xl">
-                  <Image
-                    src={member.image}
-                    alt={member.name}
-                    fill
-                    className="object-cover transition-transform duration-700 ease-out group-hover:scale-[1.04]"
-                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                  />
-                  <div className="absolute inset-0 bg-black/10 transition-colors duration-500 pointer-events-none" />
-                </div>
+            {teamMembers.map((member, i) => (
+              <GlassCard key={member.name} className="p-6 group relative break-inside-avoid flex flex-col items-center w-full">
+                <ImageReveal delay={i * 0.1}>
+                  <div className="relative aspect-[3/4] overflow-hidden mb-6 w-[200px] md:w-[240px] rounded-lg shadow-2xl">
+                    <Image
+                      src={member.image}
+                      alt={member.name}
+                      fill
+                      className="object-cover transition-transform duration-700 ease-out group-hover:scale-[1.04]"
+                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                    />
+                    <div className="absolute inset-0 bg-black/10 transition-colors duration-500 pointer-events-none" />
+                  </div>
+                </ImageReveal>
 
                 <div>
                   <h3 className="font-serif text-2xl group-hover:text-accent transition-colors">{member.name}</h3>
                   <p className="text-text-secondary mt-1 tracking-widest uppercase text-xs">{member.role}</p>
                 </div>
-              </div>
+              </GlassCard>
             ))}
           </div>
         </SectionReveal>

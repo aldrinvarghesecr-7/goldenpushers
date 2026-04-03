@@ -6,6 +6,7 @@ import Footer from "@/components/Footer";
 import SmoothScrollProvider from "@/components/SmoothScrollProvider";
 import ScrollProgress from "@/components/ScrollProgress";
 import CursorTrailer from "@/components/CursorTrailer";
+import PageTransition from "@/components/PageTransition";
 import { siteConfig } from "@/lib/config";
 
 const serif = Playfair_Display({ subsets: ["latin"], variable: "--font-serif", weight: ["400", "500", "600", "700"], display: "swap" });
@@ -29,7 +30,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <ScrollProgress />
           <CursorTrailer />
           <Navbar />
-          <main>{children}</main>
+          <PageTransition>
+            <main>{children}</main>
+          </PageTransition>
           <Footer />
         </SmoothScrollProvider>
       </body>

@@ -7,6 +7,8 @@ import Button from '@/components/Button';
 import InstagramArchive from '@/components/InstagramArchive';
 import QuoteMoment from '@/components/QuoteMoment';
 import MidpageInteraction from '@/components/MidpageInteraction';
+import ProductReveal3D from '@/components/ProductReveal3D';
+import AnimatedText from '@/components/AnimatedText';
 
 export default function Home() {
   return (
@@ -15,8 +17,9 @@ export default function Home() {
 
 
       <SectionReveal className="py-24 md:py-32 lg:py-40 bg-primary text-center max-w-4xl mx-auto px-8 relative">
-
-        <h2 className="text-7xl font-serif leading-none tracking-tight">Light collected with intention.</h2>
+        <h2 className="text-7xl font-serif leading-none tracking-tight">
+          <AnimatedText text="Light collected with intention." />
+        </h2>
         <p className="text-xl text-text-secondary mt-10">Every frame is a deliberate moment between me and the world.</p>
       </SectionReveal>
 
@@ -34,6 +37,8 @@ export default function Home() {
       </section>
 
       <MidpageInteraction />
+      
+      <ProductReveal3D />
 
       <section className="py-24 bg-primary relative">
         <div className="max-w-7xl mx-auto px-8">
