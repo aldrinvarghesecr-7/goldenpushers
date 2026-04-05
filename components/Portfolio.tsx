@@ -1,6 +1,7 @@
 'use client';
-import { useRef, useState } from 'react';
-import { motion, useScroll, useTransform } from 'framer-motion';
+import { useRef, useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 const projects = [
   { id: 1, title: 'THE ECHO', category: 'BRAND FILM', image: 'https://images.unsplash.com/photo-1626814026160-2237a95fc5a0?q=80&w=1200&auto=format&fit=crop', video: 'https://cdn.pixabay.com/video/2019/04/10/22692-330689958_large.mp4' },
@@ -11,102 +12,155 @@ const projects = [
 
 function ProjectCard({ project, index }: { project: any, index: number }) {
     const [hover, setHover] = useState(false);
+    const videoRef = useRef<HTMLVideoElement>(null);
+
+    useEffect(() => {
+        if (videoRef.current) {
+            if (hover) {
+                videoRef.current.play().catch(() => {});
+            } else {
+                videoRef.current.pause();
+                videoRef.current.currentTime = 0;
+            }
+        }
+    }, [hover]);
 
     return (
         <motion.div 
-            className="group relative w-[70vw] md:w-[40vw] lg:w-[30vw] h-[60vh] md:h-[70vh] flex-shrink-0 cursor-pointer overflow-hidden rounded-md"
+            className="group relative w-full md:w-[75vw] lg:w-[45vw] h-[55vh] md:h-[75vh] flex-shrink-0 cursor-pointer overflow-visible snap-center md:snap-start lg:snap-center"
             onHoverStart={() => setHover(true)}
             onHoverEnd={() => setHover(false)}
-            initial={{ opacity: 0, y: 50 }}
+            initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ delay: index * 0.1, duration: 0.8 }}
-            style={{ perspective: '1000px' }}
+            viewport={{ once: true, margin: "-100px" }}
+            transition={{ duration: 1, ease: [0.23, 1, 0.32, 1] }}
         >
             <motion.div 
-               className="w-full h-full preserve-3d origin-center"
-               animate={{ 
-                   rotateX: hover ? 5 : 0, 
-                   rotateY: hover ? -5 : 0,
-                   scale: hover ? 1.02 : 1 
-               }}
-               transition={{ type: "spring", stiffness: 200, damping: 20 }}
+               className="w-full h-full relative overflow-hidden rounded-sm"
+               whileHover={{ y: -25, scale: 1.02 }}
+               transition={{ type: "spring", stiffness: 150, damping: 25 }}
             >
                 {/* Fallback Image */}
                 <img 
                     src={project.image} 
                     alt={project.title}
-                    className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ${hover ? 'opacity-0' : 'opacity-80'}`}
+                    className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ${hover ? 'opacity-0' : 'opacity-70'}`}
                 />
                 
-                {/* Autoplay Video Reveal */}
+                {/* Video Playback */}
                 <video 
+                    ref={videoRef}
                     src={project.video}
                     loop 
                     muted 
                     playsInline
-                    autoPlay
                     className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ${hover ? 'opacity-100' : 'opacity-0'}`}
                 />
 
-                {/* Film Frame Overlay Border */}
-                <div className="absolute inset-0 border-[1px] border-white/10 group-hover:border-accent/50 transition-colors duration-700 m-4 rounded" />
-
-                {/* Dark Gradient Overlay */}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent pointer-events-none" />
+                {/* Cinematic Frame Overlay */}
+                <div className="absolute inset-0 border-[1px] border-white/5 group-hover:border-accent/40 m-4 md:m-8 transition-all duration-700 pointer-events-none" />
+                
+                {/* Dark Gradient */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black via-black/10 to-transparent opacity-80 group-hover:opacity-40 transition-opacity duration-700" />
 
                 {/* Text Content */}
-                <div className="absolute bottom-10 left-10 right-10 flex flex-col items-start Z-20">
-                    <motion.div 
-                        animate={{ y: hover ? -10 : 0 }}
-                        className="text-[10px] tracking-[0.3em] font-mono text-accent mb-2 uppercase"
-                    >
-                        {project.category}
-                    </motion.div>
-                    
-                    <h3 className="text-4xl md:text-5xl font-sans font-black text-white uppercase tracking-tighter relative overflow-hidden">
+                <div className="absolute bottom-10 left-10 md:bottom-16 md:left-16 right-10 z-10 transition-all duration-700 group-hover:translate-x-3">
+                    <p className="text-accent text-[9px] md:text-[11px] tracking-[0.5em] font-mono mb-3 uppercase opacity-90">{project.category}</p>
+                    <h3 className="text-3xl md:text-6xl font-sans font-black text-white uppercase tracking-tighter leading-none max-w-min">
                         {project.title}
-                        {/* Gold Light Sweep */}
-                        <motion.div 
-                            className="absolute inset-0 bg-gradient-to-r from-transparent via-[#D4AF77] to-transparent mix-blend-color-dodge -translate-x-[150%] opacity-0 group-hover:opacity-100"
-                            animate={{ x: hover ? ['-150%', '150%'] : '-150%' }}
-                            transition={{ duration: 1.5, ease: "easeInOut" }}
-                        />
                     </h3>
                 </div>
+
+                {/* Gold Glow on Hover */}
+                <div className="absolute inset-0 bg-accent/5 opacity-0 group-hover:opacity-100 transition-opacity duration-1000 pointer-events-none" />
             </motion.div>
         </motion.div>
     );
 }
 
 export default function Portfolio() {
-  const targetRef = useRef<HTMLDivElement>(null);
-  
-  const { scrollYProgress } = useScroll({
-    target: targetRef,
-  });
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const [scrollProgress, setScrollProgress] = useState(0);
 
-  const x = useTransform(scrollYProgress, [0, 1], ["0%", "-50%"]);
+  useEffect(() => {
+    const el = scrollContainerRef.current;
+    if (!el) return;
+
+    const handleScroll = () => {
+      const { scrollLeft, scrollWidth, clientWidth } = el;
+      const progress = (scrollLeft / (scrollWidth - clientWidth)) * 100;
+      setScrollProgress(progress);
+    };
+
+    el.addEventListener('scroll', handleScroll);
+    return () => el.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  const scroll = (dir: 'left' | 'right') => {
+      if (!scrollContainerRef.current) return;
+      const { scrollLeft, clientWidth } = scrollContainerRef.current;
+      const move = dir === 'left' ? -clientWidth * 0.7 : clientWidth * 0.7;
+      scrollContainerRef.current.scrollTo({ left: scrollLeft + move, behavior: 'smooth' });
+  };
 
   return (
-    <section ref={targetRef} className="relative h-[250vh] bg-[#0A0A0A]">
-      <div className="sticky top-0 w-full h-screen flex flex-col justify-center overflow-hidden">
-        
-        {/* Cinematic Background Lighting */}
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom,_var(--tw-gradient-stops))] from-accent/5 via-[#0A0A0A] to-[#0A0A0A] pointer-events-none" />
+    <section className="bg-primary py-24 md:py-48 relative overflow-hidden">
+      {/* Background Accent Shadow */}
+      <div className="absolute top-0 right-0 w-[50vw] h-[50vh] bg-accent/5 blur-[120px] rounded-full pointer-events-none -translate-y-1/2 translate-x-1/4" />
 
-        <div className="max-w-7xl px-8 w-full mx-auto mb-16 relative z-10">
-          <h2 className="text-6xl md:text-8xl font-sans font-black tracking-tighter text-white uppercase">
-            The <span className="text-accent">Reels</span>
-          </h2>
-          <p className="text-white/50 tracking-[0.2em] uppercase text-xs mt-4">Selected Masterpieces</p>
+      <div className="max-w-[90vw] mx-auto mb-16 md:mb-24 flex flex-col md:flex-row md:items-end justify-between gap-12 relative z-10">
+        <div className="space-y-4">
+           <h2 className="text-6xl md:text-9xl font-black tracking-tighter text-white uppercase leading-none">
+             THE <span className="text-accent">REELS</span>
+           </h2>
+           <div className="flex items-center gap-4 ml-1 md:ml-2">
+                <div className="h-px w-12 bg-accent/50" />
+                <p className="text-white/40 tracking-[0.4em] uppercase text-[10px] md:text-xs font-mono font-bold">Selected Masterpieces 2024</p>
+           </div>
         </div>
+        
+        {/* Navigation for Desktop */}
+        <div className="hidden md:flex gap-6">
+             <button 
+                onClick={() => scroll('left')} 
+                className="group w-20 h-20 rounded-full border border-white/5 flex items-center justify-center text-white/50 hover:border-accent hover:text-accent transition-all duration-500 glass"
+             >
+                 <ChevronLeft size={32} className="group-hover:-translate-x-1 transition-transform" />
+             </button>
+             <button 
+                onClick={() => scroll('right')} 
+                className="group w-20 h-20 rounded-full border border-white/5 flex items-center justify-center text-white/50 hover:border-accent hover:text-accent transition-all duration-500 glass"
+             >
+                 <ChevronRight size={32} className="group-hover:translate-x-1 transition-transform" />
+             </button>
+        </div>
+      </div>
 
-        <motion.div style={{ x }} className="flex gap-8 md:gap-16 px-8 md:px-[10vw]">
-           {projects.map((proj, i) => (
-               <ProjectCard key={proj.id} project={proj} index={i} />
-           ))}
-        </motion.div>
+      {/* Main Container: Snap Carousel (Desktop) / Column (Mobile) */}
+      <div 
+        ref={scrollContainerRef}
+        className="flex flex-col md:flex-row gap-12 md:gap-20 px-6 md:px-[10vw] overflow-y-visible md:overflow-x-auto md:snap-x md:snap-mandatory scrollbar-hide py-12 relative z-10"
+      >
+        {projects.map((proj, i) => (
+           <ProjectCard key={proj.id} project={proj} index={i} />
+        ))}
+        {/* End Spacer */}
+        <div className="hidden md:block min-w-[20vw] h-1" />
+      </div>
+
+      {/* Progress Bar (Desktop Only) */}
+      <div className="max-w-[80vw] mx-auto mt-24 hidden md:block">
+           <div className="w-full h-[2px] bg-white/5 relative overflow-hidden">
+                <motion.div 
+                    className="absolute top-0 left-0 h-full bg-accent shadow-[0_0_15px_rgba(212,175,119,0.5)]"
+                    style={{ width: `${scrollProgress}%` }}
+                    transition={{ type: "spring", stiffness: 100, damping: 20 }}
+                />
+           </div>
+           <div className="flex justify-between mt-4 text-[10px] font-mono tracking-[0.3em] text-white/20 uppercase font-black">
+                <span>Shift [01]</span>
+                <span>Shift [04]</span>
+           </div>
       </div>
     </section>
   );

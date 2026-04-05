@@ -1,6 +1,7 @@
 import Hero3D from '@/components/Hero3D';
 import AboutParallax from '@/components/AboutParallax';
 import Portfolio from '@/components/Portfolio';
+import TheCraft from '@/components/TheCraft';
 import TeamGrid from '@/components/TeamGrid';
 import ContactForm from '@/components/ContactForm';
 import KonamiCode from '@/components/KonamiCode';
@@ -13,6 +14,10 @@ export default function Home() {
       
       <div id="about">
          <AboutParallax />
+      </div>
+
+      <div id="services">
+         <TheCraft />
       </div>
 
       <div id="work">

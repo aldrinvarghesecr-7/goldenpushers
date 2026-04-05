@@ -78,6 +78,14 @@
     background-size: 200% 100%;
     animation: shimmer 2s infinite linear;
   }
+  
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+  .scrollbar-hide {
+    -ms-overflow-style: none; /* IE and Edge */
+    scrollbar-width: none; /* Firefox */
+  }
 }
 
 @keyframes ripple-anim {
