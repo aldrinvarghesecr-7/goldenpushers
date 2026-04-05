@@ -47,6 +47,7 @@ const ClapperBoard = ({ onComplete }: { onComplete: () => void }) => {
     };
 
     useEffect(() => {
+        // Longer delay to let the clapperboard sink in
         const timer = setTimeout(() => {
             setIsClapped(true);
             try {
@@ -54,64 +55,72 @@ const ClapperBoard = ({ onComplete }: { onComplete: () => void }) => {
             } catch (e) {
                 console.warn("Audio blocked by browser");
             }
-            setTimeout(onComplete, 1500);
-        }, 2000);
+            // Slower transition to reveal
+            setTimeout(onComplete, 2000);
+        }, 3000);
         return () => clearTimeout(timer);
     }, [onComplete]);
 
     return (
         <motion.div 
-            initial={{ scale: 0.8, opacity: 0, rotate: -5 }}
-            animate={{ scale: 1, opacity: 1, rotate: 0 }}
-            className="relative w-64 md:w-96 aspect-[4/3] flex flex-col items-center justify-center"
+            initial={{ scale: 0.9, opacity: 0, y: 50 }}
+            animate={{ scale: 1.1, opacity: 1, y: 0 }}
+            transition={{ duration: 1.2, ease: "easeOut" }}
+            className="relative w-[90vw] max-w-4xl aspect-[4/3] flex flex-col items-center justify-center pointer-events-auto"
         >
             {/* Clapper Top */}
             <motion.div 
-                animate={isClapped ? { rotate: 0, y: 15 } : { rotate: -30, y: 0 }}
-                transition={{ type: "spring", stiffness: 300, damping: 20 }}
-                className="absolute top-[20%] left-0 w-full h-12 bg-black border-2 border-white overflow-hidden origin-right"
+                animate={isClapped ? { rotate: 0, y: 30 } : { rotate: -25, y: 0 }}
+                transition={{ type: "spring", stiffness: 40, damping: 12 }} // Slower snap
+                className="absolute top-[15%] left-0 w-full h-20 md:h-28 bg-black border-[6px] border-white overflow-hidden origin-right z-20"
                 style={{ clipPath: "polygon(0 0, 100% 0, 100% 100%, 0 100%)" }}
             >
                 <div className="w-full h-full flex">
-                    {[...Array(8)].map((_, i) => (
+                    {[...Array(10)].map((_, i) => (
                         <div key={i} className="flex-1 h-full bg-white skew-x-[-45deg] odd:bg-black" />
                     ))}
                 </div>
             </motion.div>
 
             {/* Clapper Base */}
-            <div className="w-full h-48 bg-black border-4 border-white mt-12 rounded-sm shadow-2xl flex flex-col p-4 font-mono text-white relative overflow-hidden">
-                <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent pointer-events-none" />
+            <div className="w-full h-[60%] bg-black border-[10px] border-white mt-24 rounded-sm shadow-[0_0_100px_rgba(0,0,0,1)] flex flex-col p-8 md:p-12 font-mono text-white relative overflow-hidden z-10 transition-transform duration-1000">
+                <div className="absolute inset-0 bg-gradient-to-br from-white/20 via-transparent to-transparent pointer-events-none" />
                 
-                <div className="flex justify-between border-b-2 border-white pb-2 mb-2">
-                    <div className="text-[10px] uppercase opacity-70">Production</div>
-                    <div className="text-xl font-bold tracking-widest text-accent">GOLDEN PUSHERS</div>
+                <div className="flex justify-between border-b-[4px] border-white pb-6 mb-6">
+                    <div className="text-xl md:text-2xl uppercase tracking-tighter opacity-70">Production</div>
+                    <div className="text-4xl md:text-6xl font-black tracking-[0.1em] text-accent">GOLDEN PUSHERS</div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-4 flex-grow italic">
-                    <div className="border-r-2 border-white pr-2 flex flex-col justify-center">
-                        <span className="text-[10px] uppercase opacity-70 block mb-1">Scene</span>
-                        <span className="text-4xl font-bold">01</span>
+                <div className="grid grid-cols-2 gap-8 flex-grow">
+                    <div className="border-r-[4px] border-white pr-8 flex flex-col justify-center">
+                        <span className="text-sm md:text-lg uppercase opacity-70 block mb-2">Scene</span>
+                        <span className="text-7xl md:text-9xl font-black">01</span>
                     </div>
-                    <div className="pl-2 flex flex-col justify-center">
-                        <span className="text-[10px] uppercase opacity-70 block mb-1">Take</span>
-                        <span className="text-4xl font-bold">01</span>
+                    <div className="pl-8 flex flex-col justify-center">
+                        <span className="text-sm md:text-lg uppercase opacity-70 block mb-2">Take</span>
+                        <span className="text-7xl md:text-9xl font-black">01</span>
                     </div>
                 </div>
 
-                <div className="mt-4 pt-2 border-t-2 border-white flex justify-between items-end opacity-70">
-                    <div className="text-[10px]">{new Date().toLocaleDateString()}</div>
-                    <div className="text-[10px]">DIRECTOR: GP TEAM</div>
+                <div className="mt-8 pt-6 border-t-[4px] border-white flex justify-between items-end">
+                    <div className="flex flex-col">
+                        <span className="text-xs uppercase opacity-70">Date</span>
+                        <div className="text-lg md:text-2xl">{new Date().toLocaleDateString()}</div>
+                    </div>
+                    <div className="flex flex-col items-end">
+                        <span className="text-xs uppercase opacity-70">Director</span>
+                        <div className="text-lg md:text-2xl font-bold tracking-widest text-accent">TEAM GP</div>
+                    </div>
                 </div>
             </div>
 
-            {/* Visual Cues on Clap */}
+            {/* Visual Flash on Clap */}
             <AnimatePresence>
                 {isClapped && (
                     <motion.div 
                         initial={{ opacity: 0 }}
                         animate={{ opacity: [0, 1, 0] }}
-                        transition={{ duration: 0.1 }}
+                        transition={{ duration: 0.15 }}
                         className="fixed inset-0 bg-white z-[110] pointer-events-none"
                     />
                 )}
@@ -131,6 +140,11 @@ export default function IntroSequence() {
             return;
         } 
         sessionStorage.setItem('hasSeenIntro_GP', 'true');
+        // Prevent scrolling while intro is active
+        document.body.style.overflow = 'hidden';
+        return () => {
+             document.body.style.overflow = 'unset';
+        };
     }, []);
 
     if (!showIntro) return null;
@@ -141,41 +155,54 @@ export default function IntroSequence() {
                 key="intro-sequence"
                 exit={{ 
                     opacity: 0, 
-                    filter: "blur(20px) brightness(2)",
-                    transition: { duration: 1 } 
+                    filter: "blur(40px) brightness(4)",
+                    scale: 2,
+                    transition: { duration: 1.5, ease: [0.22, 1, 0.36, 1] } 
                 }}
-                className="fixed inset-0 z-[100] bg-primary flex flex-col items-center justify-center pointer-events-none overflow-hidden"
+                className="fixed inset-0 z-[9999] bg-primary flex flex-col items-center justify-center pointer-events-auto overflow-hidden select-none"
             >
-                <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-accent/5 via-primary to-primary opacity-60" />
+                <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-accent/10 via-primary to-primary opacity-80" />
                 
                 {/* Projector Flickering Overlay */}
                 {isProjecting && (
                     <motion.div 
                         initial={{ opacity: 0 }}
                         animate={{ 
-                            opacity: [0.1, 0.3, 0.1, 0.4, 0.2, 0.5],
+                            opacity: [0.2, 0.5, 0.2, 0.7, 0.4, 0.1, 0.6],
                             background: [
-                                "rgba(255,255,255,0.05)", 
-                                "rgba(255,255,255,0.1)", 
-                                "rgba(255,255,255,0.02)"
+                                "rgba(255,255,100,0.05)", 
+                                "rgba(255,255,255,0.15)", 
+                                "rgba(255,255,150,0.02)"
                             ]
                         }}
-                        transition={{ duration: 0.2, repeat: Infinity }}
+                        transition={{ duration: 0.15, repeat: Infinity }}
                         className="absolute inset-0 z-[105] pointer-events-none"
                     />
                 )}
 
                 <ClapperBoard onComplete={() => {
                     setIsProjecting(true);
-                    setTimeout(() => setShowIntro(false), 2000);
+                    setTimeout(() => {
+                        setShowIntro(false);
+                        document.body.style.overflow = 'unset';
+                    }, 3000); // 3s projector duration (slower)
                 }} />
 
                 {/* Old Projector Lines / Scratches */}
                 {isProjecting && (
-                    <div className="absolute inset-0 z-[106] pointer-events-none opacity-20">
-                        <div className="absolute top-0 left-1/4 w-[1px] h-full bg-white/30 animate-[projectorLine_2s_infinite]" />
-                        <div className="absolute top-0 left-3/4 w-[1px] h-full bg-white/30 animate-[projectorLine_3s_infinite]" />
-                    </div>
+                    <>
+                        <div className="absolute inset-0 z-[106] pointer-events-none opacity-40">
+                            <div className="absolute top-0 left-[15%] w-[2px] h-full bg-white/40 animate-[projectorLine_1.5s_infinite]" />
+                            <div className="absolute top-0 left-[65%] w-[1px] h-full bg-white/30 animate-[projectorLine_2s_infinite]" />
+                            <div className="absolute top-0 left-[85%] w-[3px] h-full bg-white/20 animate-[projectorLine_3.5s_infinite]" />
+                        </div>
+                        {/* Film Grain Jitter */}
+                        <motion.div 
+                            animate={{ x: [-2, 2, -1, 1], y: [1, -1, 2, -2] }}
+                            transition={{ duration: 0.1, repeat: Infinity }}
+                            className="absolute inset-0 z-[107] pointer-events-none bg-accent/5 mix-blend-overlay"
+                        />
+                    </>
                 )}
             </motion.div>
         </AnimatePresence>
