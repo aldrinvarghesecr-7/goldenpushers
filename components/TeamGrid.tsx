@@ -5,10 +5,10 @@ import { motion, useMotionValue, useSpring, useTransform } from 'framer-motion';
 const team = [
   { id: 1, name: 'AVRIL JOHN VARGHESE', role: 'Founder', bio: 'Visionary architect of cinematic experiences. Pushing the boundaries of storytelling.', image: '/team/founder.jpg' },
   { id: 2, name: 'JERRY ABRAHAM JOHNSON', role: 'Co-Founder / Creative Director', bio: 'Strategic partner in creative excellence. Building the future of production.', image: '/team/co-founder.jpg' },
-  { id: 3, name: 'DANISH MACKENZIE', role: 'DOP', bio: 'Capturing the unseen. Master of light and cinematic rhythm.', image: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?q=80&w=800&auto=format&fit=crop' },
-  { id: 4, name: 'BHANUNNI', role: 'Creativity Director', bio: 'Architect of visual soul. Turning abstract concepts into cinematic gold.', image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=800&auto=format&fit=crop' },
-  { id: 5, name: 'ARJUNAN', role: 'DOP', bio: 'Painting with light. Every frame is a tribute to cinematic truth.', image: 'https://images.unsplash.com/photo-1531427186611-ecfd6d936c79?q=80&w=800&auto=format&fit=crop' },
-  { id: 6, name: 'JYOTHI PRAKASH', role: 'Designer', bio: 'Visual architect and design strategist. Crafting the layout of dreams.', image: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?q=80&w=800&auto=format&fit=crop' }
+  { id: 3, name: 'DANISH MACKENZIE', role: 'DOP', bio: 'Capturing the unseen. Master of light and cinematic rhythm.', image: '/team/danish.jpg' },
+  { id: 4, name: 'BHANUNNI', role: 'Creativity Director', bio: 'Architect of visual soul. Turning abstract concepts into cinematic gold.', image: '/team/bhanunni.jpg' },
+  { id: 5, name: 'ARJUNAN', role: 'DOP', bio: 'Painting with light. Every frame is a tribute to cinematic truth.', image: '/team/arjunan.jpg' },
+  { id: 6, name: 'JYOTHI PRAKASH', role: 'Designer', bio: 'Visual architect and design strategist. Crafting the layout of dreams.', image: '/team/jyothi.jpg' }
 ];
 
 function TeamCard({ member }: { member: any }) {
