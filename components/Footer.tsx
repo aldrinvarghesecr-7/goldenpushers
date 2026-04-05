@@ -13,12 +13,11 @@ export default function Footer() {
 
       <div className="max-w-[90vw] mx-auto flex flex-col items-center justify-center text-center space-y-16">
         <div>
-          <h2 className="font-sans font-black text-2xl md:text-5xl tracking-[0.3em] text-white uppercase flex items-center justify-center gap-4">
-            <svg className="w-8 h-8 text-accent" viewBox="0 0 24 24" fill="currentColor">
-              <polygon points="12,2 22,22 2,22" />
-            </svg>
-            Golden Pushers
-          </h2>
+          <img 
+            src="/logo.png" 
+            alt="Golden Pushers Logo" 
+            className="h-20 w-auto object-contain mx-auto opacity-90 hover:opacity-100 transition-opacity duration-700" 
+          />
         </div>
 
         <div className="space-y-4">

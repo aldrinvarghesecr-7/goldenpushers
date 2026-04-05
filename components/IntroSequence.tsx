@@ -48,19 +48,18 @@ export default function IntroSequence() {
                     <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-accent/10 via-primary to-primary opacity-50" />
 
                     <div className="relative z-10 flex flex-col items-center">
-                        <div className="overflow-hidden flex gap-2 perspective-container">
-                             {title.split("").map((char, i) => (
-                                 <motion.span
-                                     key={i}
-                                     initial={{ y: 100, rotateX: 90, opacity: 0 }}
-                                     animate={{ y: 0, rotateX: 0, opacity: 1 }}
-                                     transition={{ delay: i * 0.08 + 0.2, duration: 1.2, ease: [0.23, 1, 0.32, 1] }}
-                                     className="text-4xl md:text-7xl font-sans font-black tracking-tighter text-transparent bg-clip-text bg-gradient-to-b from-white via-accent to-[#8A7145] uppercase drop-shadow-[0_10px_20px_rgba(212,175,119,0.3)]"
-                                 >
-                                     {char === " " ? "\u00A0" : char}
-                                 </motion.span>
-                             ))}
-                        </div>
+                        <motion.div 
+                          initial={{ opacity: 0, scale: 0.9, filter: "blur(10px)" }}
+                          animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
+                          transition={{ duration: 2, ease: [0.23, 1, 0.32, 1] }}
+                          className="mb-8"
+                        >
+                             <img 
+                               src="/logo.png" 
+                               alt="Golden Pushers" 
+                               className="h-32 md:h-48 w-auto object-contain"
+                             />
+                        </motion.div>
                         
                         <motion.div 
                            initial={{ opacity: 0, width: 0 }}

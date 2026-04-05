@@ -23,11 +23,12 @@ export default function Navbar() {
   return (
     <nav className={`fixed top-0 left-0 right-0 z-[100] transition-all duration-700 ${scrolled ? 'bg-[#0A0A0A]/70 backdrop-blur-3xl shadow-[0_4px_30px_rgba(0,0,0,0.5)] border-b border-white/5 py-4' : 'bg-transparent py-8'}`}>
       <div className="max-w-[90vw] mx-auto flex items-center justify-between text-white">
-        <Link href="/" className="text-xl md:text-2xl tracking-[0.2em] font-sans font-black flex items-center gap-2 group">
-           <svg className="w-5 h-5 text-accent group-hover:rotate-180 transition-transform duration-700" viewBox="0 0 24 24" fill="currentColor">
-              <polygon points="12,2 22,22 2,22" />
-           </svg>
-           <span className="uppercase text-transparent bg-clip-text bg-gradient-to-r from-white to-white/70">Golden Pushers</span>
+        <Link href="/" className="flex items-center gap-2 group">
+           <img 
+             src="/logo.png" 
+             alt="Golden Pushers" 
+             className="h-10 w-auto object-contain group-hover:scale-105 transition-transform duration-700" 
+           />
         </Link>
 
         {/* Desktop Menu */}
