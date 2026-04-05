@@ -3,17 +3,28 @@ import { useState, useRef } from 'react';
 import { motion, useMotionValue, useSpring, useTransform } from 'framer-motion';
 
 const team = [
-  { id: 1, name: 'DANISH MACKENZIE', role: 'DOP', bio: 'Capturing the unseen. Master of light and cinematic rhythm.', image: '/team/danish.jpg' },
-  { id: 2, name: 'BHANUNNI', role: 'Creativity Director', bio: 'Architect of visual soul. Turning abstract concepts into cinematic gold.', image: '/team/bhanunni.jpg' },
-  { id: 3, name: 'ARJUNAN', role: 'DOP', bio: 'Painting with light. Every frame is a tribute to cinematic truth.', image: '/team/arjunan.jpg' },
-  { id: 4, name: 'JYOTHI PRAKASH', role: 'Designer', bio: 'Visual architect and design strategist. Crafting the layout of dreams.', image: '/team/jyothi.jpg' },
-  { id: 5, name: 'MARCUS LEO', role: 'VFX Supervisor', bio: 'Bending reality into digital gold.', image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=800&auto=format&fit=crop' },
-  { id: 6, name: 'SOPHIA VANE', role: 'Cinematographer', bio: 'Painting with light. 3x Award Winner.', image: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=800&auto=format&fit=crop' }
+  { id: 1, name: 'AVRIL JOHN VARGHESE', role: 'Founder', bio: 'Visionary architect of cinematic experiences. Pushing the boundaries of storytelling.', image: '/team/founder.jpg' },
+  { id: 2, name: 'JERRY ABRAHAM JOHNSON', role: 'Co-Founder / Creative Director', bio: 'Strategic partner in creative excellence. Building the future of production.', image: '/team/co-founder.jpg' },
+  { id: 3, name: 'DANISH MACKENZIE', role: 'DOP', bio: 'Capturing the unseen. Master of light and cinematic rhythm.', image: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?q=80&w=800&auto=format&fit=crop' },
+  { id: 4, name: 'BHANUNNI', role: 'Creativity Director', bio: 'Architect of visual soul. Turning abstract concepts into cinematic gold.', image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=800&auto=format&fit=crop' },
+  { id: 5, name: 'ARJUNAN', role: 'DOP', bio: 'Painting with light. Every frame is a tribute to cinematic truth.', image: 'https://images.unsplash.com/photo-1531427186611-ecfd6d936c79?q=80&w=800&auto=format&fit=crop' },
+  { id: 6, name: 'JYOTHI PRAKASH', role: 'Designer', bio: 'Visual architect and design strategist. Crafting the layout of dreams.', image: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?q=80&w=800&auto=format&fit=crop' }
 ];
 
 function TeamCard({ member }: { member: any }) {
     const [isHovered, setIsHovered] = useState(false);
+    const [imgSrc, setImgSrc] = useState(member.image);
     const cardRef = useRef<HTMLDivElement>(null);
+
+    // Fallback images if local files are missing
+    const fallbacks: Record<number, string> = {
+        1: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?q=80&w=800&auto=format&fit=crop',
+        2: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?q=80&w=800&auto=format&fit=crop',
+        3: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?q=80&w=800&auto=format&fit=crop',
+        4: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=800&auto=format&fit=crop',
+        5: 'https://images.unsplash.com/photo-1531427186611-ecfd6d936c79?q=80&w=800&auto=format&fit=crop',
+        6: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?q=80&w=800&auto=format&fit=crop'
+    };
 
     // Mouse tracking for 3D tilt
     const x = useMotionValue(0);
@@ -61,8 +72,9 @@ function TeamCard({ member }: { member: any }) {
                style={{ rotateX, rotateY }}
             >
                 <img 
-                   src={member.image} 
+                   src={imgSrc} 
                    alt={member.name}
+                   onError={() => setImgSrc(fallbacks[member.id])}
                    className="absolute inset-0 w-full h-full object-cover transition-all duration-700" 
                 />
                 
