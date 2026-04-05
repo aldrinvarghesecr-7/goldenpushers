@@ -136,7 +136,7 @@ export default function TheCraft() {
                    </h3>
                 </div>
                 
-                <div className={`w-8 h-8 md:w-16 md:h-16 rounded-full border border-white/10 flex items-center justify-center transition-all duration-700 ${expanded === service.id ? 'bg-accent border-accent text-black rotate-90 scale-110 shadow-[0_0_20px_rgba(212,175,119,0.3)]' : 'text-white group-hover:border-white/30'}`}>
+                <div className={`w-8 h-8 md:w-16 md:h-16 rounded-full border border-white/10 flex items-center justify-center transition-all duration-700 ${expanded === service.id ? 'bg-accent border-accent text-black rotate-90 scale-110 shadow-[0_0_20px_rgba(206,169,0,0.3)]' : 'text-white group-hover:border-white/30'}`}>
                     {expanded === service.id ? <Minus size={20} /> : <Plus size={20} />}
                 </div>
               </button>
@@ -160,7 +160,7 @@ export default function TheCraft() {
                                  transition={{ delay: i * 0.04 }}
                                  className="font-serif text-lg md:text-2xl text-white/50 flex items-start gap-5 hover:text-white transition-all duration-500 hover:translate-x-2"
                                >
-                                  <span className="text-accent mt-[14px] w-1.5 h-1.5 rounded-full bg-accent shadow-[0_0_8px_#D4AF77] flex-shrink-0" />
+                                  <span className="text-accent mt-[14px] w-1.5 h-1.5 rounded-full bg-accent shadow-[0_0_8px_#CEA900] flex-shrink-0" />
                                   <span className="leading-tight">{item}</span>
                                </motion.li>
                            ))}

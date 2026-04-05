@@ -23,12 +23,15 @@ export default function Navbar() {
   return (
     <nav className={`fixed top-0 left-0 right-0 z-[100] transition-all duration-700 ${scrolled ? 'bg-[#0A0A0A]/70 backdrop-blur-3xl shadow-[0_4px_30px_rgba(0,0,0,0.5)] border-b border-white/5 py-4' : 'bg-transparent py-8'}`}>
       <div className="max-w-[90vw] mx-auto flex items-center justify-between text-white">
-        <Link href="/" className="flex items-center gap-2 group">
+        <Link href="/" className="flex items-center gap-3 group">
            <img 
              src="/logo.png" 
              alt="Golden Pushers" 
-             className="h-10 w-auto object-contain group-hover:scale-105 transition-transform duration-700" 
+             className="h-12 w-auto object-contain transition-all duration-700 group-hover:scale-105 group-hover:rotate-1" 
            />
+           <span className="hidden sm:block text-[10px] tracking-[0.4em] text-white/40 uppercase font-sans font-light">
+             Est. 2024
+           </span>
         </Link>
 
         {/* Desktop Menu */}

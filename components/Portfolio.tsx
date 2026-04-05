@@ -66,7 +66,7 @@ function ProjectCard({ project, index }: { project: any, index: number }) {
                 {/* Text Content */}
                 <div className="absolute bottom-10 left-10 md:bottom-16 md:left-16 right-10 z-10 transition-all duration-700 group-hover:translate-x-3">
                     <p className="text-accent text-[9px] md:text-[11px] tracking-[0.5em] font-mono mb-3 uppercase opacity-90">{project.category}</p>
-                    <h3 className="text-3xl md:text-6xl font-sans font-black text-white uppercase tracking-tighter leading-none max-w-min">
+                    <h3 className="text-3xl md:text-6xl font-serif font-black text-white uppercase tracking-tighter leading-none max-w-min">
                         {project.title}
                     </h3>
                 </div>
@@ -152,7 +152,7 @@ export default function Portfolio() {
       <div className="max-w-[80vw] mx-auto mt-24 hidden md:block">
            <div className="w-full h-[2px] bg-white/5 relative overflow-hidden">
                 <motion.div 
-                    className="absolute top-0 left-0 h-full bg-accent shadow-[0_0_15px_rgba(212,175,119,0.5)]"
+                    className="absolute top-0 left-0 h-full bg-accent shadow-[0_0_15px_rgba(206,169,0,0.5)]"
                     style={{ width: `${scrollProgress}%` }}
                     transition={{ type: "spring", stiffness: 100, damping: 20 }}
                 />

@@ -38,7 +38,7 @@ function GoldenElements() {
     <Instances ref={instances} limit={count} range={count}>
       <torusGeometry args={[1, 0.4, 16, 32]} />
       <meshStandardMaterial 
-        color="#D4AF77" 
+        color="#CEA900" 
         roughness={0.2} 
         metalness={1} 
         envMapIntensity={2} 
@@ -89,14 +89,14 @@ export default function Hero3D() {
         <Canvas camera={{ position: [0, 0, 15], fov: 45 }}>
           <fog attach="fog" args={["#0A0A0A", 10, 30]} />
           <ambientLight intensity={0.5} />
-          <directionalLight position={[10, 10, 5]} intensity={2} color="#D4AF77" />
+          <directionalLight position={[10, 10, 5]} intensity={2} color="#CEA900" />
           <pointLight position={[-10, -10, -5]} intensity={1} color="#ffffff" />
           
           <Float speed={2} rotationIntensity={1} floatIntensity={2}>
             <GoldenElements />
           </Float>
 
-          <Sparkles count={800} scale={25} size={2} speed={0.4} color="#D4AF77" opacity={0.6} noise={0.2} />
+          <Sparkles count={800} scale={25} size={2} speed={0.4} color="#CEA900" opacity={0.6} noise={0.2} />
           
           {/* Default environment for realistic reflections */}
           <Environment preset="city" />
@@ -106,7 +106,7 @@ export default function Hero3D() {
       {/* Foreground Content */}
       <div className="relative z-20 flex flex-col items-center justify-center h-full px-4 pt-20">
         <div className="perspective-container text-center max-w-7xl">
-           <h1 ref={title1Ref} className="text-5xl md:text-8xl lg:text-9xl tracking-tighter text-transparent bg-clip-text bg-gradient-to-br from-white via-[#D4AF77] to-[#8A7145] drop-shadow-2xl">
+           <h1 ref={title1Ref} className="text-5xl md:text-8xl lg:text-9xl tracking-tighter text-transparent bg-clip-text bg-gradient-to-br from-white via-[#CEA900] to-[#A88A00] drop-shadow-2xl">
              PUSHING VISION
            </h1>
            <h1 ref={title2Ref} className="text-5xl md:text-8xl lg:text-9xl mt-2 md:mt-4 tracking-tighter text-white/90 drop-shadow-2xl">
@@ -143,7 +143,7 @@ export default function Hero3D() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 6 }}
-            className="flex flex-col items-center gap-4 text-xs tracking-widest cursor-pointer text-[#D4AF77]"
+            className="flex flex-col items-center gap-4 text-xs tracking-widest cursor-pointer text-[#CEA900]"
          >
             <span className="uppercase [writing-mode:vertical-rl] tracking-[0.5em] opacity-70">Scroll</span>
             <motion.div 

@@ -44,7 +44,7 @@ export default function KonamiCode() {
               transition={{ type: "spring", damping: 10, stiffness: 100 }}
               className="relative w-64 h-64 flex items-center justify-center"
            >
-              <svg className="w-32 h-32 text-accent drop-shadow-[0_0_50px_rgba(212,175,119,1)]" viewBox="0 0 24 24" fill="currentColor">
+              <svg className="w-32 h-32 text-accent drop-shadow-[0_0_50px_rgba(206,169,0,1)]" viewBox="0 0 24 24" fill="currentColor">
                  <polygon points="12,2 22,22 2,22" />
               </svg>
            </motion.div>
@@ -52,7 +52,7 @@ export default function KonamiCode() {
                initial={{ y: 20, opacity: 0 }}
                animate={{ y: 0, opacity: 1 }}
                transition={{ delay: 0.5 }}
-               className="text-white font-sans font-black tracking-[0.5em] mt-8 text-2xl uppercase"
+               className="text-white font-serif font-black tracking-[0.5em] mt-8 text-2xl uppercase"
            >
                The Director's Cut
            </motion.h2>

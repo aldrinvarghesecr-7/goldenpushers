@@ -2,8 +2,8 @@
 @import "lenis/dist/lenis.css";
 
 :root {
-  --color-primary: #0A0A0A;
-  --color-accent: #D4AF77;
+  --color-primary: #030303;
+  --color-accent: #CEA900;
 }
 
 @layer base {
@@ -32,8 +32,8 @@
     transition: all 0.3s ease;
   }
   p a:hover {
-    color: var(--color-accent, #D4AF77);
-    text-decoration-color: var(--color-accent, #D4AF77);
+    color: var(--color-accent, #CEA900);
+    text-decoration-color: var(--color-accent, #CEA900);
   }
 }
 
@@ -71,9 +71,9 @@
   .shimmer-gradient {
     background: linear-gradient(
       90deg,
-      rgba(212, 175, 119, 0) 0%,
-      rgba(212, 175, 119, 0.2) 50%,
-      rgba(212, 175, 119, 0) 100%
+      rgba(206, 169, 0, 0) 0%,
+      rgba(206, 169, 0, 0.2) 50%,
+      rgba(206, 169, 0, 0) 100%
     );
     background-size: 200% 100%;
     animation: shimmer 2s infinite linear;

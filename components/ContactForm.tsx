@@ -25,9 +25,9 @@ export default function ContactForm() {
         <div className="absolute inset-0 pointer-events-none opacity-40">
            <Canvas camera={{ position: [0, 0, 1] }}>
               <Stars radius={100} depth={50} count={5000} factor={4} saturation={0} fade speed={1} />
-              <Sparkles count={200} scale={10} size={1} speed={0.4} color="#D4AF77" opacity={0.6} />
+              <Sparkles count={200} scale={10} size={1} speed={0.4} color="#CEA900" opacity={0.6} />
               {status === 'success' && (
-                  <Sparkles count={500} scale={20} size={3} speed={2} color="#D4AF77" opacity={1} />
+                  <Sparkles count={500} scale={20} size={3} speed={2} color="#CEA900" opacity={1} />
               )}
            </Canvas>
         </div>
@@ -44,10 +44,10 @@ export default function ContactForm() {
                         className="grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-24"
                     >
                         <div className="flex flex-col justify-center">
-                            <h2 className="text-6xl md:text-8xl font-sans font-black text-white uppercase tracking-tighter mix-blend-difference">
+                            <h2 className="text-6xl md:text-8xl font-serif font-black text-white uppercase tracking-tighter mix-blend-difference">
                                 Enquire.
                             </h2>
-                            <p className="mt-6 text-accent/80 font-serif italic text-xl">
+                            <p className="mt-6 text-accent font-serif italic text-xl">
                                 Let's forge your vision into gold.
                             </p>
                             
@@ -102,7 +102,7 @@ export default function ContactForm() {
                         transition={{ duration: 1.5, ease: "easeOut" }}
                         className="flex flex-col items-center justify-center text-center h-[60vh]"
                     >
-                        <div className="w-24 h-24 rounded-full border border-accent flex items-center justify-center mb-8 shadow-[0_0_50px_rgba(212,175,119,0.5)]">
+                        <div className="w-24 h-24 rounded-full border border-accent flex items-center justify-center mb-8 shadow-[0_0_50px_rgba(206,169,0,0.5)]">
                             <Check className="text-accent" size={40} />
                         </div>
                         <h2 className="text-5xl md:text-7xl font-sans font-black text-white uppercase tracking-tighter drop-shadow-[0_0_15px_rgba(255,255,255,0.8)]">

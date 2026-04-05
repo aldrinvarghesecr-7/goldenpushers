@@ -70,7 +70,7 @@ export default function AboutParallax() {
                     className="object-cover w-full h-full opacity-80"
                  />
                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
-                 <span className="absolute bottom-6 left-6 text-xs tracking-widest text-[#D4AF77] uppercase">Est. 2026 // Global</span>
+                 <span className="absolute bottom-6 left-6 text-xs tracking-widest text-accent uppercase">Est. 2024 // Global</span>
               </motion.div>
 
             </div>

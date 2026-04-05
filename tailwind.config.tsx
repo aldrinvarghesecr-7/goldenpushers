@@ -8,11 +8,11 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        primary: "#0A0A0A",
-        "section-alt": "#121212",
-        accent: "#D4AF77",
+        primary: "#030303",
+        "section-alt": "#0A0A0A",
+        accent: "#CEA900",
         "text-primary": "#FFFFFF",
-        "text-secondary": "#CCCCCC",
+        "text-secondary": "#AFAFAF",
         "text-muted": "#666666",
       },
       fontFamily: {

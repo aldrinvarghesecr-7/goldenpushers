@@ -63,12 +63,12 @@ export default function IntroSequence() {
                         
                         <motion.div 
                            initial={{ opacity: 0, width: 0 }}
-                           animate={{ opacity: 1, width: "16rem" }}
+                           animate={{ opacity: 1, width: "20rem" }}
                            transition={{ delay: 1.5, duration: 1 }}
                            className="h-[1px] bg-white/10 mt-12 relative overflow-hidden"
                         >
                             <motion.div 
-                               className="absolute top-0 left-0 bottom-0 bg-accent shadow-[0_0_15px_rgba(212,175,119,0.8)]"
+                               className="absolute top-0 left-0 bottom-0 bg-accent shadow-[0_0_20px_rgba(206,169,0,0.8)]"
                                initial={{ width: 0 }}
                                animate={{ width: `${progress}%` }}
                                transition={{ ease: "easeOut" }}
@@ -90,7 +90,7 @@ export default function IntroSequence() {
                         initial={{ opacity: 0 }}
                         exit={{ opacity: [0, 1, 0], scale: [1, 1.2, 1.5], rotate: [0, 5, -5] }}
                         transition={{ duration: 1.5, ease: "easeInOut" }}
-                        className="absolute inset-0 bg-[#D4AF77] mix-blend-color-dodge z-50 pointer-events-none"
+                        className="absolute inset-0 bg-[#CEA900] mix-blend-color-dodge z-50 pointer-events-none"
                         style={{ filter: 'blur(40px)' }}
                     />
                 </motion.div>

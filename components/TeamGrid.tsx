@@ -65,14 +65,14 @@ function TeamCard({ member }: { member: any }) {
                 />
                 
                 {/* Gold Rim Lighting Array triggered on hover */}
-                <div className={`absolute inset-0 border border-transparent transition-all duration-500 rounded-sm pointer-events-none ${isHovered ? 'shadow-[inset_0_0_80px_rgba(212,175,119,0.3)] ring-1 ring-accent/50' : ''}`} />
+                <div className={`absolute inset-0 border border-transparent transition-all duration-500 rounded-sm pointer-events-none ${isHovered ? 'shadow-[inset_0_0_80px_rgba(206,169,0,0.3)] ring-1 ring-accent/50' : ''}`} />
 
                 {/* Dark Vignette */}
                 <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent pointer-events-none" />
 
                 {/* Information */}
                 <div className="absolute bottom-6 left-6 right-6 flex flex-col gap-1 preserve-3d translate-z-[50px]">
-                    <h4 className="text-2xl font-sans font-black text-white tracking-widest uppercase">
+                    <h4 className="text-2xl font-serif font-black text-white tracking-widest uppercase">
                         {member.name}
                     </h4>
                     <p className="font-serif text-accent text-sm italic tracking-wider">
@@ -103,11 +103,11 @@ export default function TeamGrid() {
   return (
     <section className="relative w-full py-40 bg-[#0A0A0A] overflow-hidden">
        {/* Accents */}
-       <div className="absolute right-0 top-0 w-px h-full bg-gradient-to-b from-transparent via-accent/30 to-transparent shadow-[0_0_20px_rgba(212,175,119,0.5)]" />
+       <div className="absolute right-0 top-0 w-px h-full bg-gradient-to-b from-transparent via-accent/30 to-transparent shadow-[0_0_20px_rgba(206,169,0,0.5)]" />
        
        <div className="max-w-7xl mx-auto px-8 relative">
            <div className="flex flex-col md:flex-row justify-between items-end mb-24 gap-8">
-               <h2 className="text-5xl md:text-7xl font-sans font-black text-white uppercase tracking-tighter w-full md:w-1/2">
+               <h2 className="text-5xl md:text-7xl font-serif font-black text-white uppercase tracking-tighter w-full md:w-1/2">
                    The<br/>Architects
                </h2>
                <p className="font-serif text-white/50 text-xl md:text-2xl max-w-sm right-align">

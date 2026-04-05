@@ -6,7 +6,7 @@ export default function Footer() {
     <footer className="bg-[#0A0A0A] py-32 border-t border-white/5 relative overflow-hidden">
       {/* Animated Subtle Scroll Line */}
       <motion.div 
-         className="absolute top-0 left-[20%] right-[20%] h-px bg-gradient-to-r from-transparent via-[#D4AF77] to-transparent opacity-30"
+         className="absolute top-0 left-[20%] right-[20%] h-px bg-gradient-to-r from-transparent via-[#CEA900] to-transparent opacity-30"
          animate={{ x: ["-100%", "100%"] }}
          transition={{ repeat: Infinity, duration: 5, ease: "linear" }}
       />
