@@ -103,3 +103,10 @@
     background-position: 200% 0;
   }
 }
+@keyframes projectorLine {
+  0% { transform: translateX(0); opacity: 0; }
+  10% { transform: translateX(10vw); opacity: 0.3; }
+  20% { transform: translateX(-5vw); opacity: 0.1; }
+  30% { transform: translateX(15vw); opacity: 0.4; }
+  100% { transform: translateX(0); opacity: 0; }
+}
