@@ -7,30 +7,28 @@ export default function IntroSequence() {
     const [progress, setProgress] = useState(0);
 
     useEffect(() => {
-        const hasSeenIntro = sessionStorage.getItem('hasSeenIntro');
+        const hasSeenIntro = sessionStorage.getItem('hasSeenIntro_GP');
         if (hasSeenIntro) {
             setShowIntro(false);
             return;
         } 
         
-        sessionStorage.setItem('hasSeenIntro', 'true');
+        sessionStorage.setItem('hasSeenIntro_GP', 'true');
         
-        // Simulate loading progress
         const interval = setInterval(() => {
             setProgress(p => {
                 if (p >= 100) {
                     clearInterval(interval);
-                    setTimeout(() => setShowIntro(false), 800); // short delay after hitting 100
+                    setTimeout(() => setShowIntro(false), 1200);
                     return 100;
                 }
-                return p + Math.floor(Math.random() * 15) + 5;
+                return p + Math.floor(Math.random() * 10) + 2;
             });
-        }, 150);
+        }, 80);
         
         return () => clearInterval(interval);
     }, []);
 
-    // Stagger animation for text
     const title = "GOLDEN PUSHERS";
     
     return (
@@ -38,54 +36,64 @@ export default function IntroSequence() {
             {showIntro && (
                 <motion.div
                     key="intro-sequence"
-                    initial={{ opacity: 1, filter: "blur(0px)" }}
-                    exit={{ opacity: 0, filter: "blur(10px)", scale: 1.05 }}
-                    transition={{ duration: 1, ease: [0.77, 0, 0.175, 1] }}
-                    className="fixed inset-0 z-[100] bg-black flex flex-col items-center justify-center pointer-events-none overflow-hidden"
+                    initial={{ opacity: 1 }}
+                    exit={{ 
+                        opacity: 0, 
+                        filter: "blur(20px) brightness(3)", 
+                        scale: 1.5,
+                        transition: { duration: 1.5, ease: [0.77, 0, 0.175, 1] } 
+                    }}
+                    className="fixed inset-0 z-[100] bg-primary flex flex-col items-center justify-center pointer-events-none overflow-hidden"
                 >
-                    {/* Background Shimmer */}
-                    <div className="absolute inset-0 shimmer-gradient opacity-10" />
+                    <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-accent/10 via-primary to-primary opacity-50" />
 
                     <div className="relative z-10 flex flex-col items-center">
-                        <div className="overflow-hidden flex gap-2">
+                        <div className="overflow-hidden flex gap-2 perspective-container">
                              {title.split("").map((char, i) => (
                                  <motion.span
                                      key={i}
-                                     initial={{ y: 40, opacity: 0 }}
-                                     animate={{ y: 0, opacity: 1 }}
-                                     transition={{ delay: i * 0.05 + 0.2, duration: 0.6, ease: [0.23, 1, 0.32, 1] }}
-                                     className="text-4xl md:text-6xl font-serif tracking-[0.2em] text-white/95 uppercase"
+                                     initial={{ y: 100, rotateX: 90, opacity: 0 }}
+                                     animate={{ y: 0, rotateX: 0, opacity: 1 }}
+                                     transition={{ delay: i * 0.08 + 0.2, duration: 1.2, ease: [0.23, 1, 0.32, 1] }}
+                                     className="text-4xl md:text-7xl font-sans font-black tracking-tighter text-transparent bg-clip-text bg-gradient-to-b from-white via-accent to-[#8A7145] uppercase drop-shadow-[0_10px_20px_rgba(212,175,119,0.3)]"
                                  >
                                      {char === " " ? "\u00A0" : char}
                                  </motion.span>
                              ))}
                         </div>
                         
-                        {/* Progress line */}
                         <motion.div 
-                           initial={{ opacity: 0 }}
-                           animate={{ opacity: 1 }}
-                           transition={{ delay: 0.8 }}
-                           className="w-48 md:w-64 h-[1px] bg-white/10 mt-8 relative overflow-hidden"
+                           initial={{ opacity: 0, width: 0 }}
+                           animate={{ opacity: 1, width: "16rem" }}
+                           transition={{ delay: 1.5, duration: 1 }}
+                           className="h-[1px] bg-white/10 mt-12 relative overflow-hidden"
                         >
                             <motion.div 
-                               className="absolute top-0 left-0 bottom-0 bg-accent shadow-[0_0_10px_rgba(198,169,94,0.5)]"
+                               className="absolute top-0 left-0 bottom-0 bg-accent shadow-[0_0_15px_rgba(212,175,119,0.8)]"
                                initial={{ width: 0 }}
                                animate={{ width: `${progress}%` }}
                                transition={{ ease: "easeOut" }}
                             />
                         </motion.div>
                         
-                        {/* Percentage */}
                         <motion.div 
                            initial={{ opacity: 0 }}
                            animate={{ opacity: 1 }}
-                           transition={{ delay: 0.8 }}
-                           className="text-accent text-[10px] tracking-widest mt-4 font-mono"
+                           transition={{ delay: 1.5 }}
+                           className="text-accent text-[12px] tracking-[0.2em] mt-6 font-mono font-bold"
                         >
-                            {progress}%
+                            {progress < 100 ? `LOADING... ${progress}%` : "SCENE COMPLETE"}
                         </motion.div>
                     </div>
+
+                    {/* Exit Film Burn Elements mapped via framer motion exit */}
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        exit={{ opacity: [0, 1, 0], scale: [1, 1.2, 1.5], rotate: [0, 5, -5] }}
+                        transition={{ duration: 1.5, ease: "easeInOut" }}
+                        className="absolute inset-0 bg-[#D4AF77] mix-blend-color-dodge z-50 pointer-events-none"
+                        style={{ filter: 'blur(40px)' }}
+                    />
                 </motion.div>
             )}
         </AnimatePresence>

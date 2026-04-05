@@ -10,7 +10,7 @@ import PageTransition from "@/components/PageTransition";
 import { siteConfig } from "@/lib/config";
 
 const serif = Playfair_Display({ subsets: ["latin"], variable: "--font-serif", weight: ["400", "500", "600", "700"], display: "swap" });
-const sans = Inter({ subsets: ["latin"], variable: "--font-sans", weight: ["300", "400", "500", "600"], display: "swap" });
+const sans = Inter({ subsets: ["latin"], variable: "--font-sans", weight: ["300", "400", "500", "600", "900"], display: "swap" });
 
 export const metadata: Metadata = {
   title: `${siteConfig.title} | ${siteConfig.tagline}`,
@@ -23,7 +23,7 @@ import FilmGrain from "@/components/FilmGrain";
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className={`${serif.variable} ${sans.variable}`}>
-      <body className="bg-primary text-text-primary font-sans antialiased overflow-x-hidden">
+      <body className="bg-primary text-text-primary font-serif antialiased overflow-x-hidden selection:bg-accent selection:text-primary">
         <FilmGrain />
         <IntroSequence />
         <SmoothScrollProvider>
