@@ -3,10 +3,12 @@ import { useState, useRef } from 'react';
 import { motion, useMotionValue, useSpring, useTransform } from 'framer-motion';
 
 const team = [
-  { id: 1, name: 'ALEXANDER REED', role: 'Executive Director', bio: 'Architect of $200M spectacles. Obsessed with shadows.', image: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?q=80&w=800&auto=format&fit=crop' },
-  { id: 2, name: 'SOPHIA VANE', role: 'Cinematographer', bio: 'Painting with light. 3x Award Winner.', image: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=800&auto=format&fit=crop' },
-  { id: 3, name: 'MARCUS LEO', role: 'VFX Supervisor', bio: 'Bending reality into digital gold.', image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=800&auto=format&fit=crop' },
-  { id: 4, name: 'ELENA ROST', role: 'Art Director', bio: 'Sourcing the impossible since 2018.', image: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?q=80&w=800&auto=format&fit=crop' }
+  { id: 1, name: 'DANISH MACKENZIE', role: 'DOP', bio: 'Capturing the unseen. Master of light and cinematic rhythm.', image: '/team/danish.jpg' },
+  { id: 2, name: 'BHANUNNI', role: 'Creativity Director', bio: 'Architect of visual soul. Turning abstract concepts into cinematic gold.', image: '/team/bhanunni.jpg' },
+  { id: 3, name: 'ARJUNAN', role: 'DOP', bio: 'Painting with light. Every frame is a tribute to cinematic truth.', image: '/team/arjunan.jpg' },
+  { id: 4, name: 'JYOTHI PRAKASH', role: 'Designer', bio: 'Visual architect and design strategist. Crafting the layout of dreams.', image: '/team/jyothi.jpg' },
+  { id: 5, name: 'MARCUS LEO', role: 'VFX Supervisor', bio: 'Bending reality into digital gold.', image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=800&auto=format&fit=crop' },
+  { id: 6, name: 'SOPHIA VANE', role: 'Cinematographer', bio: 'Painting with light. 3x Award Winner.', image: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=800&auto=format&fit=crop' }
 ];
 
 function TeamCard({ member }: { member: any }) {
@@ -61,7 +63,7 @@ function TeamCard({ member }: { member: any }) {
                 <img 
                    src={member.image} 
                    alt={member.name}
-                   className="absolute inset-0 w-full h-full object-cover filter grayscale hover:grayscale-0 transition-all duration-700" 
+                   className="absolute inset-0 w-full h-full object-cover transition-all duration-700" 
                 />
                 
                 {/* Gold Rim Lighting Array triggered on hover */}
@@ -115,7 +117,7 @@ export default function TeamGrid() {
                </p>
            </div>
            
-           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
               {team.map((member) => (
                   <TeamCard key={member.id} member={member} />
               ))}
