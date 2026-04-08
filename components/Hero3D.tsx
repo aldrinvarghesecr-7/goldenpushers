@@ -84,25 +84,6 @@ export default function Hero3D() {
         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#0A0A0A]/50 to-[#0A0A0A] pointer-events-none" />
       </div>
 
-      {/* 3D WebGL Canvas */}
-      <div className="absolute inset-0 z-10 pointer-events-none">
-        <Canvas camera={{ position: [0, 0, 15], fov: 45 }}>
-          <fog attach="fog" args={["#0A0A0A", 10, 30]} />
-          <ambientLight intensity={0.5} />
-          <directionalLight position={[10, 10, 5]} intensity={2} color="#CEA900" />
-          <pointLight position={[-10, -10, -5]} intensity={1} color="#ffffff" />
-          
-          <Float speed={2} rotationIntensity={1} floatIntensity={2}>
-            <GoldenElements />
-          </Float>
-
-          <Sparkles count={800} scale={25} size={2} speed={0.4} color="#CEA900" opacity={0.6} noise={0.2} />
-          
-          {/* Default environment for realistic reflections */}
-          <Environment preset="city" />
-        </Canvas>
-      </div>
-
       {/* Foreground Content */}
       <div className="relative z-20 flex flex-col items-center justify-center h-full px-4 pt-20">
         <div className="perspective-container text-center max-w-7xl">
