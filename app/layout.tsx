@@ -18,14 +18,16 @@ export const metadata: Metadata = {
   description: siteConfig.bio,
 };
 import FilmGrain from "@/components/FilmGrain";
-import CinematicScrollScene from "@/components/CinematicScrollScene";
+import CinematicStoryScene from "@/components/CinematicStoryScene";
+import CinematicPreloader from "@/components/CinematicPreloader";
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className={`${serif.variable} ${sans.variable} ${bodyFont.variable}`}>
       <body className="bg-primary text-text-primary font-body antialiased overflow-x-hidden selection:bg-accent selection:text-primary">
         <FilmGrain />
-        <CinematicScrollScene />
+        <CinematicPreloader />
+        <CinematicStoryScene />
         <SmoothScrollProvider>
           <ScrollProgress />
           <CursorTrailer />

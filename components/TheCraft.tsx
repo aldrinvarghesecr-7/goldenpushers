@@ -94,23 +94,9 @@ export default function TheCraft() {
   }, []);
 
   return (
-    <section ref={containerRef} className="relative bg-black" id="services">
-      {/* 3D Scene Pinned Container */}
+    <section ref={containerRef} className="relative bg-transparent" id="services">
+      {/* HTML Overlays (Pinned) */}
       <div className="sticky top-0 h-screen w-full overflow-hidden">
-        {/* Cinematic Backdrop */}
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(212,175,119,0.05)_0%,transparent_70%)] pointer-events-none" />
-        
-        {/* R3F Canvas */}
-        <div className="absolute inset-0 z-0">
-          <Canvas 
-            shadows 
-            dpr={isMobile ? [1, 1] : [1, 2]} 
-            camera={{ position: [0, 0, 10], fov: isMobile ? 60 : 45 }}
-          >
-            <Story3DScene progress={progress} isMobile={isMobile} />
-          </Canvas>
-        </div>
-
         {/* Section Title Overlay */}
         <div className="absolute top-12 left-12 z-20">
           <motion.div 

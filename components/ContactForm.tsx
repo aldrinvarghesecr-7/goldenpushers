@@ -19,18 +19,7 @@ export default function ContactForm() {
   };
 
   return (
-    <section className="relative w-full min-h-screen bg-[#0A0A0A] flex flex-col items-center justify-center py-32 overflow-hidden">
-        
-        {/* Abstract 3D Background */}
-        <div className="absolute inset-0 pointer-events-none opacity-40">
-           <Canvas camera={{ position: [0, 0, 1] }}>
-              <Stars radius={100} depth={50} count={5000} factor={4} saturation={0} fade speed={1} />
-              <Sparkles count={200} scale={10} size={1} speed={0.4} color="#CEA900" opacity={0.6} />
-              {status === 'success' && (
-                  <Sparkles count={500} scale={20} size={3} speed={2} color="#CEA900" opacity={1} />
-              )}
-           </Canvas>
-        </div>
+    <section className="relative w-full min-h-screen bg-transparent flex flex-col items-center justify-center py-32 overflow-hidden">
 
         <div className="relative z-10 w-full max-w-4xl px-8 mx-auto">
             <AnimatePresence mode="wait">

@@ -9,47 +9,6 @@ import gsap from 'gsap';
 import { useGSAP } from '@gsap/react';
 
 // Abstract Floating Golden Reeds / "Reel" shapes
-function GoldenElements() {
-  const instances = useRef<THREE.InstancedMesh>(null);
-  
-  const count = 30;
-  const dummy = useMemo(() => new THREE.Object3D(), []);
-  
-  useFrame((state) => {
-    if (!instances.current) return;
-    const time = state.clock.elapsedTime * 0.1;
-
-    for (let i = 0; i < count; i++) {
-        const t = time + i * 0.2;
-        dummy.position.set(
-            Math.sin(t * 0.5) * 15 + (i % 5) * 4 - 10,
-            Math.cos(t * 0.2) * 10 + (i % 3) * 6 - 8,
-            Math.sin(t * 0.3) * 10 - 10
-        );
-        dummy.rotation.set(t, t * 1.5, t * 0.5);
-        dummy.scale.setScalar(0.5 + Math.sin(t * 2) * 0.2);
-        dummy.updateMatrix();
-        instances.current.setMatrixAt(i, dummy.matrix);
-    }
-    instances.current.instanceMatrix.needsUpdate = true;
-  });
-
-  return (
-    <Instances ref={instances} limit={count} range={count}>
-      <torusGeometry args={[1, 0.4, 16, 32]} />
-      <meshStandardMaterial 
-        color="#CEA900" 
-        roughness={0.2} 
-        metalness={1} 
-        envMapIntensity={2} 
-      />
-      {Array.from({ length: count }).map((_, i) => (
-        <Instance key={i} />
-      ))}
-    </Instances>
-  );
-}
-
 export default function Hero3D() {
   const container = useRef<HTMLDivElement>(null);
   const title1Ref = useRef<HTMLHeadingElement>(null);
@@ -57,7 +16,7 @@ export default function Hero3D() {
   const [isVideoPlaying, setIsVideoPlaying] = useState(true);
 
   useGSAP(() => {
-    const tl = gsap.timeline({ delay: 3.5 }); // Wait for preloader
+    const tl = gsap.timeline({ delay: 4.5 }); // Sync with preloader
     
     tl.fromTo(title1Ref.current, 
         { y: 100, opacity: 0, rotateX: 45 },
@@ -70,9 +29,9 @@ export default function Hero3D() {
   }, { scope: container });
 
   return (
-    <section ref={container} className="relative w-full h-screen overflow-hidden bg-[#0A0A0A]">
-      {/* Background Video */}
-      <div className="absolute inset-0 z-0 opacity-20 mix-blend-screen overflow-hidden">
+    <section ref={container} className="relative w-full h-screen overflow-hidden bg-transparent">
+      {/* Background Video (Subtle Overlay) */}
+      <div className="absolute inset-0 z-0 opacity-10 mix-blend-screen overflow-hidden">
         <video 
           autoPlay={isVideoPlaying}
           muted 
@@ -81,25 +40,30 @@ export default function Hero3D() {
           className="w-full h-full object-cover scale-105"
           src="https://cdn.pixabay.com/video/2021/08/11/84687-587841398_large.mp4"
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#0A0A0A]/50 to-[#0A0A0A] pointer-events-none" />
       </div>
 
       {/* Foreground Content */}
       <div className="relative z-20 flex flex-col items-center justify-center h-full px-4 pt-20">
         <div className="perspective-container text-center max-w-7xl">
-           <h1 ref={title1Ref} className="text-5xl md:text-8xl lg:text-9xl tracking-tighter text-transparent bg-clip-text bg-gradient-to-br from-white via-[#CEA900] to-[#A88A00] drop-shadow-2xl">
+           <motion.h1 
+             ref={title1Ref} 
+             className="text-5xl md:text-8xl lg:text-9xl tracking-tighter text-transparent bg-clip-text bg-gradient-to-br from-white via-[#D4AF77] to-[#A88A00] drop-shadow-2xl"
+           >
              PUSHING VISION
-           </h1>
-           <h1 ref={title2Ref} className="text-5xl md:text-8xl lg:text-9xl mt-2 md:mt-4 tracking-tighter text-white/90 drop-shadow-2xl">
+           </motion.h1>
+           <motion.h1 
+             ref={title2Ref} 
+             className="text-5xl md:text-8xl lg:text-9xl mt-2 md:mt-4 tracking-tighter text-white/90 drop-shadow-2xl"
+           >
              INTO GOLD
-           </h1>
+           </motion.h1>
         </div>
 
         <motion.p 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 5.5, duration: 1 }}
-            className="mt-8 text-lg font-serif text-white/60 tracking-[0.2em] uppercase max-w-md text-center"
+            transition={{ delay: 6, duration: 1 }}
+            className="mt-8 text-lg font-sans text-white/60 tracking-[0.2em] uppercase max-w-md text-center"
         >
             A Premium Creative Production House. Uncompromising Cinematic Excellence.
         </motion.p>
@@ -110,7 +74,7 @@ export default function Hero3D() {
          <motion.button 
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ delay: 6 }}
+            transition={{ delay: 6.5 }}
             onClick={() => setIsVideoPlaying(!isVideoPlaying)}
             className="group flex gap-3 items-center text-xs tracking-widest uppercase text-white/50 hover:text-accent transition-colors"
          >
@@ -123,10 +87,10 @@ export default function Hero3D() {
          <motion.div 
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ delay: 6 }}
-            className="flex flex-col items-center gap-4 text-xs tracking-widest cursor-pointer text-[#CEA900]"
+            transition={{ delay: 6.5 }}
+            className="flex flex-col items-center gap-4 text-xs tracking-widest cursor-pointer text-[#D4AF77]"
          >
-            <span className="uppercase [writing-mode:vertical-rl] tracking-[0.5em] opacity-70">Scroll</span>
+            <span className="uppercase [writing-mode:vertical-rl] tracking-[0.5em] opacity-70">Scroll Journey</span>
             <motion.div 
                 animate={{ y: [0, 8, 0] }} 
                 transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }}
