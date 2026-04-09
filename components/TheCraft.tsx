@@ -1,217 +1,195 @@
 'use client';
 
-import { useState } from 'react';
+import React, { useRef, useState, useLayoutEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Plus, Minus, ArrowRight } from 'lucide-react';
+import { Canvas } from '@react-three/fiber';
+import gsap from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import Story3DScene from './Story3DScene';
 
-const services = [
+if (typeof window !== 'undefined') {
+  gsap.registerPlugin(ScrollTrigger);
+}
+
+const chapters = [
   {
     id: "01",
-    title: "Creative Development",
-    tagline: "Architecting the soul of your narrative.",
-    items: [
-      "Concept ideation and storytelling",
-      "Brand strategy and campaign development",
-      "Scriptwriting and screenplay development",
-      "Storyboarding and visual planning",
-      "Creative consulting and direction"
-    ]
+    title: "The Spark",
+    category: "Creative Development & Strategy",
+    description: "Every masterpiece begins in darkness. We architect the soul of your narrative before the first frame is ever captured.",
+    items: ["Concept Ideation", "Brand Strategy", "Scriptwriting", "Storyboarding", "Creative Direction"]
   },
   {
     id: "02",
-    title: "Pre-Production",
-    tagline: "Mastering the logistics of visual gold.",
-    items: [
-      "Budgeting and project planning",
-      "Location scouting",
-      "Casting (talent/actors/models)",
-      "Talent direction and choreography",
-      "Set design and art direction",
-      "Wardrobe, styling, hair & makeup",
-      "Equipment planning and crew assembly",
-      "Scheduling and logistics"
-    ]
+    title: "The Blueprint",
+    category: "Pre-Production Services",
+    description: "Mastering the logistics of visual gold. We map out every detail to ensure a seamless transition from thought to reality.",
+    items: ["Budgeting", "Location Scouting", "Casting", "Set Design", "Production Planning"]
   },
   {
     id: "03",
-    title: "Cinematography",
-    tagline: "Visceral truth captured through light.",
-    items: [
-      "Full-scale video/film production",
-      "Commercials & TV advertisements",
-      "Brand films and promotional videos",
-      "Music videos",
-      "Luxury & high-end fashion films",
-      "Corporate videos and corporate storytelling",
-      "Short films and narrative content",
-      "Documentary-style content",
-      "Live event coverage and multicamera shoots",
-      "Aerial/drone cinematography",
-      "Studio or on-location shoots"
-    ]
+    title: "The Shoot",
+    category: "Production / Filming",
+    description: "Visceral truth captured through light. Our world-class crew and equipment bring the vision to life with uncompromising precision.",
+    items: ["Cinematography", "Directing", "Aerial Filming", "High-End Lighting", "Sound Capture"]
   },
   {
     id: "04",
-    title: "Post-Production",
-    tagline: "Carving masterpieces from raw frames.",
-    items: [
-      "Video editing and assembly",
-      "Color grading and cinematic correction",
-      "Sound design, mixing, and audio post",
-      "Voice-over and ADR",
-      "Visual effects (VFX) and CGI",
-      "Motion graphics and animation",
-      "Title design and end credits",
-      "Final mastering and delivery"
-    ]
+    title: "The Magic",
+    category: "Post-Production Services",
+    description: "Carving masterpieces from raw frames. The edit is where the story truly finds its pulse and emotional resonance.",
+    items: ["Editing", "Color Grading", "VFX & CGI", "Sound Design", "Motion Graphics"]
   },
   {
     id: "05",
-    title: "Digital Ecosystems",
-    tagline: "Amplifying impact in the digital void.",
-    items: [
-      "Social media content (Reels, TikTok, YouTube)",
-      "Product videos and e-commerce content",
-      "Experiential films and immersive storytelling",
-      "Podcast video production",
-      "Behind-the-scenes and documentary content"
-    ]
+    title: "The Reach",
+    category: "Specialized Content",
+    description: "Amplifying impact in the digital void. We tailor the experience for every platform, ensuring your message resonates everywhere.",
+    items: ["Social Media Content", "Product Films", "Digital Campaigns", "Vertical Video", "Podcast Production"]
   },
   {
     id: "06",
-    title: "Specialized Services",
-    tagline: "Bespoke excellence for elite brands.",
-    items: [
-      "Photography (still shoots, campaigns)",
-      "Full campaign production (360-degree)",
-      "Distribution strategy and optimization",
-      "Marketing support and promo materials",
-      "Archiving and asset management"
-    ]
+    title: "The Legacy",
+    category: "Premium Distribution",
+    description: "The final golden frame. We ensure your project leaves a lasting impact and is preserved with the dignity it deserves.",
+    items: ["Final Mastering", "Asset Management", "Marketing Support", "Campaign Rollout", "Archive Strategy"]
   }
 ];
 
 export default function TheCraft() {
-  const [expanded, setExpanded] = useState<string | null>("03");
+  const containerRef = useRef<HTMLDivElement>(null);
+  const sectionRef = useRef<HTMLDivElement>(null);
+  const [progress, setProgress] = useState(0);
+  const [activeChapter, setActiveChapter] = useState(0);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useLayoutEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 768);
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    
+    if (!containerRef.current) return;
+
+    const ctx = gsap.context(() => {
+      ScrollTrigger.create({
+        trigger: containerRef.current,
+        start: "top top",
+        end: "bottom bottom",
+        scrub: 1,
+        onUpdate: (self) => {
+          const p = self.progress;
+          setProgress(p);
+          
+          // Calculate active chapter based on progress (6 stages)
+          const chapterIndex = Math.min(Math.floor(p * 6), 5);
+          setActiveChapter(chapterIndex);
+        }
+      });
+    }, containerRef);
+
+    return () => {
+      window.removeEventListener('resize', checkMobile);
+      ctx.revert();
+    };
+  }, []);
 
   return (
-    <section className="bg-primary py-32 md:py-64 relative overflow-hidden" id="services">
-      {/* Background Atmosphere */}
-      <div className="absolute top-0 left-0 w-full h-full pointer-events-none">
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full bg-[radial-gradient(circle_at_center,rgba(212,175,119,0.03)_0%,transparent_70%)]" />
-      </div>
-
-      <div className="max-w-screen-2xl mx-auto px-6 md:px-12 relative z-10">
+    <section ref={containerRef} className="relative bg-black" id="services">
+      {/* 3D Scene Pinned Container */}
+      <div className="sticky top-0 h-screen w-full overflow-hidden">
+        {/* Cinematic Backdrop */}
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(212,175,119,0.05)_0%,transparent_70%)] pointer-events-none" />
         
-        {/* Cinematic Header */}
-        <div className="mb-32 md:mb-48">
-          <motion.div 
-            initial={{ width: 0 }}
-            whileInView={{ width: "120px" }}
-            viewport={{ once: true }}
-            className="h-[1px] bg-[#D4AF77] mb-12"
-          />
-          <motion.h2 
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 1 }}
-            className="text-white/40 font-sans text-xs tracking-[0.6em] uppercase mb-8"
+        {/* R3F Canvas */}
+        <div className="absolute inset-0 z-0">
+          <Canvas 
+            shadows 
+            dpr={isMobile ? [1, 1] : [1, 2]} 
+            camera={{ position: [0, 0, 10], fov: isMobile ? 60 : 45 }}
           >
-            The Menu of Services
-          </motion.h2>
-          <motion.p 
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 1.2, ease: [0.23, 1, 0.32, 1] }}
-            className="text-4xl md:text-6xl lg:text-7xl font-sans font-black text-white leading-[1.1] tracking-tighter max-w-5xl"
-          >
-            From first spark to final frame — every stage is crafted with <span className="text-[#D4AF77] italic font-serif">uncompromising excellence.</span>
-          </motion.p>
+            <Story3DScene progress={progress} isMobile={isMobile} />
+          </Canvas>
         </div>
 
-        {/* Services Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-y-0 border-l border-white/5">
-          {services.map((service, index) => (
-            <motion.div 
-              key={service.id}
-              initial={{ opacity: 0, y: 50 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-100px" }}
-              transition={{ delay: index * 0.1, duration: 1 }}
-              className={`group relative p-12 md:p-16 border-r border-b border-white/5 hover:bg-white/[0.01] transition-all duration-1000 overflow-hidden ${expanded === service.id ? 'bg-white/[0.02]' : ''}`}
-            >
-              {/* Card Hover Glow */}
-              <div className="absolute inset-0 bg-gradient-to-br from-[#D4AF77]/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-1000 pointer-events-none" />
-              
-              <div className="relative z-10">
-                <div className="flex justify-between items-start mb-12">
-                  <span className="text-[#D4AF77] font-sans text-sm tracking-widest font-bold opacity-60 group-hover:opacity-100 transition-opacity">
-                    [{service.id}]
+        {/* Section Title Overlay */}
+        <div className="absolute top-12 left-12 z-20">
+          <motion.div 
+            initial={{ opacity: 0, x: -20 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            className="flex items-center gap-4"
+          >
+            <div className="h-[1px] w-12 bg-[#D4AF77]" />
+            <span className="text-[#D4AF77] font-sans text-xs tracking-[0.5em] uppercase">The Craft</span>
+          </motion.div>
+          <h2 className="text-white text-3xl md:text-5xl font-sans font-black uppercase tracking-tighter mt-4">
+            A Cinematic Journey
+          </h2>
+        </div>
+
+        {/* Text Content Grid */}
+        <div className="absolute inset-0 flex items-center justify-end px-6 md:px-24 z-10 pointer-events-none">
+          <div className="max-w-xl w-full pointer-events-auto">
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={activeChapter}
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -30 }}
+                transition={{ duration: 0.8, ease: [0.23, 1, 0.32, 1] }}
+                className="space-y-8"
+              >
+                <div>
+                  <span className="text-[#D4AF77] font-sans text-4xl block mb-2 opacity-50">
+                    {chapters[activeChapter].id}
                   </span>
-                  <motion.div 
-                    animate={{ rotate: expanded === service.id ? 45 : 0 }}
-                    transition={{ type: "spring", stiffness: 200 }}
-                  >
-                    <Plus 
-                      size={20} 
-                      className={`cursor-pointer transition-colors duration-500 ${expanded === service.id ? 'text-[#D4AF77]' : 'text-white/20 group-hover:text-white'}`}
-                      onClick={() => setExpanded(expanded === service.id ? null : service.id)}
-                    />
-                  </motion.div>
+                  <h3 className="text-white text-5xl md:text-7xl font-sans font-black uppercase leading-none tracking-tighter">
+                    {chapters[activeChapter].title}
+                  </h3>
+                  <p className="text-[#D4AF77] font-serif italic text-xl md:text-2xl mt-4">
+                    {chapters[activeChapter].category}
+                  </p>
                 </div>
 
-                <h3 className="text-3xl lg:text-4xl font-sans font-black text-white uppercase tracking-tighter mb-4 group-hover:text-[#D4AF77] transition-all duration-700">
-                  {service.title}
-                </h3>
-                
-                <p className="font-body text-[#D4AF77]/60 italic text-lg lg:text-xl mb-12 leading-relaxed h-14">
-                  {service.tagline}
+                <p className="text-white/60 text-lg leading-relaxed max-w-md">
+                  {chapters[activeChapter].description}
                 </p>
 
-                <button 
-                  onClick={() => setExpanded(expanded === service.id ? null : service.id)}
-                  className="flex items-center gap-3 text-white/30 text-[10px] tracking-[0.4em] uppercase font-bold group-hover:text-[#D4AF77] transition-colors mb-4"
-                >
-                  {expanded === service.id ? 'View Less' : 'Explore Capabilities'}
-                  <ArrowRight size={12} className={`transition-transform duration-500 ${expanded === service.id ? 'rotate-90' : 'group-hover:translate-x-2'}`} />
-                </button>
-
-                <AnimatePresence>
-                  {expanded === service.id && (
-                    <motion.div
-                      initial={{ height: 0, opacity: 0 }}
-                      animate={{ height: "auto", opacity: 1 }}
-                      exit={{ height: 0, opacity: 0 }}
-                      transition={{ duration: 0.8, ease: [0.04, 0.62, 0.23, 0.98] }}
-                      className="overflow-hidden"
+                <ul className="grid grid-cols-1 gap-4 pt-4 border-t border-white/10">
+                  {chapters[activeChapter].items.map((item, idx) => (
+                    <motion.li 
+                      key={idx}
+                      initial={{ opacity: 0, x: -10 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: 0.2 + idx * 0.1 }}
+                      className="flex items-center gap-3 text-white/40 text-sm tracking-widest uppercase font-bold hover:text-[#D4AF77] transition-colors"
                     >
-                      <ul className="pt-8 space-y-4 border-t border-white/5">
-                        {service.items.map((item, i) => (
-                          <motion.li 
-                            key={i}
-                            initial={{ x: -10, opacity: 0 }}
-                            animate={{ x: 0, opacity: 1 }}
-                            transition={{ delay: i * 0.05 + 0.3 }}
-                            className="font-body text-white/50 text-sm md:text-base flex items-start gap-4 hover:text-white transition-colors duration-300"
-                          >
-                            <span className="w-1.5 h-1.5 rounded-full bg-[#D4AF77] mt-1.5 flex-shrink-0 shadow-[0_0_8px_#D4AF77]" />
-                            <span className="leading-tight">{item}</span>
-                          </motion.li>
-                        ))}
-                      </ul>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </div>
-            </motion.div>
-          ))}
+                      <div className="w-1.5 h-1.5 rounded-full bg-[#D4AF77] shadow-[0_0_8px_#D4AF77]" />
+                      {item}
+                    </motion.li>
+                  ))}
+                </ul>
+              </motion.div>
+            </AnimatePresence>
+          </div>
         </div>
 
-        {/* Bottom Deco Line */}
-        <div className="mt-24 w-full h-[1px] bg-gradient-to-r from-transparent via-white/10 to-transparent" />
+        {/* Scroll Progress Bar */}
+        <div className="absolute right-8 top-1/2 -translate-y-1/2 flex flex-col items-center gap-4 z-20">
+          {chapters.map((_, idx) => (
+            <motion.div
+              key={idx}
+              animate={{ 
+                scale: activeChapter === idx ? 1.5 : 1,
+                backgroundColor: activeChapter === idx ? "#D4AF77" : "rgba(255,255,255,0.2)"
+              }}
+              className="w-2 h-2 rounded-full cursor-pointer transition-colors"
+            />
+          ))}
+        </div>
       </div>
+
+      {/* Spacer to create scroll length (6 stages * 100vh) */}
+      <div className="h-[600vh]" />
     </section>
   );
 }
