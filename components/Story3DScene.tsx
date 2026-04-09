@@ -48,8 +48,8 @@ const Projector = ({ progress }: StageProps) => {
         <meshStandardMaterial color={DARK_METAL} metalness={0.9} roughness={0.1} />
       </mesh>
       {/* Gold Accents */}
-      <mesh position={[0, 0, 0.65]}>
-        <cylinderGeometry args={[0.2, 0.2, 0.1, 32]} rotation={[Math.PI / 2, 0, 0]} />
+      <mesh position={[0, 0, 0.65]} rotation={[Math.PI / 2, 0, 0]}>
+        <cylinderGeometry args={[0.2, 0.2, 0.1, 32]} />
         <meshStandardMaterial color={GOLD_COLOR} emissive={GOLD_COLOR} emissiveIntensity={0.5} />
       </mesh>
       {/* Reels */}
@@ -203,9 +203,7 @@ const Particles = ({ progress, isMobile }: StageProps) => {
       <bufferGeometry>
         <bufferAttribute 
           attach="attributes-position" 
-          count={count} 
-          array={positions} 
-          itemSize={3} 
+          args={[positions, 3]} 
         />
       </bufferGeometry>
       <pointsMaterial 
