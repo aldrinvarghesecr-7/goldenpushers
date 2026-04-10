@@ -9,7 +9,7 @@ import CursorTrailer from "@/components/CursorTrailer";
 import PageTransition from "@/components/PageTransition";
 import { siteConfig } from "@/lib/config";
 import FilmGrain from "@/components/FilmGrain";
-import CinematicFlowScene from "@/components/CinematicFlowScene";
+import CinematicStoryScene from "@/components/CinematicStoryScene";
 import CinematicPreloader from "@/components/CinematicPreloader";
 
 const serif = Cinzel({ subsets: ["latin"], variable: "--font-serif", weight: ["400", "500", "600", "700", "800", "900"], display: "swap" });
@@ -27,7 +27,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body className="bg-primary text-text-primary font-body antialiased overflow-x-hidden selection:bg-accent selection:text-primary">
         <FilmGrain />
         <CinematicPreloader />
-        <CinematicFlowScene />
+        <CinematicStoryScene />
         <SmoothScrollProvider>
           <ScrollProgress />
           <CursorTrailer />

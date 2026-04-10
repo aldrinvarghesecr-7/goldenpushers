@@ -115,7 +115,7 @@ function TeamCard({ member }: { member: any }) {
 
 export default function TeamGrid() {
   return (
-    <section className="relative w-full py-40 bg-black/50 overflow-hidden">
+    <section id="team" className="relative w-full py-40 bg-black/50 overflow-hidden">
        {/* Accents */}
        <div className="absolute right-0 top-0 w-px h-full bg-gradient-to-b from-transparent via-accent/30 to-transparent shadow-[0_0_20px_rgba(206,169,0,0.5)]" />
        

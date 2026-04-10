@@ -22,6 +22,7 @@ import { Canvas, useFrame } from '@react-three/fiber';
 import { PerspectiveCamera, Environment, AdaptiveDpr, Preload, useTexture } from '@react-three/drei';
 import * as THREE from 'three';
 import { useCinematicStore } from '@/lib/store';
+import gsap from 'gsap';
 
 // ═══════════════════════════════════════════════════════════════
 // CONSTANTS
@@ -281,6 +282,159 @@ ProjectorLight.displayName = 'ProjectorLight';
 
 
 // ═══════════════════════════════════════════════════════════════
+// ANIMATED CLAPPERBOARD — Premium Interaction Element
+// Represents the "start" of a new chapter in the brand story.
+// Snaps when entering key sections + manual trigger from form.
+// ═══════════════════════════════════════════════════════════════
+
+const Clapperboard = React.memo(({ scrollRef, tier }: { 
+  scrollRef: React.MutableRefObject<number>,
+  tier: DeviceTier
+}) => {
+  const groupRef = useRef<THREE.Group>(null);
+  const armRef = useRef<THREE.Group>(null);
+  const sparkRef = useRef<THREE.Points>(null);
+  
+  const { clapTrigger } = useCinematicStore();
+  const lastClap = useRef(0);
+  const hasSnapped = useRef({ craft: false, work: false });
+
+  // Geometry: Memoized for performance
+  const boardGeo = useMemo(() => new THREE.BoxGeometry(0.8, 0.5, 0.05), []);
+  const armGeo = useMemo(() => new THREE.BoxGeometry(0.8, 0.08, 0.05), []);
+  
+  // Materials: Premium Luxury (Metallic Gold + Ebony Wood)
+  const woodMat = useMemo(() => new THREE.MeshStandardMaterial({
+    color: '#080808',
+    roughness: 0.8,
+    metalness: 0.1,
+  }), []);
+
+  const goldMat = useMemo(() => new THREE.MeshStandardMaterial({
+    color: GOLD,
+    metalness: 1,
+    roughness: 0.2,
+    emissive: GOLD,
+    emissiveIntensity: 0.1,
+  }), []);
+
+  // Particle burst for the "snap"
+  const sparkParticles = useMemo(() => {
+    const pos = new Float32Array(20 * 3);
+    for(let i=0; i<20; i++) {
+      pos[i*3] = (Math.random()-0.5)*0.2;
+      pos[i*3+1] = (Math.random()-0.5)*0.2;
+      pos[i*3+2] = (Math.random()-0.5)*0.2;
+    }
+    return pos;
+  }, []);
+
+  const snapAction = useCallback(() => {
+    if (!armRef.current || !groupRef.current) return;
+    
+    const tl = gsap.timeline();
+    
+    // Smooth, cinematic snap
+    tl.to(armRef.current.rotation, {
+      z: -0.5, // Open
+      duration: 0.4,
+      ease: "power2.out"
+    })
+    .to(armRef.current.rotation, {
+      z: 0.02, // Close with impact
+      duration: 0.15,
+      ease: "power4.in",
+      onComplete: () => {
+        // Subtle impact shake
+        if (groupRef.current) {
+          gsap.to(groupRef.current.position, {
+            y: "-=0.02",
+            duration: 0.05,
+            yoyo: true,
+            repeat: 1
+          });
+        }
+        // Spark burst
+        if (sparkRef.current) {
+          gsap.fromTo(sparkRef.current.scale, { x: 0, y: 0, z: 0 }, { x: 1, y: 1, z: 1, duration: 0.3, ease: "expo.out" });
+          gsap.to(sparkRef.current.scale, { x: 0, y: 0, z: 0, duration: 0.2, delay: 0.1 });
+        }
+      }
+    });
+  }, []);
+
+  // Listen for store triggers (Contact Form)
+  useEffect(() => {
+    if (clapTrigger > 0) snapAction();
+  }, [clapTrigger, snapAction]);
+
+  useFrame((state) => {
+    if (!groupRef.current) return;
+    const p = scrollRef.current;
+    
+    // Position: Always visible but drifts with camera
+    // It stays near the center-left, acting as an editorial anchor
+    groupRef.current.position.x = -1.5 + Math.sin(p * Math.PI) * 0.2;
+    groupRef.current.position.y = 0.6 + Math.cos(state.clock.elapsedTime * 0.5) * 0.05;
+    groupRef.current.rotation.y = 0.3 + p * 0.2;
+    
+    // Trigger snaps on scroll progress
+    if (p > 0.3 && !hasSnapped.current.craft) {
+      snapAction();
+      hasSnapped.current.craft = true;
+    }
+    if (p > 0.55 && !hasSnapped.current.work) {
+      snapAction();
+      hasSnapped.current.work = true;
+    }
+
+    // Reset if scrolling back up
+    if (p < 0.25) hasSnapped.current.craft = false;
+    if (p < 0.5) hasSnapped.current.work = false;
+  });
+
+  if (tier === 'mobile') return null; // Avoid clutter on mobile
+
+  return (
+    <group ref={groupRef} position={[-2, 0.5, 0]}>
+      {/* Main Board */}
+      <mesh geometry={boardGeo} material={woodMat} />
+      
+      {/* Information Stripes (Chevron pattern in gold) */}
+      <mesh position={[0, 0.18, 0.03]}>
+        <boxGeometry args={[0.7, 0.08, 0.01]} />
+        <meshStandardMaterial color={GOLD} metalness={0.8} roughness={0.3} />
+      </mesh>
+
+      {/* The Arm (Hinged at the left edge) */}
+      <group ref={armRef} position={[-0.4, 0.25, 0]}>
+        <mesh geometry={armGeo} material={woodMat} position={[0.4, 0.04, 0]} />
+        <mesh position={[0.4, 0.04, 0.03]}>
+          <boxGeometry args={[0.7, 0.04, 0.01]} />
+          <meshStandardMaterial color={GOLD} metalness={0.8} roughness={0.3} />
+        </mesh>
+      </group>
+
+      {/* Spark Burst Point Cloud */}
+      <points ref={sparkRef} scale={[0,0,0]} position={[0, 0.25, 0.05]}>
+        <bufferGeometry>
+          <bufferAttribute attach="attributes-position" args={[sparkParticles, 3]} />
+        </bufferGeometry>
+        <pointsMaterial color={GOLD} size={0.02} transparent opacity={0.8} blending={THREE.AdditiveBlending} />
+      </points>
+
+      {/* Gold Pivot Joint */}
+      <mesh position={[-0.4, 0.25, 0.04]}>
+        <cylinderGeometry args={[0.03, 0.03, 0.1, 8]} rotation={[Math.PI/2, 0, 0]} />
+        <meshStandardMaterial color={GOLD} metalness={1} roughness={0.1} />
+      </mesh>
+    </group>
+  );
+});
+Clapperboard.displayName = 'Clapperboard';
+
+
+// ═══════════════════════════════════════════════════════════════
 // LIGHT LEAKS — Subtle golden flares that dance across the lens
 // ═══════════════════════════════════════════════════════════════
 
@@ -386,6 +540,9 @@ const SceneOrchestrator = ({ tier }: { tier: DeviceTier }) => {
       {/* Projector light sweep — desktop/tablet only */}
       {tier !== 'mobile' && <ProjectorLight scrollRef={scrollRef} />}
 
+      {/* Animated Clapperboard */}
+      <Clapperboard scrollRef={scrollRef} tier={tier} />
+
       {/* Subtle random light leaks */}
       {tier === 'desktop' && <LightLeak />}
     </>
@@ -397,7 +554,7 @@ const SceneOrchestrator = ({ tier }: { tier: DeviceTier }) => {
 // MAIN EXPORT
 // ═══════════════════════════════════════════════════════════════
 
-export default function CinematicFlowScene() {
+export default function CinematicStoryScene() {
   const [tier, setTier] = useState<DeviceTier>('desktop');
 
   const detectTier = useCallback(() => {
