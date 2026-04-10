@@ -11,6 +11,7 @@ import { siteConfig } from "@/lib/config";
 import FilmGrain from "@/components/FilmGrain";
 import CinematicStoryScene from "@/components/CinematicStoryScene";
 import CinematicPreloader from "@/components/CinematicPreloader";
+import ContentReveal from "@/components/ContentReveal";
 
 const serif = Cinzel({ subsets: ["latin"], variable: "--font-serif", weight: ["400", "500", "600", "700", "800", "900"], display: "swap" });
 const sans = Inter({ subsets: ["latin"], variable: "--font-sans", weight: ["300", "400", "500", "600", "900"], display: "swap" });
@@ -28,15 +29,18 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <FilmGrain />
         <CinematicPreloader />
         <CinematicStoryScene />
-        <SmoothScrollProvider>
-          <ScrollProgress />
-          <CursorTrailer />
-          <Navbar />
-          <PageTransition>
-            <main>{children}</main>
-          </PageTransition>
-          <Footer />
-        </SmoothScrollProvider>
+        <ContentReveal>
+          <SmoothScrollProvider>
+            <ScrollProgress />
+            <CursorTrailer />
+            <Navbar />
+            <PageTransition>
+              <main>{children}</main>
+            </PageTransition>
+            <Footer />
+          </SmoothScrollProvider>
+        </ContentReveal>
+
       </body>
     </html>
   );

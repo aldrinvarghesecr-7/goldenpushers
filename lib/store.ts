@@ -7,7 +7,10 @@ interface CinematicState {
   set3DLoaded: (loaded: boolean) => void;
   clapTrigger: number;
   triggerClap: () => void;
+  introStage: 'preloading' | 'clapper' | 'ready';
+  setIntroStage: (stage: 'preloading' | 'clapper' | 'ready') => void;
 }
+
 
 
 export const useCinematicStore = create<CinematicState>((set) => ({
@@ -17,5 +20,8 @@ export const useCinematicStore = create<CinematicState>((set) => ({
   set3DLoaded: (loaded) => set({ is3DLoaded: loaded }),
   clapTrigger: 0,
   triggerClap: () => set((state) => ({ clapTrigger: state.clapTrigger + 1 })),
+  introStage: 'preloading',
+  setIntroStage: (stage) => set({ introStage: stage }),
 }));
+
 

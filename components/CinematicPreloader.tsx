@@ -10,9 +10,11 @@
 
 import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useCinematicStore } from '@/lib/store';
 
 export default function CinematicPreloader() {
   const [isVisible, setIsVisible] = useState(true);
+  const setIntroStage = useCinematicStore((state) => state.setIntroStage);
   const [percent, setPercent] = useState(0);
   const [count, setCount] = useState(5);
   const startTime = useRef(0);
@@ -32,8 +34,12 @@ export default function CinematicPreloader() {
       rafId.current = requestAnimationFrame(animate);
     } else {
       // Small delay before dismissing for polish
-      setTimeout(() => setIsVisible(false), 300);
+      setTimeout(() => {
+        setIsVisible(false);
+        setIntroStage('clapper');
+      }, 300);
     }
+
   }, []);
 
   useEffect(() => {

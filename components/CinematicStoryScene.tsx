@@ -261,7 +261,6 @@ const ProjectorLight = React.memo(({ scrollRef }: { scrollRef: React.MutableRefO
     
     if (isCraftSection) {
       // Sync with the carousel's active index
-      // Map index 0-5 to X position relative to current strip position
       const craftProgress = activeCraftIndex / 5;
       targetX = THREE.MathUtils.lerp(2, -2, craftProgress);
     }
@@ -282,22 +281,18 @@ ProjectorLight.displayName = 'ProjectorLight';
 
 
 // ═══════════════════════════════════════════════════════════════
-// ANIMATED CLAPPERBOARD — Premium Interaction Element
-// Represents the "start" of a new chapter in the brand story.
-// Snaps when entering key sections + manual trigger from form.
+// ANIMATED CLAPPERBOARD — Intro Only Element
 // ═══════════════════════════════════════════════════════════════
 
-const Clapperboard = React.memo(({ scrollRef, tier }: { 
-  scrollRef: React.MutableRefObject<number>,
+const Clapperboard = React.memo(({ tier }: { 
   tier: DeviceTier
 }) => {
   const groupRef = useRef<THREE.Group>(null);
   const armRef = useRef<THREE.Group>(null);
   const sparkRef = useRef<THREE.Points>(null);
   
-  const { clapTrigger } = useCinematicStore();
-  const lastClap = useRef(0);
-  const hasSnapped = useRef({ craft: false, work: false });
+  const { clapTrigger, introStage, setIntroStage } = useCinematicStore();
+  const [visible, setVisible] = useState(false);
 
   // Geometry: Memoized for performance
   const boardGeo = useMemo(() => new THREE.BoxGeometry(0.8, 0.5, 0.05), []);
@@ -308,14 +303,17 @@ const Clapperboard = React.memo(({ scrollRef, tier }: {
     color: '#080808',
     roughness: 0.8,
     metalness: 0.1,
+    transparent: true,
+    opacity: 1
   }), []);
 
-  const goldMat = useMemo(() => new THREE.MeshStandardMaterial({
+  // Gold material with high metalness for the hinges/stripes
+  const goldStripeMat = useMemo(() => new THREE.MeshStandardMaterial({
     color: GOLD,
     metalness: 1,
     roughness: 0.2,
-    emissive: GOLD,
-    emissiveIntensity: 0.1,
+    transparent: true,
+    opacity: 1
   }), []);
 
   // Particle burst for the "snap"
@@ -329,26 +327,26 @@ const Clapperboard = React.memo(({ scrollRef, tier }: {
     return pos;
   }, []);
 
-  const snapAction = useCallback(() => {
+  const snapAction = useCallback((isIntro = false) => {
     if (!armRef.current || !groupRef.current) return;
     
     const tl = gsap.timeline();
     
     // Smooth, cinematic snap
     tl.to(armRef.current.rotation, {
-      z: -0.5, // Open
-      duration: 0.4,
+      z: -0.6, // Open wider for drama
+      duration: 0.5,
       ease: "power2.out"
     })
     .to(armRef.current.rotation, {
       z: 0.02, // Close with impact
-      duration: 0.15,
+      duration: 0.12,
       ease: "power4.in",
       onComplete: () => {
         // Subtle impact shake
         if (groupRef.current) {
           gsap.to(groupRef.current.position, {
-            y: "-=0.02",
+            y: "-=0.03",
             duration: 0.05,
             yoyo: true,
             repeat: 1
@@ -359,59 +357,59 @@ const Clapperboard = React.memo(({ scrollRef, tier }: {
           gsap.fromTo(sparkRef.current.scale, { x: 0, y: 0, z: 0 }, { x: 1, y: 1, z: 1, duration: 0.3, ease: "expo.out" });
           gsap.to(sparkRef.current.scale, { x: 0, y: 0, z: 0, duration: 0.2, delay: 0.1 });
         }
+
+        // Transition out
+        if (isIntro) {
+          setTimeout(() => {
+            gsap.to(groupRef.current!.position, { z: -3, y: -2, duration: 1, ease: "power2.in" });
+            gsap.to([woodMat, goldStripeMat], { opacity: 0, duration: 0.8, onComplete: () => {
+              setVisible(false);
+              setIntroStage('ready');
+            }});
+          }, 600);
+        }
       }
     });
-  }, []);
+  }, [setIntroStage, woodMat, goldStripeMat]);
 
-  // Listen for store triggers (Contact Form)
+  // Handle Intro Logic
   useEffect(() => {
-    if (clapTrigger > 0) snapAction();
-  }, [clapTrigger, snapAction]);
+    if (introStage === 'clapper') {
+      setVisible(true);
+      // Wait for camera/scene to settle slightly
+      setTimeout(() => snapAction(true), 800);
+    }
+  }, [introStage, snapAction]);
 
   useFrame((state) => {
-    if (!groupRef.current) return;
-    const p = scrollRef.current;
+    if (!groupRef.current || !visible) return;
     
-    // Position: Always visible but drifts with camera
-    // It stays near the center-left, acting as an editorial anchor
-    groupRef.current.position.x = -1.5 + Math.sin(p * Math.PI) * 0.2;
-    groupRef.current.position.y = 0.6 + Math.cos(state.clock.elapsedTime * 0.5) * 0.05;
-    groupRef.current.rotation.y = 0.3 + p * 0.2;
-    
-    // Trigger snaps on scroll progress
-    if (p > 0.3 && !hasSnapped.current.craft) {
-      snapAction();
-      hasSnapped.current.craft = true;
+    if (introStage === 'clapper') {
+      // Hovering in center screen for the intro
+      groupRef.current.position.y = 0.2 + Math.sin(state.clock.elapsedTime * 1.5) * 0.03;
+      groupRef.current.rotation.y = Math.sin(state.clock.elapsedTime * 0.5) * 0.1;
     }
-    if (p > 0.55 && !hasSnapped.current.work) {
-      snapAction();
-      hasSnapped.current.work = true;
-    }
-
-    // Reset if scrolling back up
-    if (p < 0.25) hasSnapped.current.craft = false;
-    if (p < 0.5) hasSnapped.current.work = false;
   });
 
-  if (tier === 'mobile') return null; // Avoid clutter on mobile
+  if (!visible || tier === 'mobile') return null;
 
   return (
-    <group ref={groupRef} position={[-2, 0.5, 0]}>
+    <group ref={groupRef} position={[0, 0.2, 1.5]}>
       {/* Main Board */}
       <mesh geometry={boardGeo} material={woodMat} />
       
-      {/* Information Stripes (Chevron pattern in gold) */}
+      {/* Information Stripes */}
       <mesh position={[0, 0.18, 0.03]}>
         <boxGeometry args={[0.7, 0.08, 0.01]} />
-        <meshStandardMaterial color={GOLD} metalness={0.8} roughness={0.3} />
+        <meshStandardMaterial color={GOLD} metalness={0.8} roughness={0.3} transparent opacity={goldStripeMat.opacity} />
       </mesh>
 
-      {/* The Arm (Hinged at the left edge) */}
+      {/* The Arm */}
       <group ref={armRef} position={[-0.4, 0.25, 0]}>
         <mesh geometry={armGeo} material={woodMat} position={[0.4, 0.04, 0]} />
         <mesh position={[0.4, 0.04, 0.03]}>
           <boxGeometry args={[0.7, 0.04, 0.01]} />
-          <meshStandardMaterial color={GOLD} metalness={0.8} roughness={0.3} />
+          <meshStandardMaterial color={GOLD} metalness={0.8} roughness={0.3} transparent opacity={goldStripeMat.opacity} />
         </mesh>
       </group>
 
@@ -426,13 +424,13 @@ const Clapperboard = React.memo(({ scrollRef, tier }: {
       {/* Gold Pivot Joint */}
       <mesh position={[-0.4, 0.25, 0.04]} rotation={[Math.PI/2, 0, 0]}>
         <cylinderGeometry args={[0.03, 0.03, 0.1, 8]} />
-        <meshStandardMaterial color={GOLD} metalness={1} roughness={0.1} />
+        <meshStandardMaterial color={GOLD} metalness={1} roughness={0.1} transparent opacity={goldStripeMat.opacity} />
       </mesh>
-
     </group>
   );
 });
 Clapperboard.displayName = 'Clapperboard';
+
 
 
 // ═══════════════════════════════════════════════════════════════
