@@ -31,23 +31,34 @@ export default function Icon() {
       >
         <svg
           viewBox="0 0 100 100"
-          style={{ width: '80%', height: '80%' }}
+          style={{ width: '85%', height: '85%' }}
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
         >
+          {/* Main Outer Circular Wave */}
           <path
-            d="M30 50C45 30 65 30 80 55"
-            stroke="currentColor"
-            strokeWidth="8"
-            strokeLinecap="round"
-          />
-          <path
-            d="M15 65C15 65 30 35 55 35C80 35 85 70 85 70C85 70 70 85 55 85C40 85 15 65 15 65Z"
+            d="M82.5 35C85 45 85 55 82.5 65C78 78 65 88 50 88C30 88 12 72 12 50C12 28 28 12 50 12C62 12 73 18 80 28"
             stroke="currentColor"
             strokeWidth="4"
             strokeLinecap="round"
           />
+          {/* Inner Wave Layers */}
+          <path
+            d="M18 55C25 45 35 48 45 58C55 68 65 65 75 55"
+            stroke="currentColor"
+            strokeWidth="3"
+            strokeLinecap="round"
+            style={{ opacity: 0.6 }}
+          />
+          <path
+            d="M22 65C30 58 40 60 48 68C56 76 66 74 74 66"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            style={{ opacity: 0.4 }}
+          />
         </svg>
+
       </div>
     ),
     // ImageResponse options

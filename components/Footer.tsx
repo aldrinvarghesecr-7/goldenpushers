@@ -1,5 +1,5 @@
-'use client';
 import { motion } from 'framer-motion';
+import BrandLogo from './BrandLogo';
 
 export default function Footer() {
   return (
@@ -12,13 +12,10 @@ export default function Footer() {
       />
 
       <div className="max-w-[90vw] mx-auto flex flex-col items-center justify-center text-center space-y-16">
-        <div>
-          <img 
-            src="/logo.png" 
-            alt="Golden Pushers Logo" 
-            className="h-20 w-auto object-contain mx-auto opacity-90 hover:opacity-100 transition-opacity duration-700" 
-          />
+        <div className="flex justify-center">
+          <BrandLogo size={60} />
         </div>
+
 
         <div className="space-y-4">
           <p className="text-xs tracking-[0.4em] text-white/40 uppercase font-mono">Los Angeles // London</p>
