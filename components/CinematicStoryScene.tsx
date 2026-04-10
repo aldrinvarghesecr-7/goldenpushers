@@ -443,20 +443,21 @@ const Clapperboard = React.memo(({ tier }: {
 
       {/* Writings: Labels (Small Gold) */}
       <group position={[0, 0, 0.05]}>
-        <Text position={[-0.5, 0.42, 0]} fontSize={0.04} font="/fonts/Inter-Black.otf" material={labelMat} anchorX="left">PROD.</Text>
-        <Text position={[-0.5, 0.15, 0]} fontSize={0.04} font="/fonts/Inter-Black.otf" material={labelMat} anchorX="left">DIRECTOR</Text>
-        <Text position={[-0.5, -0.05, 0]} fontSize={0.04} font="/fonts/Inter-Black.otf" material={labelMat} anchorX="left">SCENE</Text>
-        <Text position={[-0.15, -0.05, 0]} fontSize={0.04} font="/fonts/Inter-Black.otf" material={labelMat} anchorX="left">TAKE</Text>
-        <Text position={[0.25, -0.05, 0]} fontSize={0.04} font="/fonts/Inter-Black.otf" material={labelMat} anchorX="left">ROLL</Text>
+        <Text position={[-0.5, 0.42, 0]} fontSize={0.04} material={labelMat} anchorX="left">PROD.</Text>
+        <Text position={[-0.5, 0.15, 0]} fontSize={0.04} material={labelMat} anchorX="left">DIRECTOR</Text>
+        <Text position={[-0.5, -0.05, 0]} fontSize={0.04} material={labelMat} anchorX="left">SCENE</Text>
+        <Text position={[-0.15, -0.05, 0]} fontSize={0.04} material={labelMat} anchorX="left">TAKE</Text>
+        <Text position={[0.25, -0.05, 0]} fontSize={0.04} material={labelMat} anchorX="left">ROLL</Text>
       </group>
 
       {/* Writings: Values (Bold White / Hand-written feeling) */}
       <group position={[0, 0, 0.055]}>
-        <Text position={[0, 0.36, 0]} fontSize={0.06} color={GOLD} material={goldDetailMat} font="/fonts/Inter-Black.otf">GOLDEN PUSHERS</Text>
-        <Text position={[0, 0.05, 0]} fontSize={0.07} material={markerFontMat} font="/fonts/Inter-Black.otf">PRODUCTIONS</Text>
-        <Text position={[-0.4, -0.25, 0]} fontSize={0.15} material={markerFontMat} font="/fonts/Inter-Black.otf">01</Text>
-        <Text position={[0, -0.25, 0]} fontSize={0.15} material={markerFontMat} font="/fonts/Inter-Black.otf">A</Text>
-        <Text position={[0.4, -0.25, 0]} fontSize={0.15} material={markerFontMat} font="/fonts/Inter-Black.otf">12</Text>
+        <Text position={[0, 0.36, 0]} fontSize={0.06} color={GOLD} material={goldDetailMat}>GOLDEN PUSHERS</Text>
+        <Text position={[0, 0.05, 0]} fontSize={0.07} material={markerFontMat}>PRODUCTIONS</Text>
+        <Text position={[-0.4, -0.25, 0]} fontSize={0.15} material={markerFontMat}>01</Text>
+        <Text position={[0, -0.25, 0]} fontSize={0.15} material={markerFontMat}>A</Text>
+        <Text position={[0.4, -0.25, 0]} fontSize={0.15} material={markerFontMat}>12</Text>
+
       </group>
 
       {/* Top Stripe (Striped Diagonal Gold) */}
