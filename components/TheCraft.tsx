@@ -1,13 +1,21 @@
 'use client';
 
-import React, { useRef, useState, useLayoutEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import gsap from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
+/**
+ * TheCraft — Apple-Style Horizontal Service Carousel
+ * ===================================================
+ * 
+ * Desktop: Horizontal scroll-snap carousel with golden film-frame cards.
+ *          Smooth momentum scrolling with snap points per card.
+ *          Active card gets a golden glow accent.
+ * 
+ * Mobile:  Clean vertical stack — no horizontal scroll, no lag.
+ * 
+ * All 6 service chapters with full bullet points preserved.
+ */
 
-if (typeof window !== 'undefined') {
-  gsap.registerPlugin(ScrollTrigger);
-}
+import React, { useRef, useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 const chapters = [
   {
@@ -54,126 +62,182 @@ const chapters = [
   }
 ];
 
+function ServiceCard({ chapter, index, isActive }: { chapter: typeof chapters[0], index: number, isActive: boolean }) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 30 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: "-50px" }}
+      transition={{ duration: 0.8, delay: index * 0.05 }}
+      className={`
+        relative flex-shrink-0 w-[85vw] md:w-[420px] lg:w-[380px] 
+        snap-center group
+      `}
+    >
+      <div className={`
+        relative h-full p-8 md:p-10 border transition-all duration-700
+        ${isActive 
+          ? 'border-[#D4AF77]/40 shadow-[0_0_40px_rgba(212,175,119,0.08)]' 
+          : 'border-white/5 hover:border-white/10'
+        }
+        bg-black/40 backdrop-blur-sm
+      `}>
+        {/* Gold accent line — top */}
+        <div className={`absolute top-0 left-0 h-[2px] bg-gradient-to-r from-[#D4AF77] to-transparent transition-all duration-700 ${isActive ? 'w-full' : 'w-0 group-hover:w-1/3'}`} />
+        
+        {/* Chapter number */}
+        <span className="text-[#D4AF77]/30 font-sans text-6xl font-black block mb-6 leading-none">
+          {chapter.id}
+        </span>
+
+        {/* Title */}
+        <h3 className="text-white text-2xl md:text-3xl font-sans font-black uppercase tracking-tight leading-none mb-2">
+          {chapter.title}
+        </h3>
+        
+        {/* Category */}
+        <p className="text-[#D4AF77] font-serif italic text-sm md:text-base mb-6">
+          {chapter.category}
+        </p>
+
+        {/* Description */}
+        <p className="text-white/50 text-sm leading-relaxed mb-8">
+          {chapter.description}
+        </p>
+
+        {/* Service items */}
+        <ul className="space-y-3 border-t border-white/5 pt-6">
+          {chapter.items.map((item, idx) => (
+            <li key={idx} className="flex items-center gap-3 text-white/35 text-xs tracking-widest uppercase font-semibold hover:text-[#D4AF77] transition-colors duration-300">
+              <div className={`w-1 h-1 rounded-full transition-colors duration-500 ${isActive ? 'bg-[#D4AF77] shadow-[0_0_6px_#D4AF77]' : 'bg-white/20'}`} />
+              {item}
+            </li>
+          ))}
+        </ul>
+
+        {/* Subtle inner glow when active */}
+        {isActive && (
+          <div className="absolute inset-0 bg-gradient-to-b from-[#D4AF77]/[0.02] via-transparent to-transparent pointer-events-none" />
+        )}
+      </div>
+    </motion.div>
+  );
+}
+
 export default function TheCraft() {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const sectionRef = useRef<HTMLDivElement>(null);
-  const [progress, setProgress] = useState(0);
-  const [activeChapter, setActiveChapter] = useState(0);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const [activeIndex, setActiveIndex] = useState(0);
   const [isMobile, setIsMobile] = useState(false);
 
-  useLayoutEffect(() => {
+  useEffect(() => {
     const checkMobile = () => setIsMobile(window.innerWidth < 768);
     checkMobile();
     window.addEventListener('resize', checkMobile);
-    
-    if (!containerRef.current) return;
-
-    const ctx = gsap.context(() => {
-      ScrollTrigger.create({
-        trigger: containerRef.current,
-        start: "top top",
-        end: "bottom bottom",
-        scrub: 1,
-        onUpdate: (self) => {
-          const p = self.progress;
-          setProgress(p);
-          
-          // Calculate active chapter based on progress (6 stages)
-          const chapterIndex = Math.min(Math.floor(p * 6), 5);
-          setActiveChapter(chapterIndex);
-        }
-      });
-    }, containerRef);
-
-    return () => {
-      window.removeEventListener('resize', checkMobile);
-      ctx.revert();
-    };
+    return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
+  // Track which card is centered (desktop carousel)
+  useEffect(() => {
+    const el = scrollContainerRef.current;
+    if (!el || isMobile) return;
+
+    const handleScroll = () => {
+      const { scrollLeft, clientWidth } = el;
+      const cardWidth = 420; // approximate card width + gap
+      const index = Math.round(scrollLeft / cardWidth);
+      setActiveIndex(Math.min(index, chapters.length - 1));
+    };
+
+    el.addEventListener('scroll', handleScroll, { passive: true });
+    return () => el.removeEventListener('scroll', handleScroll);
+  }, [isMobile]);
+
+  const scrollCarousel = (direction: 'left' | 'right') => {
+    if (!scrollContainerRef.current) return;
+    const { scrollLeft, clientWidth } = scrollContainerRef.current;
+    const move = direction === 'left' ? -clientWidth * 0.6 : clientWidth * 0.6;
+    scrollContainerRef.current.scrollTo({ left: scrollLeft + move, behavior: 'smooth' });
+  };
+
   return (
-    <section ref={containerRef} className="relative bg-black/70" id="services">
-      {/* HTML Overlays (Pinned) */}
-      <div className="sticky top-0 h-screen w-full overflow-hidden">
-        {/* Section Title Overlay */}
-        <div className="absolute top-12 left-12 z-20">
-          <motion.div 
-            initial={{ opacity: 0, x: -20 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            className="flex items-center gap-4"
-          >
-            <div className="h-[1px] w-12 bg-[#D4AF77]" />
-            <span className="text-[#D4AF77] font-sans text-xs tracking-[0.5em] uppercase">The Craft</span>
-          </motion.div>
-          <h2 className="text-white text-3xl md:text-5xl font-sans font-black uppercase tracking-tighter mt-4">
-            A Cinematic Journey
-          </h2>
-        </div>
-
-        {/* Text Content Grid */}
-        <div className="absolute inset-0 flex items-center justify-end px-6 md:px-24 z-10 pointer-events-none">
-          <div className="max-w-xl w-full pointer-events-auto">
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={activeChapter}
-                initial={{ opacity: 0, y: 30 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -30 }}
-                transition={{ duration: 0.8, ease: [0.23, 1, 0.32, 1] }}
-                className="space-y-8"
-              >
-                <div>
-                  <span className="text-[#D4AF77] font-sans text-4xl block mb-2 opacity-50">
-                    {chapters[activeChapter].id}
-                  </span>
-                  <h3 className="text-white text-5xl md:text-7xl font-sans font-black uppercase leading-none tracking-tighter">
-                    {chapters[activeChapter].title}
-                  </h3>
-                  <p className="text-[#D4AF77] font-serif italic text-xl md:text-2xl mt-4">
-                    {chapters[activeChapter].category}
-                  </p>
-                </div>
-
-                <p className="text-white/60 text-lg leading-relaxed max-w-md">
-                  {chapters[activeChapter].description}
-                </p>
-
-                <ul className="grid grid-cols-1 gap-4 pt-4 border-t border-white/10">
-                  {chapters[activeChapter].items.map((item, idx) => (
-                    <motion.li 
-                      key={idx}
-                      initial={{ opacity: 0, x: -10 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: 0.2 + idx * 0.1 }}
-                      className="flex items-center gap-3 text-white/40 text-sm tracking-widest uppercase font-bold hover:text-[#D4AF77] transition-colors"
-                    >
-                      <div className="w-1.5 h-1.5 rounded-full bg-[#D4AF77] shadow-[0_0_8px_#D4AF77]" />
-                      {item}
-                    </motion.li>
-                  ))}
-                </ul>
-              </motion.div>
-            </AnimatePresence>
+    <section className="relative bg-black/70 py-24 md:py-32 overflow-hidden" id="services">
+      {/* Header */}
+      <div className="max-w-7xl mx-auto px-6 md:px-12 mb-14 md:mb-20">
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-8">
+          <div>
+            <div className="flex items-center gap-4 mb-4">
+              <div className="h-[1px] w-12 bg-[#D4AF77]" />
+              <span className="text-[#D4AF77] font-sans text-xs tracking-[0.5em] uppercase">The Craft</span>
+            </div>
+            <h2 className="text-4xl md:text-6xl lg:text-7xl font-sans font-black text-white uppercase tracking-tighter leading-none">
+              A Cinematic<br />Journey
+            </h2>
+            <p className="mt-4 text-white/40 text-sm md:text-base max-w-md font-serif italic">
+              Six chapters of cinematic mastery — from the first spark to the final golden frame.
+            </p>
           </div>
-        </div>
 
-        {/* Scroll Progress Bar */}
-        <div className="absolute right-8 top-1/2 -translate-y-1/2 flex flex-col items-center gap-4 z-20">
-          {chapters.map((_, idx) => (
-            <motion.div
-              key={idx}
-              animate={{ 
-                scale: activeChapter === idx ? 1.5 : 1,
-                backgroundColor: activeChapter === idx ? "#D4AF77" : "rgba(255,255,255,0.2)"
-              }}
-              className="w-2 h-2 rounded-full cursor-pointer transition-colors"
-            />
-          ))}
+          {/* Navigation arrows — desktop only */}
+          {!isMobile && (
+            <div className="flex gap-4">
+              <button
+                onClick={() => scrollCarousel('left')}
+                className="group w-14 h-14 rounded-full border border-white/10 flex items-center justify-center text-white/40 hover:border-[#D4AF77] hover:text-[#D4AF77] transition-all duration-500"
+              >
+                <ChevronLeft size={22} className="group-hover:-translate-x-0.5 transition-transform" />
+              </button>
+              <button
+                onClick={() => scrollCarousel('right')}
+                className="group w-14 h-14 rounded-full border border-white/10 flex items-center justify-center text-white/40 hover:border-[#D4AF77] hover:text-[#D4AF77] transition-all duration-500"
+              >
+                <ChevronRight size={22} className="group-hover:translate-x-0.5 transition-transform" />
+              </button>
+            </div>
+          )}
         </div>
       </div>
 
-      {/* Spacer to create scroll length (6 stages * 100vh) */}
-      <div className="h-[600vh]" />
+      {/* DESKTOP: Horizontal scroll-snap carousel */}
+      {!isMobile ? (
+        <div
+          ref={scrollContainerRef}
+          className="flex gap-8 px-12 overflow-x-auto snap-x snap-mandatory scrollbar-hide pb-8"
+          style={{ scrollbarWidth: 'none' }}
+        >
+          {/* Leading spacer for visual breathing */}
+          <div className="min-w-[2vw] flex-shrink-0" />
+          
+          {chapters.map((chapter, i) => (
+            <ServiceCard key={chapter.id} chapter={chapter} index={i} isActive={activeIndex === i} />
+          ))}
+
+          {/* Trailing spacer */}
+          <div className="min-w-[15vw] flex-shrink-0" />
+        </div>
+      ) : (
+        /* MOBILE: Clean vertical stack */
+        <div className="flex flex-col gap-6 px-6">
+          {chapters.map((chapter, i) => (
+            <ServiceCard key={chapter.id} chapter={chapter} index={i} isActive={false} />
+          ))}
+        </div>
+      )}
+
+      {/* Progress dots — desktop */}
+      {!isMobile && (
+        <div className="flex justify-center gap-3 mt-10">
+          {chapters.map((_, idx) => (
+            <div
+              key={idx}
+              className={`h-1.5 rounded-full transition-all duration-500 ${
+                activeIndex === idx
+                  ? 'w-8 bg-[#D4AF77]'
+                  : 'w-1.5 bg-white/15'
+              }`}
+            />
+          ))}
+        </div>
+      )}
     </section>
   );
 }

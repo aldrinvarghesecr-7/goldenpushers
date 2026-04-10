@@ -1,43 +1,25 @@
 'use client';
 
 /**
- * CinematicFlowScene — The Golden Pushers Unified 3D Cinema Engine
- * ================================================================
+ * CinematicFlowScene — Golden Film Strip Background
+ * ==================================================
  * 
- * PERFORMANCE ARCHITECTURE:
- * ─────────────────────────
- * 1. Scroll progress stored in useRef (NOT useState) — eliminates 60fps React re-renders
- * 2. All geometries & materials memoized via useMemo — zero per-frame allocations
- * 3. Three-tier device detection: DESKTOP / TABLET / MOBILE
- *    - Desktop: Full scene, volumetric lights, transmission materials, all objects
- *    - Tablet:  Simplified materials, fewer particles, no transmission, no shadows
- *    - Mobile:  Minimal scene — only reel + particles + ambient light (2D-quality perf)
- * 4. Section-based visibility culling — objects only render when their section is active
- * 5. AdaptiveDpr for automatic quality scaling under load
- * 6. No ContactShadows (expensive blur pass), no useDepthBuffer (extra render pass)
+ * CONCEPT: A single horizontal golden film strip stretches across the void.
+ * As the user scrolls, the strip slowly unspools forward. Individual frames
+ * on the strip subtly glow to match the current section. A slow, continuous
+ * camera dolly creates the feeling of moving through a cinematic story.
  * 
- * ANIMATION ARCHITECTURE:
- * ───────────────────────
- * The scroll range [0.0 → 1.0] maps to 6 cinematic chapters:
- * 
- *   0.00–0.15  HERO:     Studio awakens. Reel dormant. Single golden spotlight fades in.
- *   0.15–0.35  ETHOS:    Clapperboard snaps ONCE. Boom mic lowers. Reel begins slow spin.
- *   0.35–0.60  CRAFT:    Studio lights sequence on (L→R). Reel accelerates. Camera orbits.
- *   0.60–0.80  WORK:     Camera pulls back wide. Reel at full speed. Particles intensify.
- *   0.80–0.95  TEAM:     Warm spotlight. Reel slows. Camera settles center.
- *   0.95–1.00  CONTACT:  Fade to warm gold. Reel stops. Final frame.
- * 
- * Every animation is tied to scroll position — nothing moves randomly.
+ * PERFORMANCE:
+ * - All geometry/materials memoized (zero allocations per frame)
+ * - Scroll stored in useRef (zero React re-renders)
+ * - Three device tiers: desktop / tablet / mobile
+ * - Mobile: simplified strip, fewer particles, no Environment HDR
+ * - No volumetric lights, no depth passes, no transmission materials
  */
 
 import React, { useRef, useMemo, useState, useEffect, useCallback } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
-import { 
-  PerspectiveCamera, 
-  Environment, 
-  AdaptiveDpr,
-  Preload
-} from '@react-three/drei';
+import { PerspectiveCamera, Environment, AdaptiveDpr, Preload } from '@react-three/drei';
 import * as THREE from 'three';
 
 // ═══════════════════════════════════════════════════════════════
@@ -45,258 +27,174 @@ import * as THREE from 'three';
 // ═══════════════════════════════════════════════════════════════
 
 const GOLD = '#D4AF77';
-const GOLD_EMISSIVE = '#C5A059';
+const GOLD_WARM = '#C5A059';
 const DARK = '#050505';
 
 type DeviceTier = 'mobile' | 'tablet' | 'desktop';
 
-// ═══════════════════════════════════════════════════════════════
-// UTILITY: Smooth step for section transitions (no sudden jumps)
-// ═══════════════════════════════════════════════════════════════
+// Section mapping: each section maps to a "frame" on the strip
+const SECTIONS = [
+  { name: 'hero',    start: 0.00, end: 0.15, color: '#D4AF77' },
+  { name: 'ethos',   start: 0.15, end: 0.30, color: '#E8C87A' },
+  { name: 'craft',   start: 0.30, end: 0.55, color: '#D4AF77' },
+  { name: 'work',    start: 0.55, end: 0.75, color: '#C5A059' },
+  { name: 'team',    start: 0.75, end: 0.90, color: '#D4AF77' },
+  { name: 'contact', start: 0.90, end: 1.00, color: '#E8C87A' },
+];
 
 function sectionProgress(scroll: number, start: number, end: number): number {
   return Math.max(0, Math.min(1, (scroll - start) / (end - start)));
 }
 
-function smoothStep(x: number): number {
-  return x * x * (3 - 2 * x);
-}
-
 // ═══════════════════════════════════════════════════════════════
-// GOLDEN FILM REEL — The persistent hero object
-// Spins proportionally to scroll speed, not randomly.
+// GOLDEN FILM STRIP — The core visual element
+// A horizontal strip of connected frames that unspools with scroll.
+// Each frame subtly glows when its section is active.
 // ═══════════════════════════════════════════════════════════════
 
-const GoldenReel = React.memo(({ scrollRef, tier }: { scrollRef: React.MutableRefObject<number>, tier: DeviceTier }) => {
-  const groupRef = useRef<THREE.Group>(null);
-  
-  // PERF: Memoize all geometries and materials — created once, reused forever
-  const spokeMaterial = useMemo(() => new THREE.MeshStandardMaterial({ 
-    color: GOLD_EMISSIVE, metalness: 1, roughness: 0.2 
-  }), []);
-  
-  const hubMaterial = useMemo(() => new THREE.MeshStandardMaterial({ 
-    color: GOLD, metalness: 1, roughness: 0.1 
-  }), []);
-  
-  const rimMaterial = useMemo(() => new THREE.MeshStandardMaterial({ 
-    color: GOLD, metalness: 1, roughness: 0.05, 
-    emissive: GOLD_EMISSIVE, emissiveIntensity: 0.15 
+const FilmStrip = React.memo(({ scrollRef, tier }: { 
+  scrollRef: React.MutableRefObject<number>, 
+  tier: DeviceTier 
+}) => {
+  const stripRef = useRef<THREE.Group>(null);
+  const frameCount = tier === 'mobile' ? 12 : tier === 'tablet' ? 18 : 24;
+  const frameSpacing = 1.8;
+  const stripLength = frameCount * frameSpacing;
+
+  // PERF: Memoize all shared materials — never recreated
+  const stripMaterial = useMemo(() => new THREE.MeshStandardMaterial({
+    color: '#0A0A0A',
+    metalness: 0.8,
+    roughness: 0.4,
+    side: THREE.DoubleSide,
   }), []);
 
-  const hubGeo = useMemo(() => new THREE.CylinderGeometry(0.3, 0.3, 0.4, tier === 'mobile' ? 16 : 32), [tier]);
-  const spokeGeo = useMemo(() => new THREE.BoxGeometry(0.1, 2.4, 0.05), []);
-  const rimGeo = useMemo(() => new THREE.TorusGeometry(2.5, 0.08, 8, tier === 'mobile' ? 48 : 80), [tier]);
+  const perforationMaterial = useMemo(() => new THREE.MeshBasicMaterial({
+    color: '#000000',
+  }), []);
 
-  // Spoke angles — static, computed once
-  const spokeAngles = useMemo(() => [0, 60, 120, 180, 240, 300], []);
+  const stripGeo = useMemo(() => new THREE.PlaneGeometry(stripLength, 1.6), [stripLength]);
+  const frameGeo = useMemo(() => new THREE.PlaneGeometry(1.2, 0.8), []);
+  const perfGeo = useMemo(() => new THREE.CircleGeometry(0.04, 6), []);
 
-  useFrame(() => {
-    if (!groupRef.current) return;
-    const p = scrollRef.current;
-    
-    // ANIMATION: Reel spin speed maps to narrative pace
-    // Hero: dormant. Ethos: waking up. Craft: working speed. Work: full speed. Team→Contact: slowing to rest.
-    let spinSpeed = 0;
-    if (p < 0.15) spinSpeed = p * 0.5;                          // Dormant → barely turning
-    else if (p < 0.35) spinSpeed = 0.075 + sectionProgress(p, 0.15, 0.35) * 0.3;  // Waking up
-    else if (p < 0.6) spinSpeed = 0.4 + sectionProgress(p, 0.35, 0.6) * 0.6;      // Working speed
-    else if (p < 0.8) spinSpeed = 1.0;                          // Full creative speed
-    else spinSpeed = 1.0 - sectionProgress(p, 0.8, 1.0) * 0.8;  // Slowing to final frame
+  // Per-frame emissive materials (each frame has its own for independent glow)
+  const frameMaterials = useMemo(() => {
+    return Array.from({ length: frameCount }, () => new THREE.MeshStandardMaterial({
+      color: '#111111',
+      emissive: GOLD,
+      emissiveIntensity: 0,
+      metalness: 0.3,
+      roughness: 0.6,
+    }));
+  }, [frameCount]);
 
-    groupRef.current.rotation.z += spinSpeed * 0.02;
-    
-    // Subtle breathing — keeps it alive but not random
-    groupRef.current.rotation.x = Math.sin(p * Math.PI) * 0.08;
-    groupRef.current.rotation.y = Math.cos(p * Math.PI * 0.5) * 0.05;
-  });
+  // Gold edge material for the strip border
+  const edgeMaterial = useMemo(() => new THREE.MeshStandardMaterial({
+    color: GOLD_WARM,
+    metalness: 1,
+    roughness: 0.15,
+    emissive: GOLD,
+    emissiveIntensity: 0.05,
+  }), []);
 
-  return (
-    <group ref={groupRef} scale={2}>
-      {/* Central Hub */}
-      <mesh geometry={hubGeo} material={hubMaterial} />
-
-      {/* Spokes — radiating outward */}
-      {spokeAngles.map((deg) => (
-        <group key={deg} rotation={[0, 0, THREE.MathUtils.degToRad(deg)]}>
-          <mesh position={[0, 1.2, 0]} geometry={spokeGeo} material={spokeMaterial} />
-        </group>
-      ))}
-
-      {/* Rim rings */}
-      <mesh rotation={[Math.PI / 2, 0, 0]} position={[0, 0, 0.15]} geometry={rimGeo} material={rimMaterial} />
-      <mesh rotation={[Math.PI / 2, 0, 0]} position={[0, 0, -0.15]} geometry={rimGeo} material={rimMaterial} />
-
-      {/* Film strip ring — simple wireframe instead of expensive MeshTransmissionMaterial */}
-      <mesh rotation={[Math.PI / 2, 0, 0]}>
-        <torusGeometry args={[2.4, 0.25, tier === 'mobile' ? 6 : 12, tier === 'mobile' ? 48 : 80]} />
-        <meshStandardMaterial 
-          color={GOLD} 
-          wireframe 
-          transparent 
-          opacity={0.3}
-        />
-      </mesh>
-    </group>
-  );
-});
-GoldenReel.displayName = 'GoldenReel';
-
-
-// ═══════════════════════════════════════════════════════════════
-// STUDIO PROPS — Clapperboard + Boom Mic
-// Only rendered on desktop/tablet. Culled by section.
-// ═══════════════════════════════════════════════════════════════
-
-const StudioPropsOptimized = React.memo(({ scrollRef }: { scrollRef: React.MutableRefObject<number> }) => {
-  const clapperRef = useRef<THREE.Group>(null);
-  const clapperTopRef = useRef<THREE.Group>(null);
-  const micRef = useRef<THREE.Group>(null);
-  const hasSnapped = useRef(false);
-
-  // PERF: Shared materials
-  const darkMat = useMemo(() => new THREE.MeshStandardMaterial({ color: '#0a0a0a' }), []);
-  const metalMat = useMemo(() => new THREE.MeshStandardMaterial({ color: '#111' }), []);
+  const edgeGeo = useMemo(() => new THREE.PlaneGeometry(stripLength, 0.03), [stripLength]);
 
   useFrame(() => {
-    const p = scrollRef.current;
-    
-    // SECTION: Ethos (0.15–0.35) — Clapperboard enters and snaps ONCE
-    const ethosIn = smoothStep(sectionProgress(p, 0.15, 0.25));
-    const ethosOut = 1 - smoothStep(sectionProgress(p, 0.50, 0.60));
-    const visible = ethosIn * ethosOut;
-    
-    if (clapperRef.current) {
-      clapperRef.current.visible = visible > 0.01;
-      clapperRef.current.position.y = THREE.MathUtils.lerp(-8, 0, visible);
-      clapperRef.current.position.x = 4;
-      clapperRef.current.position.z = -2;
-    }
-
-    // ANIMATION: Clapperboard snaps once at ethos entry, not continuously
-    if (clapperTopRef.current) {
-      if (p > 0.18 && p < 0.22 && !hasSnapped.current) {
-        hasSnapped.current = true;
-        clapperTopRef.current.rotation.z = -0.5;
-      } else if (p > 0.22 && hasSnapped.current) {
-        clapperTopRef.current.rotation.z = THREE.MathUtils.lerp(clapperTopRef.current.rotation.z, 0, 0.1);
-      }
-      if (p < 0.15) hasSnapped.current = false; // Reset on scroll back
-    }
-
-    // SECTION: Boom mic lowers during ethos, stays until craft ends
-    if (micRef.current) {
-      micRef.current.visible = visible > 0.01;
-      micRef.current.position.y = THREE.MathUtils.lerp(12, 5, visible);
-      micRef.current.position.z = -3;
-    }
-  });
-
-  return (
-    <group>
-      {/* Clapperboard */}
-      <group ref={clapperRef} visible={false}>
-        <mesh material={darkMat}>
-          <boxGeometry args={[1.5, 1, 0.1]} />
-        </mesh>
-        <group ref={clapperTopRef} position={[-0.75, 0.5, 0]}>
-          <mesh position={[0.75, 0.1, 0]} material={metalMat}>
-            <boxGeometry args={[1.5, 0.2, 0.12]} />
-          </mesh>
-        </group>
-        {/* Gold accent stripe */}
-        <mesh position={[0, 0.3, 0.06]}>
-          <boxGeometry args={[1.3, 0.05, 0.01]} />
-          <meshStandardMaterial color={GOLD} />
-        </mesh>
-      </group>
-
-      {/* Boom Mic */}
-      <group ref={micRef} visible={false}>
-        <mesh rotation={[0, 0, Math.PI / 2]} material={metalMat}>
-          <cylinderGeometry args={[0.02, 0.02, 8]} />
-        </mesh>
-        <mesh position={[4, 0, 0]} material={darkMat}>
-          <cylinderGeometry args={[0.1, 0.1, 0.5]} />
-        </mesh>
-      </group>
-    </group>
-  );
-});
-StudioPropsOptimized.displayName = 'StudioPropsOptimized';
-
-
-// ═══════════════════════════════════════════════════════════════
-// STUDIO LIGHTS — Sequential golden spots that illuminate with scroll
-// Desktop only. Each light "turns on" as you scroll through Craft section.
-// ═══════════════════════════════════════════════════════════════
-
-const StudioLights = React.memo(({ scrollRef }: { scrollRef: React.MutableRefObject<number> }) => {
-  const lightsRef = useRef<THREE.Group>(null);
-  
-  // PERF: Simple point lights instead of expensive volumetric SpotLights
-  // No depthBuffer, no anglePower, no attenuation passes
-  const lightPositions = useMemo(() => [
-    [-6, 7, -1], [-2, 8, -1], [2, 7, -1], [6, 8, -1]
-  ] as [number, number, number][], []);
-
-  useFrame(() => {
-    if (!lightsRef.current) return;
+    if (!stripRef.current) return;
     const p = scrollRef.current;
 
-    lightsRef.current.children.forEach((light, i) => {
-      // ANIMATION: Lights turn on sequentially during Craft section (0.35–0.60)
-      // Each light has a staggered threshold — they "cascade" left to right
-      const threshold = 0.35 + (i * 0.06);
-      const targetIntensity = smoothStep(sectionProgress(p, threshold, threshold + 0.08)) * 12;
+    // ANIMATION: Strip slides leftward with scroll — "unspooling"
+    // The strip moves from right to left, like film through a projector
+    stripRef.current.position.x = THREE.MathUtils.lerp(stripLength * 0.3, -stripLength * 0.4, p);
+
+    // Gentle vertical breathing
+    stripRef.current.position.y = Math.sin(p * Math.PI * 2) * 0.15;
+    
+    // Very subtle rotation — strip is never perfectly flat
+    stripRef.current.rotation.z = Math.sin(p * Math.PI) * 0.02;
+    stripRef.current.rotation.x = 0.1; // Slight perspective tilt
+
+    // Per-frame glow: frames light up when their section is active
+    frameMaterials.forEach((mat, i) => {
+      const frameProgress = i / frameCount; // 0 to 1 across the strip
       
-      // Lights dim back down after Work section
-      const dimAfter = 1 - smoothStep(sectionProgress(p, 0.85, 0.95));
+      // Find which section this frame belongs to
+      const section = SECTIONS.find(s => frameProgress >= s.start && frameProgress < s.end);
+      if (!section) return;
+
+      // Glow when the scroll is within this section's range
+      const sectionActive = sectionProgress(p, section.start, section.end);
+      const isCurrentFrame = Math.abs(frameProgress - p) < 0.08;
       
-      (light as THREE.PointLight).intensity = THREE.MathUtils.lerp(
-        (light as THREE.PointLight).intensity,
-        targetIntensity * dimAfter,
-        0.08
-      );
+      // Smooth glow transition
+      const targetGlow = isCurrentFrame ? 0.6 : sectionActive > 0 && sectionActive < 1 ? 0.15 : 0.02;
+      mat.emissiveIntensity = THREE.MathUtils.lerp(mat.emissiveIntensity, targetGlow, 0.05);
     });
   });
 
   return (
-    <group ref={lightsRef}>
-      {lightPositions.map((pos, i) => (
-        <pointLight key={i} position={pos} color={GOLD} intensity={0} distance={20} decay={2} />
-      ))}
+    <group ref={stripRef} position={[0, 0, -3]}>
+      {/* Main strip body */}
+      <mesh geometry={stripGeo} material={stripMaterial} />
+
+      {/* Gold edge lines (top and bottom of strip) */}
+      <mesh geometry={edgeGeo} material={edgeMaterial} position={[0, 0.8, 0.01]} />
+      <mesh geometry={edgeGeo} material={edgeMaterial} position={[0, -0.8, 0.01]} />
+
+      {/* Individual frames on the strip */}
+      {frameMaterials.map((mat, i) => {
+        const x = (i - frameCount / 2) * frameSpacing + frameSpacing / 2;
+        return (
+          <group key={i} position={[x, 0, 0.01]}>
+            {/* Frame window */}
+            <mesh geometry={frameGeo} material={mat} />
+            
+            {/* Sprocket holes (top row) */}
+            {tier !== 'mobile' && (
+              <>
+                <mesh geometry={perfGeo} material={perforationMaterial} position={[-0.5, 0.65, 0.01]} />
+                <mesh geometry={perfGeo} material={perforationMaterial} position={[0, 0.65, 0.01]} />
+                <mesh geometry={perfGeo} material={perforationMaterial} position={[0.5, 0.65, 0.01]} />
+                <mesh geometry={perfGeo} material={perforationMaterial} position={[-0.5, -0.65, 0.01]} />
+                <mesh geometry={perfGeo} material={perforationMaterial} position={[0, -0.65, 0.01]} />
+                <mesh geometry={perfGeo} material={perforationMaterial} position={[0.5, -0.65, 0.01]} />
+              </>
+            )}
+          </group>
+        );
+      })}
     </group>
   );
 });
-StudioLights.displayName = 'StudioLights';
+FilmStrip.displayName = 'FilmStrip';
 
 
 // ═══════════════════════════════════════════════════════════════
-// DUST PARTICLES — Lightweight procedural particles via BufferGeometry
-// No drei Sparkles (creates internal state). Pure buffer attributes.
+// GOLDEN DUST — Gentle floating particles that drift with scroll
+// Much subtler than sparkles — like dust caught in projector light
 // ═══════════════════════════════════════════════════════════════
 
-const DustParticles = React.memo(({ scrollRef, count }: { scrollRef: React.MutableRefObject<number>, count: number }) => {
+const GoldenDust = React.memo(({ scrollRef, count }: { 
+  scrollRef: React.MutableRefObject<number>, 
+  count: number 
+}) => {
   const pointsRef = useRef<THREE.Points>(null);
-  
-  const { positions, sizes } = useMemo(() => {
+
+  const positions = useMemo(() => {
     const pos = new Float32Array(count * 3);
-    const sz = new Float32Array(count);
     for (let i = 0; i < count; i++) {
-      pos[i * 3] = (Math.random() - 0.5) * 30;
-      pos[i * 3 + 1] = (Math.random() - 0.5) * 20;
-      pos[i * 3 + 2] = (Math.random() - 0.5) * 20;
-      sz[i] = Math.random() * 2 + 0.5;
+      pos[i * 3] = (Math.random() - 0.5) * 20;
+      pos[i * 3 + 1] = (Math.random() - 0.5) * 8;
+      pos[i * 3 + 2] = (Math.random() - 0.5) * 10 - 2;
     }
-    return { positions: pos, sizes: sz };
+    return pos;
   }, [count]);
 
-  const particleMaterial = useMemo(() => new THREE.PointsMaterial({
+  const particleMat = useMemo(() => new THREE.PointsMaterial({
     color: GOLD,
-    size: 0.08,
+    size: 0.03,
     transparent: true,
-    opacity: 0.4,
+    opacity: 0.35,
     sizeAttenuation: true,
     blending: THREE.AdditiveBlending,
     depthWrite: false,
@@ -305,44 +203,65 @@ const DustParticles = React.memo(({ scrollRef, count }: { scrollRef: React.Mutab
   useFrame((state) => {
     if (!pointsRef.current) return;
     const p = scrollRef.current;
+    const t = state.clock.elapsedTime;
+
+    // Particles drift very slowly — like real dust
+    pointsRef.current.rotation.y = t * 0.003;
+    pointsRef.current.rotation.x = Math.sin(t * 0.01) * 0.02;
     
-    // ANIMATION: Particles become more visible as the studio "heats up"
-    // Barely visible in Hero, full density during Craft/Work, fading in Contact
-    const density = p < 0.15 ? p * 3 : p > 0.9 ? (1 - p) * 10 : 1;
-    particleMaterial.opacity = 0.3 * density;
-    
-    // Gentle upward drift — like dust in a real studio under lights
-    pointsRef.current.rotation.y = state.clock.elapsedTime * 0.01;
-    pointsRef.current.position.y = Math.sin(state.clock.elapsedTime * 0.2) * 0.3;
+    // Intensity follows the story — brighter during active sections
+    const intensity = p < 0.05 ? p * 8 : p > 0.95 ? (1 - p) * 20 : 0.5;
+    particleMat.opacity = 0.2 + intensity * 0.3;
   });
 
   return (
-    <points ref={pointsRef} material={particleMaterial}>
+    <points ref={pointsRef} material={particleMat}>
       <bufferGeometry>
         <bufferAttribute attach="attributes-position" args={[positions, 3]} />
-        <bufferAttribute attach="attributes-size" args={[sizes, 1]} />
       </bufferGeometry>
     </points>
   );
 });
-DustParticles.displayName = 'DustParticles';
+GoldenDust.displayName = 'GoldenDust';
 
 
 // ═══════════════════════════════════════════════════════════════
-// SCENE ORCHESTRATOR — The brain. Manages camera + assembles scene.
-// Uses useRef for scroll — zero React re-renders from scroll events.
+// LIGHT LEAK — A soft golden light that sweeps across with scroll
+// Creates the feeling of projector light sweeping across frames
+// ═══════════════════════════════════════════════════════════════
+
+const ProjectorLight = React.memo(({ scrollRef }: { scrollRef: React.MutableRefObject<number> }) => {
+  const lightRef = useRef<THREE.PointLight>(null);
+
+  useFrame(() => {
+    if (!lightRef.current) return;
+    const p = scrollRef.current;
+
+    // Light follows the "active frame" position on the strip
+    lightRef.current.position.x = THREE.MathUtils.lerp(8, -8, p);
+    lightRef.current.position.y = 0;
+    lightRef.current.position.z = 2;
+
+    // Intensity pulses gently — like projector flicker
+    const flicker = 1 + Math.sin(p * 50) * 0.03;
+    lightRef.current.intensity = 4 * flicker;
+  });
+
+  return <pointLight ref={lightRef} color={GOLD} distance={12} decay={2} />;
+});
+ProjectorLight.displayName = 'ProjectorLight';
+
+
+// ═══════════════════════════════════════════════════════════════
+// SCENE ORCHESTRATOR — Camera dolly + scene assembly
 // ═══════════════════════════════════════════════════════════════
 
 const SceneOrchestrator = ({ tier }: { tier: DeviceTier }) => {
   const scrollRef = useRef(0);
   const cameraRef = useRef<THREE.PerspectiveCamera>(null);
-  
-  // PERF: Reusable vectors — allocated once, mutated in useFrame
-  const targetPos = useMemo(() => new THREE.Vector3(), []);
-  const targetLookAt = useMemo(() => new THREE.Vector3(), []);
-  const currentLookAt = useMemo(() => new THREE.Vector3(), []);
+  const currentLookAt = useMemo(() => new THREE.Vector3(0, 0, -3), []);
 
-  // PERF: Scroll listener writes to ref, not state — no re-renders
+  // PERF: Scroll to ref, not state — zero re-renders
   useEffect(() => {
     const onScroll = () => {
       const total = document.documentElement.scrollHeight - window.innerHeight;
@@ -357,108 +276,56 @@ const SceneOrchestrator = ({ tier }: { tier: DeviceTier }) => {
     if (!cameraRef.current) return;
     const p = scrollRef.current;
 
-    // ─── CAMERA DOLLY PATH ───
-    // Each section has a specific camera position that serves the content:
-    
-    if (p < 0.15) {
-      // HERO: Start far, slowly push in toward the reel
-      const t = sectionProgress(p, 0, 0.15);
-      targetPos.set(0, 0.5, THREE.MathUtils.lerp(14, 10, smoothStep(t)));
-      targetLookAt.set(0, 0, 0);
-    } 
-    else if (p < 0.35) {
-      // ETHOS: Slight orbit left to reveal clapperboard + mic entering frame
-      const t = sectionProgress(p, 0.15, 0.35);
-      targetPos.set(
-        THREE.MathUtils.lerp(0, 3, smoothStep(t)),
-        THREE.MathUtils.lerp(0.5, 1.5, t),
-        THREE.MathUtils.lerp(10, 9, t)
-      );
-      targetLookAt.set(1, 0, 0);
-    }
-    else if (p < 0.6) {
-      // CRAFT: Camera orbits to show the studio lighting up — sweeping motion
-      const t = sectionProgress(p, 0.35, 0.6);
-      const angle = t * Math.PI * 0.3;
-      targetPos.set(
-        Math.sin(angle) * 10,
-        THREE.MathUtils.lerp(1.5, 2, t),
-        Math.cos(angle) * 10
-      );
-      targetLookAt.set(0, 0, 0);
-    }
-    else if (p < 0.8) {
-      // WORK: Pull back wide — revealing the full reel in its glory
-      const t = sectionProgress(p, 0.6, 0.8);
-      targetPos.set(
-        THREE.MathUtils.lerp(3, -2, smoothStep(t)),
-        THREE.MathUtils.lerp(2, 1, t),
-        THREE.MathUtils.lerp(10, 12, smoothStep(t))
-      );
-      targetLookAt.set(0, 0, 0);
-    }
-    else {
-      // TEAM + CONTACT: Settle center, slowly pull back to a respectful distance
-      const t = sectionProgress(p, 0.8, 1.0);
-      targetPos.set(
-        THREE.MathUtils.lerp(-2, 0, smoothStep(t)),
-        THREE.MathUtils.lerp(1, 0.5, t),
-        THREE.MathUtils.lerp(12, 16, smoothStep(t))
-      );
-      targetLookAt.set(0, THREE.MathUtils.lerp(0, -0.5, t), 0);
-    }
+    // CAMERA: Continuous slow forward dolly — never static
+    // Starts far, ends close. Very subtle lateral drift per section.
+    const z = THREE.MathUtils.lerp(6, 2.5, p);
+    const x = Math.sin(p * Math.PI * 2) * 0.3; // Very gentle side-to-side
+    const y = 0.2 + Math.sin(p * Math.PI) * 0.15; // Slight rise and fall
 
-    // Smooth interpolation — never jumps, always glides
-    cameraRef.current.position.lerp(targetPos, 0.03);
-    currentLookAt.lerp(targetLookAt, 0.03);
+    cameraRef.current.position.x = THREE.MathUtils.lerp(cameraRef.current.position.x, x, 0.02);
+    cameraRef.current.position.y = THREE.MathUtils.lerp(cameraRef.current.position.y, y, 0.02);
+    cameraRef.current.position.z = THREE.MathUtils.lerp(cameraRef.current.position.z, z, 0.02);
+
+    // Look slightly ahead of center — following the strip
+    currentLookAt.x = THREE.MathUtils.lerp(currentLookAt.x, x * 0.5, 0.02);
     cameraRef.current.lookAt(currentLookAt);
   });
 
-  // Particle count scales with device capability
-  const particleCount = tier === 'mobile' ? 40 : tier === 'tablet' ? 80 : 150;
+  const particleCount = tier === 'mobile' ? 30 : tier === 'tablet' ? 60 : 120;
 
   return (
     <>
-      <PerspectiveCamera 
-        ref={cameraRef} 
-        makeDefault 
-        position={[0, 0.5, 14]} 
-        fov={tier === 'mobile' ? 60 : 42} 
+      <PerspectiveCamera
+        ref={cameraRef}
+        makeDefault
+        position={[0, 0.2, 6]}
+        fov={tier === 'mobile' ? 55 : 40}
       />
+
+      {/* Ambient — very dim base light */}
+      <ambientLight intensity={0.06} />
       
-      {/* 
-        LIGHTING: Minimal ambient + one key directional.
-        No Environment HDR on mobile (saves ~200KB + GPU texture lookup).
-      */}
-      <ambientLight intensity={0.08} />
-      <directionalLight position={[5, 8, 5]} intensity={0.4} color={GOLD} />
-      
+      {/* Key light from above — warm gold wash */}
+      <directionalLight position={[0, 5, 3]} intensity={0.3} color={GOLD} />
+
+      {/* Environment HDR — desktop only for reflections */}
       {tier === 'desktop' && <Environment preset="night" />}
-      
-      {/* The persistent golden reel — always visible, always telling the story */}
-      <GoldenReel scrollRef={scrollRef} tier={tier} />
-      
-      {/* Dust particles — lightweight procedural, scales with tier */}
-      <DustParticles scrollRef={scrollRef} count={particleCount} />
-      
-      {/* Studio props — only on desktop/tablet (culled internally by section) */}
-      {tier !== 'mobile' && <StudioPropsOptimized scrollRef={scrollRef} />}
-      
-      {/* Sequential lights — desktop only (4 point lights) */}
-      {tier === 'desktop' && <StudioLights scrollRef={scrollRef} />}
-      
-      {/* Dark studio enclosure sphere */}
-      <mesh>
-        <sphereGeometry args={[25, tier === 'mobile' ? 8 : 16, tier === 'mobile' ? 8 : 16]} />
-        <meshBasicMaterial color={DARK} side={THREE.BackSide} />
-      </mesh>
+
+      {/* The golden film strip — the hero element */}
+      <FilmStrip scrollRef={scrollRef} tier={tier} />
+
+      {/* Floating golden dust */}
+      <GoldenDust scrollRef={scrollRef} count={particleCount} />
+
+      {/* Projector light sweep — desktop/tablet only */}
+      {tier !== 'mobile' && <ProjectorLight scrollRef={scrollRef} />}
     </>
   );
 };
 
 
 // ═══════════════════════════════════════════════════════════════
-// MAIN EXPORT — Canvas wrapper with device detection
+// MAIN EXPORT
 // ═══════════════════════════════════════════════════════════════
 
 export default function CinematicFlowScene() {
@@ -466,9 +333,7 @@ export default function CinematicFlowScene() {
 
   const detectTier = useCallback(() => {
     const w = window.innerWidth;
-    // Also check for touch as a tablet indicator
     const isTouch = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
-    
     if (w < 768 || (isTouch && w < 1024)) setTier('mobile');
     else if (w < 1280 || isTouch) setTier('tablet');
     else setTier('desktop');
@@ -481,18 +346,10 @@ export default function CinematicFlowScene() {
   }, [detectTier]);
 
   return (
-    <div className="fixed inset-0 z-[-1] pointer-events-none bg-black w-full h-screen overflow-hidden">
+    <div className="fixed inset-0 z-[-1] pointer-events-none bg-[#050505] w-full h-screen overflow-hidden">
       <Canvas
-        /**
-         * PERFORMANCE CONFIG:
-         * - dpr: Mobile gets 1x, desktop up to 1.5x (not 2x — diminishing returns)
-         * - antialias: Off on mobile (saves significant GPU fill rate)
-         * - powerPreference: Always high-performance
-         * - shadows: Completely disabled (ContactShadows removed)
-         * - alpha: false (no compositing overhead)
-         */
         dpr={tier === 'mobile' ? [0.75, 1] : tier === 'tablet' ? [1, 1.25] : [1, 1.5]}
-        gl={{ 
+        gl={{
           antialias: tier === 'desktop',
           powerPreference: 'high-performance',
           alpha: false,
@@ -504,10 +361,10 @@ export default function CinematicFlowScene() {
         <AdaptiveDpr pixelated />
         <Preload all />
       </Canvas>
-      
-      {/* Cinematic vignette overlay — pure CSS, zero GPU cost */}
-      <div className="absolute inset-0 pointer-events-none bg-gradient-to-b from-black/50 via-transparent to-black/70" />
-      <div className="absolute inset-0 pointer-events-none shadow-[inset_0_0_150px_rgba(0,0,0,0.9)]" />
+
+      {/* Cinematic overlays — pure CSS */}
+      <div className="absolute inset-0 pointer-events-none bg-gradient-to-b from-black/40 via-transparent to-black/50" />
+      <div className="absolute inset-0 pointer-events-none shadow-[inset_0_0_120px_rgba(0,0,0,0.8)]" />
     </div>
   );
 }
