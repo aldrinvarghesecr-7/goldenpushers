@@ -126,7 +126,7 @@ export default function CraftCarousel({ progress }: { progress: number }) {
               position={[0, -2.5, 0.2]}
               fontSize={0.22}
               color="white"
-              opacity={0.6}
+              fillOpacity={0.6}
               maxWidth={3.5}
               textAlign="center"
               font="/fonts/Inter-Regular.ttf"
