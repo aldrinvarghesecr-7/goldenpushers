@@ -1,9 +1,7 @@
 'use client';
-import { useState, useRef } from 'react';
+import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Check } from 'lucide-react';
-import { Canvas } from '@react-three/fiber';
-import { Sparkles, Stars } from '@react-three/drei';
 
 export default function ContactForm() {
   const [formData, setFormData] = useState({ name: '', email: '', phone: '', type: '', message: '' });
@@ -19,7 +17,7 @@ export default function ContactForm() {
   };
 
   return (
-    <section className="relative w-full min-h-screen bg-transparent flex flex-col items-center justify-center py-32 overflow-hidden">
+    <section className="relative w-full min-h-screen bg-black/70 flex flex-col items-center justify-center py-32 overflow-hidden">
 
         <div className="relative z-10 w-full max-w-4xl px-8 mx-auto">
             <AnimatePresence mode="wait">

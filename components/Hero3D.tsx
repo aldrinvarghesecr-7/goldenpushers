@@ -1,8 +1,6 @@
 'use client';
-import { useRef, useMemo, useState } from 'react';
-import { Canvas, useFrame } from '@react-three/fiber';
-import { Environment, Float, Sparkles, Instances, Instance, CameraControls } from '@react-three/drei';
-import * as THREE from 'three';
+import { useRef, useState } from 'react';
+
 import { motion } from 'framer-motion';
 import { Play, Pause, ChevronDown } from 'lucide-react';
 import gsap from 'gsap';
@@ -16,7 +14,7 @@ export default function Hero3D() {
   const [isVideoPlaying, setIsVideoPlaying] = useState(true);
 
   useGSAP(() => {
-    const tl = gsap.timeline({ delay: 4.5 }); // Sync with preloader
+    const tl = gsap.timeline({ delay: 4 }); // Sync with 3.5s preloader + 0.5s buffer
     
     tl.fromTo(title1Ref.current, 
         { y: 100, opacity: 0, rotateX: 45 },
@@ -29,7 +27,7 @@ export default function Hero3D() {
   }, { scope: container });
 
   return (
-    <section ref={container} className="relative w-full h-screen overflow-hidden bg-transparent">
+    <section ref={container} className="relative w-full h-screen overflow-hidden bg-black/40">
       {/* Background Video (Subtle Overlay) */}
       <div className="absolute inset-0 z-0 opacity-10 mix-blend-screen overflow-hidden">
         <video 
@@ -62,7 +60,7 @@ export default function Hero3D() {
         <motion.p 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 6, duration: 1 }}
+            transition={{ delay: 5, duration: 1 }}
             className="mt-8 text-lg font-sans text-white/60 tracking-[0.2em] uppercase max-w-md text-center"
         >
             A Premium Creative Production House. Uncompromising Cinematic Excellence.
@@ -74,7 +72,7 @@ export default function Hero3D() {
          <motion.button 
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ delay: 6.5 }}
+            transition={{ delay: 5.5 }}
             onClick={() => setIsVideoPlaying(!isVideoPlaying)}
             className="group flex gap-3 items-center text-xs tracking-widest uppercase text-white/50 hover:text-accent transition-colors"
          >

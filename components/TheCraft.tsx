@@ -2,10 +2,8 @@
 
 import React, { useRef, useState, useLayoutEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Canvas } from '@react-three/fiber';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import Story3DScene from './Story3DScene';
 
 if (typeof window !== 'undefined') {
   gsap.registerPlugin(ScrollTrigger);
@@ -94,7 +92,7 @@ export default function TheCraft() {
   }, []);
 
   return (
-    <section ref={containerRef} className="relative bg-transparent" id="services">
+    <section ref={containerRef} className="relative bg-black/70" id="services">
       {/* HTML Overlays (Pinned) */}
       <div className="sticky top-0 h-screen w-full overflow-hidden">
         {/* Section Title Overlay */}
