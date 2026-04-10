@@ -113,7 +113,7 @@ const FilmStrip = React.memo(({ scrollRef, tier }: {
 
   const edgeGeo = useMemo(() => new THREE.PlaneGeometry(stripLength, 0.03), [stripLength]);
 
-  useFrame(() => {
+  useFrame((state) => {
     if (!stripRef.current) return;
     const p = scrollRef.current;
 
@@ -281,6 +281,44 @@ ProjectorLight.displayName = 'ProjectorLight';
 
 
 // ═══════════════════════════════════════════════════════════════
+// LIGHT LEAKS — Subtle golden flares that dance across the lens
+// ═══════════════════════════════════════════════════════════════
+
+const LightLeak = React.memo(() => {
+  const meshRef = useRef<THREE.Mesh>(null);
+  const mat = useMemo(() => new THREE.MeshBasicMaterial({
+    color: GOLD,
+    transparent: true,
+    opacity: 0,
+    blending: THREE.AdditiveBlending,
+    depthWrite: false,
+  }), []);
+
+  const geo = useMemo(() => new THREE.PlaneGeometry(8, 8), []);
+
+  useFrame((state) => {
+    if (!meshRef.current) return;
+    const t = state.clock.elapsedTime;
+    
+    // Random flare position
+    meshRef.current.position.x = Math.sin(t * 0.5) * 4;
+    meshRef.current.position.y = Math.cos(t * 0.3) * 2;
+    meshRef.current.position.z = 1;
+
+    // Pulse opacity — like light entering the lens randomly
+    const noise = Math.sin(t * 0.8) * Math.cos(t * 1.2);
+    mat.opacity = Math.max(0, noise * 0.03);
+    
+    // Rotate very slowly
+    meshRef.current.rotation.z = t * 0.05;
+  });
+
+  return <mesh ref={meshRef} geometry={geo} material={mat} />;
+});
+LightLeak.displayName = 'LightLeak';
+
+
+// ═══════════════════════════════════════════════════════════════
 // SCENE ORCHESTRATOR — Camera dolly + scene assembly
 // ═══════════════════════════════════════════════════════════════
 
@@ -289,7 +327,6 @@ const SceneOrchestrator = ({ tier }: { tier: DeviceTier }) => {
   const cameraRef = useRef<THREE.PerspectiveCamera>(null);
   const currentLookAt = useMemo(() => new THREE.Vector3(0, 0, -3), []);
 
-  // PERF: Scroll to ref, not state — zero re-renders
   useEffect(() => {
     const onScroll = () => {
       const total = document.documentElement.scrollHeight - window.innerHeight;
@@ -300,21 +337,22 @@ const SceneOrchestrator = ({ tier }: { tier: DeviceTier }) => {
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
-  useFrame(() => {
+  useFrame((state) => {
     if (!cameraRef.current) return;
     const p = scrollRef.current;
+    const t = state.clock.elapsedTime;
 
-    // CAMERA: Continuous slow forward dolly — never static
-    // Starts far, ends close. Very subtle lateral drift per section.
-    const z = THREE.MathUtils.lerp(6, 2.5, p);
-    const x = Math.sin(p * Math.PI * 2) * 0.3; // Very gentle side-to-side
-    const y = 0.2 + Math.sin(p * Math.PI) * 0.15; // Slight rise and fall
+    // CAMERA: Continuous slow forward dolly
+    const timeDrift = t * 0.05;
+    const z = THREE.MathUtils.lerp(6, 2.5, p) - (timeDrift % 1); 
+    
+    const x = Math.sin(p * Math.PI * 2) * 0.3;
+    const y = 0.2 + Math.sin(p * Math.PI) * 0.15;
 
     cameraRef.current.position.x = THREE.MathUtils.lerp(cameraRef.current.position.x, x, 0.015);
     cameraRef.current.position.y = THREE.MathUtils.lerp(cameraRef.current.position.y, y, 0.015);
     cameraRef.current.position.z = THREE.MathUtils.lerp(cameraRef.current.position.z, z, 0.015);
 
-    // Look slightly ahead of center — following the strip
     currentLookAt.x = THREE.MathUtils.lerp(currentLookAt.x, x * 0.5, 0.02);
     cameraRef.current.lookAt(currentLookAt);
   });
@@ -347,6 +385,9 @@ const SceneOrchestrator = ({ tier }: { tier: DeviceTier }) => {
 
       {/* Projector light sweep — desktop/tablet only */}
       {tier !== 'mobile' && <ProjectorLight scrollRef={scrollRef} />}
+
+      {/* Subtle random light leaks */}
+      {tier === 'desktop' && <LightLeak />}
     </>
   );
 };
