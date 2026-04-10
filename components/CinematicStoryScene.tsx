@@ -281,108 +281,6 @@ ProjectorLight.displayName = 'ProjectorLight';
 
 
 // ═══════════════════════════════════════════════════════════════
-// ANIMATED CLAPPERBOARD — Intro Only Element
-// ═══════════════════════════════════════════════════════════════
-
-const Clapperboard = React.memo(({ tier }: { 
-  tier: DeviceTier
-}) => {
-  const groupRef = useRef<THREE.Group>(null);
-  const armRef = useRef<THREE.Group>(null);
-  const sparkRef = useRef<THREE.Points>(null);
-  
-  const { clapTrigger, introStage, setIntroStage } = useCinematicStore();
-  const [visible, setVisible] = useState(false);
-
-  // Geometry: Memoized for performance - Significantly Larger
-  const WIDTH = 1.3;
-  const HEIGHT = 1.0;
-  const boardGeo = useMemo(() => new THREE.BoxGeometry(WIDTH, HEIGHT, 0.08), []);
-  const armGeo = useMemo(() => new THREE.BoxGeometry(WIDTH, 0.12, 0.08), []);
-  
-  // Materials: Premium Realistic (Matte Ebony + Polished Gold)
-  const boardMat = useMemo(() => new THREE.MeshStandardMaterial({
-    color: '#0D0D0D', // Slightly visible wood black
-    roughness: 0.6,
-    metalness: 0.1,
-    transparent: true,
-    opacity: 1
-  }), []);
-
-  const goldDetailMat = useMemo(() => new THREE.MeshStandardMaterial({
-    color: GOLD,
-    metalness: 0.9,
-    roughness: 0.2,
-    transparent: true,
-    opacity: 1
-  }), []);
-
-  const markerFontMat = useMemo(() => new THREE.MeshStandardMaterial({
-    color: '#F0F0F0', // White dry-erase marker look
-    emissive: '#FFFFFF',
-    emissiveIntensity: 0.2,
-    transparent: true,
-    opacity: 1
-  }), []);
-
-  const labelMat = useMemo(() => new THREE.MeshStandardMaterial({
-    color: GOLD,
-    opacity: 0.6,
-    transparent: true,
-  }), []);
-
-  // Particle burst for the "snap"
-  const sparkParticles = useMemo(() => {
-    const pos = new Float32Array(40 * 3);
-    for(let i=0; i<40; i++) {
-      pos[i*3] = (Math.random()-0.5)*0.3;
-      pos[i*3+1] = (Math.random()-0.5)*0.3;
-      pos[i*3+2] = (Math.random()-0.5)*0.3;
-    }
-    return pos;
-  }, []);
-
-  const snapAction = useCallback((isIntro = false) => {
-    if (!armRef.current || !groupRef.current) return;
-    
-    const tl = gsap.timeline();
-    
-    // Smooth, cinematic snap with "gravity" feeling
-    tl.to(armRef.current.rotation, {
-      z: -0.7, // Open wider
-      duration: 0.6,
-      ease: "power2.out"
-    })
-    .to(armRef.current.rotation, {
-      z: 0.01, // Snap shut with high speed
-      duration: 0.1,
-      ease: "power4.in",
-      onComplete: () => {
-        // High-frequency impact shake (Realistic physics)
-        if (groupRef.current) {
-          gsap.to(groupRef.current.position, {
-            y: "-=0.04",
-            duration: 0.03,
-            yoyo: true,
-            repeat: 3,
-            ease: "bounce.out"
-          });
-        }
-        // Spark burst
-        if (sparkRef.current) {
-          gsap.fromTo(sparkRef.current.scale, { x: 0, y: 0, z: 0 }, { x: 1.5, y: 1.5, z: 1.5, duration: 0.4, ease: "expo.out" });
-          gsap.to(sparkRef.current.scale, { x: 0, y: 0, z: 0, duration: 0.2, delay: 0.1 });
-        }
-
-        // Transition out
-        if (isIntro) {
-          setTimeout(() => {
-            gsap.to(groupRef.current!.position, { z: -4, y: -2, duration: 1.2, ease: "power3.in" });
-            gsap.to([boardMat, goldDetailMat, markerFontMat, labelMat], { 
-              opacity: 0, 
-              duration: 1, 
-              onComplete: () => {
-                setVisible(false);
                 setIntroStage('ready');
               }
             });
@@ -604,8 +502,8 @@ const SceneOrchestrator = ({ tier }: { tier: DeviceTier }) => {
       {/* Projector light sweep — desktop/tablet only */}
       {tier !== 'mobile' && <ProjectorLight scrollRef={scrollRef} />}
 
-      {/* Animated Clapperboard */}
-      <Clapperboard tier={tier} />
+      {/* Subtle random light leaks */}
+      {tier === 'desktop' && <LightLeak />}
 
       {/* Subtle random light leaks */}
       {tier === 'desktop' && <LightLeak />}

@@ -11,6 +11,7 @@ import { siteConfig } from "@/lib/config";
 import FilmGrain from "@/components/FilmGrain";
 import CinematicStoryScene from "@/components/CinematicStoryScene";
 import CinematicPreloader from "@/components/CinematicPreloader";
+import ClapperboardIntro from "@/components/ClapperboardIntro";
 import ContentReveal from "@/components/ContentReveal";
 
 const serif = Cinzel({ subsets: ["latin"], variable: "--font-serif", weight: ["400", "500", "600", "700", "800", "900"], display: "swap" });
@@ -28,6 +29,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body className="bg-primary text-text-primary font-body antialiased overflow-x-hidden selection:bg-accent selection:text-primary">
         <FilmGrain />
         <CinematicPreloader />
+        <ClapperboardIntro />
         <CinematicStoryScene />
         <ContentReveal>
           <SmoothScrollProvider>
