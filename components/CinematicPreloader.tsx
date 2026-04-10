@@ -77,7 +77,7 @@ export default function CinematicPreloader() {
                  initial={{ scale: 1.4, opacity: 0 }}
                  animate={{ scale: 1, opacity: 0.7 }}
                  transition={{ duration: 0.3 }}
-                 className="text-white font-sans text-7xl md:text-8xl font-black italic"
+                 className="text-white font-sans text-7xl md:text-8xl font-black italic pr-6"
                >
                  {count}
                </motion.span>

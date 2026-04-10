@@ -540,7 +540,7 @@ const SceneOrchestrator = ({ tier }: { tier: DeviceTier }) => {
       {tier !== 'mobile' && <ProjectorLight scrollRef={scrollRef} />}
 
       {/* Animated Clapperboard */}
-      <Clapperboard scrollRef={scrollRef} tier={tier} />
+      <Clapperboard tier={tier} />
 
       {/* Subtle random light leaks */}
       {tier === 'desktop' && <LightLeak />}
