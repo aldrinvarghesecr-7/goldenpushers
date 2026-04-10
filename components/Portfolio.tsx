@@ -104,7 +104,7 @@ export default function Portfolio() {
   };
 
   return (
-    <section className="bg-black/60 py-24 md:py-48 relative overflow-hidden">
+    <section className="bg-black/50 py-24 md:py-48 relative overflow-hidden">
       {/* Background Accent Shadow */}
       <div className="absolute top-0 right-0 w-[50vw] h-[50vh] bg-accent/5 blur-[120px] rounded-full pointer-events-none -translate-y-1/2 translate-x-1/4" />
 

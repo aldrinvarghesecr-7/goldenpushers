@@ -17,7 +17,7 @@ export default function AboutParallax() {
   const opacityText = useTransform(scrollYProgress, [0.2, 0.5, 0.8], [0, 1, 0]);
 
   return (
-    <section ref={containerRef} className="relative w-full py-40 min-h-[150vh] bg-black/60 overflow-hidden">
+    <section ref={containerRef} className="relative w-full py-40 bg-black/50 overflow-hidden">
       
       {/* Background Subtle Gradient Glow */}
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[80vw] h-[80vw] rounded-full bg-accent/5 blur-[120px] pointer-events-none" />

@@ -16,6 +16,7 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { useCinematicStore } from '@/lib/store';
 
 const chapters = [
   {
@@ -136,7 +137,9 @@ export default function TheCraft() {
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
-  // Track which card is centered (desktop carousel)
+  // Track index for both local UI and global 3D light sweep
+  const { setActiveCraftIndex } = useCinematicStore();
+
   useEffect(() => {
     const el = scrollContainerRef.current;
     if (!el || isMobile) return;
@@ -145,7 +148,9 @@ export default function TheCraft() {
       const { scrollLeft, clientWidth } = el;
       const cardWidth = 420; // approximate card width + gap
       const index = Math.round(scrollLeft / cardWidth);
-      setActiveIndex(Math.min(index, chapters.length - 1));
+      const boundedIndex = Math.min(index, chapters.length - 1);
+      setActiveIndex(boundedIndex);
+      setActiveCraftIndex(boundedIndex);
     };
 
     el.addEventListener('scroll', handleScroll, { passive: true });

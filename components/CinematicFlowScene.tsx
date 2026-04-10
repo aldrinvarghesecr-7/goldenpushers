@@ -19,8 +19,9 @@
 
 import React, { useRef, useMemo, useState, useEffect, useCallback } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
-import { PerspectiveCamera, Environment, AdaptiveDpr, Preload } from '@react-three/drei';
+import { PerspectiveCamera, Environment, AdaptiveDpr, Preload, useTexture } from '@react-three/drei';
 import * as THREE from 'three';
+import { useCinematicStore } from '@/lib/store';
 
 // ═══════════════════════════════════════════════════════════════
 // CONSTANTS
@@ -77,16 +78,29 @@ const FilmStrip = React.memo(({ scrollRef, tier }: {
   const frameGeo = useMemo(() => new THREE.PlaneGeometry(1.2, 0.8), []);
   const perfGeo = useMemo(() => new THREE.CircleGeometry(0.04, 6), []);
 
-  // Per-frame emissive materials (each frame has its own for independent glow)
+  // Load cinematic textures for the frames
+  const textures = useTexture([
+    '/work/ig-1.jpg',
+    '/work/ig-2.jpg',
+    '/work/ig-3.jpg',
+    '/work/ig-4.jpg',
+    '/work/ig-5.jpg',
+    '/work/ig-6.jpg',
+  ]);
+
+  // Per-frame emissive materials with textures
   const frameMaterials = useMemo(() => {
-    return Array.from({ length: frameCount }, () => new THREE.MeshStandardMaterial({
-      color: '#111111',
+    return Array.from({ length: frameCount }, (_, i) => new THREE.MeshStandardMaterial({
+      map: textures[i % textures.length],
+      color: '#ffffff', // Full brightness for the texture
       emissive: GOLD,
-      emissiveIntensity: 0,
-      metalness: 0.3,
+      emissiveIntensity: 0.1, // Slightly higher emissive for a premium glow
+      metalness: 0.4,
       roughness: 0.6,
+      transparent: true,
+      opacity: 0.8, // More visible but still subtle
     }));
-  }, [frameCount]);
+  }, [frameCount, textures]);
 
   // Gold edge material for the strip border
   const edgeMaterial = useMemo(() => new THREE.MeshStandardMaterial({
@@ -232,19 +246,33 @@ GoldenDust.displayName = 'GoldenDust';
 
 const ProjectorLight = React.memo(({ scrollRef }: { scrollRef: React.MutableRefObject<number> }) => {
   const lightRef = useRef<THREE.PointLight>(null);
+  const { activeCraftIndex } = useCinematicStore();
 
   useFrame(() => {
     if (!lightRef.current) return;
     const p = scrollRef.current;
 
-    // Light follows the "active frame" position on the strip
-    lightRef.current.position.x = THREE.MathUtils.lerp(8, -8, p);
+    // Light behavior depends on the section
+    // In THE CRAFT (0.30 - 0.55), the light sweeps to the active card
+    const isCraftSection = p >= 0.25 && p <= 0.6;
+    
+    let targetX = THREE.MathUtils.lerp(8, -8, p);
+    
+    if (isCraftSection) {
+      // Sync with the carousel's active index
+      // Map index 0-5 to X position relative to current strip position
+      const craftProgress = activeCraftIndex / 5;
+      targetX = THREE.MathUtils.lerp(2, -2, craftProgress);
+    }
+
+    lightRef.current.position.x = THREE.MathUtils.lerp(lightRef.current.position.x, targetX, 0.1);
     lightRef.current.position.y = 0;
     lightRef.current.position.z = 2;
 
     // Intensity pulses gently — like projector flicker
+    const intensity = isCraftSection ? 8 : 4;
     const flicker = 1 + Math.sin(p * 50) * 0.03;
-    lightRef.current.intensity = 4 * flicker;
+    lightRef.current.intensity = THREE.MathUtils.lerp(lightRef.current.intensity, intensity * flicker, 0.1);
   });
 
   return <pointLight ref={lightRef} color={GOLD} distance={12} decay={2} />;
@@ -282,9 +310,9 @@ const SceneOrchestrator = ({ tier }: { tier: DeviceTier }) => {
     const x = Math.sin(p * Math.PI * 2) * 0.3; // Very gentle side-to-side
     const y = 0.2 + Math.sin(p * Math.PI) * 0.15; // Slight rise and fall
 
-    cameraRef.current.position.x = THREE.MathUtils.lerp(cameraRef.current.position.x, x, 0.02);
-    cameraRef.current.position.y = THREE.MathUtils.lerp(cameraRef.current.position.y, y, 0.02);
-    cameraRef.current.position.z = THREE.MathUtils.lerp(cameraRef.current.position.z, z, 0.02);
+    cameraRef.current.position.x = THREE.MathUtils.lerp(cameraRef.current.position.x, x, 0.015);
+    cameraRef.current.position.y = THREE.MathUtils.lerp(cameraRef.current.position.y, y, 0.015);
+    cameraRef.current.position.z = THREE.MathUtils.lerp(cameraRef.current.position.z, z, 0.015);
 
     // Look slightly ahead of center — following the strip
     currentLookAt.x = THREE.MathUtils.lerp(currentLookAt.x, x * 0.5, 0.02);
@@ -339,11 +367,15 @@ export default function CinematicFlowScene() {
     else setTier('desktop');
   }, []);
 
+  const set3DLoaded = useCinematicStore((state) => state.set3DLoaded);
+
   useEffect(() => {
     detectTier();
     window.addEventListener('resize', detectTier);
+    // Signal that 3D is initializing (textures start loading)
+    set3DLoaded(true);
     return () => window.removeEventListener('resize', detectTier);
-  }, [detectTier]);
+  }, [detectTier, set3DLoaded]);
 
   return (
     <div className="fixed inset-0 z-[-1] pointer-events-none bg-[#050505] w-full h-screen overflow-hidden">
