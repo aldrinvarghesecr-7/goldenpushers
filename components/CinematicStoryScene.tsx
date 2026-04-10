@@ -424,10 +424,11 @@ const Clapperboard = React.memo(({ scrollRef, tier }: {
       </points>
 
       {/* Gold Pivot Joint */}
-      <mesh position={[-0.4, 0.25, 0.04]}>
-        <cylinderGeometry args={[0.03, 0.03, 0.1, 8]} rotation={[Math.PI/2, 0, 0]} />
+      <mesh position={[-0.4, 0.25, 0.04]} rotation={[Math.PI/2, 0, 0]}>
+        <cylinderGeometry args={[0.03, 0.03, 0.1, 8]} />
         <meshStandardMaterial color={GOLD} metalness={1} roughness={0.1} />
       </mesh>
+
     </group>
   );
 });
