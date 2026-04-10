@@ -8,6 +8,9 @@ import ScrollProgress from "@/components/ScrollProgress";
 import CursorTrailer from "@/components/CursorTrailer";
 import PageTransition from "@/components/PageTransition";
 import { siteConfig } from "@/lib/config";
+import FilmGrain from "@/components/FilmGrain";
+import CinematicFlowScene from "@/components/CinematicFlowScene";
+import CinematicPreloader from "@/components/CinematicPreloader";
 
 const serif = Cinzel({ subsets: ["latin"], variable: "--font-serif", weight: ["400", "500", "600", "700", "800", "900"], display: "swap" });
 const sans = Inter({ subsets: ["latin"], variable: "--font-sans", weight: ["300", "400", "500", "600", "900"], display: "swap" });
@@ -17,9 +20,6 @@ export const metadata: Metadata = {
   title: `${siteConfig.title} | ${siteConfig.tagline}`,
   description: siteConfig.bio,
 };
-import FilmGrain from "@/components/FilmGrain";
-import CinematicFlowScene from "@/components/CinematicFlowScene";
-import CinematicPreloader from "@/components/CinematicPreloader";
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (

@@ -1,5 +1,12 @@
 'use client';
 
+/**
+ * SmoothScrollProvider — Lenis integration with GSAP ScrollTrigger
+ * ================================================================
+ * PERF: Touch-optimized settings for mobile. Sync mode instead of smooth
+ * on low-power devices to prevent scroll jank with the 3D canvas.
+ */
+
 import { ReactNode, useEffect } from 'react';
 import Lenis from 'lenis';
 import gsap from 'gsap';
@@ -9,10 +16,13 @@ export default function SmoothScrollProvider({ children }: { children: ReactNode
   useEffect(() => {
     gsap.registerPlugin(ScrollTrigger);
 
+    const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+
     const lenis = new Lenis({
-      duration: 1.5,
+      duration: isTouchDevice ? 1.0 : 1.5,       // Faster on touch for responsiveness
       easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
       smoothWheel: true,
+      touchMultiplier: 1.5,                        // Better touch scroll feel
     });
 
     lenis.on('scroll', ScrollTrigger.update);
@@ -25,7 +35,6 @@ export default function SmoothScrollProvider({ children }: { children: ReactNode
 
     return () => {
       lenis.destroy();
-      gsap.ticker.remove(lenis.raf);
     };
   }, []);
 
