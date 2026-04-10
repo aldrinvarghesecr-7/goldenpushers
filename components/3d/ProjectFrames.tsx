@@ -6,7 +6,7 @@ import { Image, Text, Float } from '@react-three/drei';
 import * as THREE from 'three';
 
 const projects = [
-  { id: 1, title: 'TEMPLE SCALE', category: 'HERITAGE FILM', image: 'https://images.unsplash.com/photo-1548013146-72479768bbaa?q=80&w=1200&auto=format&fit=crop' },
+  { id: 1, title: 'TEMPLE SCALE', category: 'HERITAGE FILM', image: 'https://images.unsplash.com/photo-1485846234645-a62644f84728?q=80&w=1200&auto=format&fit=crop' },
   { id: 2, title: 'INTIMATE FRAME', category: 'MODERN ROMANCE', image: 'https://images.unsplash.com/photo-1621112904887-419379ce6824?q=80&w=1200&auto=format&fit=crop' },
   { id: 3, title: 'TROPICAL CUTS', category: 'COMMERCIAL AD', image: 'https://images.unsplash.com/photo-1518133910546-b6c2fb7d79e3?q=80&w=1200&auto=format&fit=crop' },
   { id: 4, title: 'BTS TECHNICAL', category: 'STUDIO GEAR', image: 'https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?q=80&w=1200&auto=format&fit=crop' },
@@ -51,7 +51,6 @@ export default function ProjectFrames({ progress }: { progress: number }) {
               position={[-3.8, -2.8, 0.1]}
               fontSize={0.3}
               color="#D4AF77"
-              font="/fonts/Inter-Bold.ttf"
               anchorX="left"
             >
               {project.category}
@@ -60,7 +59,6 @@ export default function ProjectFrames({ progress }: { progress: number }) {
               position={[-3.8, -3.5, 0.1]}
               fontSize={0.8}
               color="white"
-              font="/fonts/Inter-Bold.ttf"
               anchorX="left"
             >
               {project.title}

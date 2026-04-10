@@ -9,7 +9,7 @@ export default function InstagramArchive() {
     const archivePosts = [
         { id: 1, image: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?q=80&w=800&auto=format&fit=crop', alt: 'Monochrome Portrait' },
         { id: 2, image: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=800&auto=format&fit=crop', alt: 'Fluid Gold 3D' },
-        { id: 3, image: 'https://images.unsplash.com/photo-1548013146-72479768bbaa?q=80&w=800&auto=format&fit=crop', alt: 'Cultural Heritage' },
+        { id: 3, image: 'https://images.unsplash.com/photo-1485846234645-a62644f84728?q=80&w=800&auto=format&fit=crop', alt: 'Cultural Heritage' },
         { id: 4, image: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?q=80&w=800&auto=format&fit=crop', alt: 'Cinematic B&W' },
         { id: 5, image: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=800&auto=format&fit=crop', alt: 'Editorial Portrait' },
         { id: 6, image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=800&auto=format&fit=crop', alt: 'Studio Focus' }

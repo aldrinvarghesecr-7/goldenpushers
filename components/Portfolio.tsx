@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 const projects = [
-  { id: 1, title: 'TEMPLE SCALE', category: 'HERITAGE FILM', image: 'https://images.unsplash.com/photo-1548013146-72479768bbaa?q=80&w=1200&auto=format&fit=crop', video: 'https://cdn.pixabay.com/video/2019/04/10/22692-330689958_large.mp4' },
+  { id: 1, title: 'TEMPLE SCALE', category: 'HERITAGE FILM', image: 'https://images.unsplash.com/photo-1485846234645-a62644f84728?q=80&w=1200&auto=format&fit=crop', video: 'https://cdn.pixabay.com/video/2019/04/10/22692-330689958_large.mp4' },
   { id: 2, title: 'INTIMATE FRAME', category: 'MODERN ROMANCE', image: 'https://images.unsplash.com/photo-1621112904887-419379ce6824?q=80&w=1200&auto=format&fit=crop', video: 'https://cdn.pixabay.com/video/2015/08/08/254-136006158_large.mp4' },
   { id: 3, title: 'TROPICAL CUTS', category: 'COMMERCIAL AD', image: 'https://images.unsplash.com/photo-1518133910546-b6c2fb7d79e3?q=80&w=1200&auto=format&fit=crop', video: 'https://cdn.pixabay.com/video/2021/08/11/84687-587841398_large.mp4' },
   { id: 4, title: 'BTS TECHNICAL', category: 'STUDIO GEAR', image: 'https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?q=80&w=1200&auto=format&fit=crop', video: 'https://cdn.pixabay.com/video/2019/04/10/22692-330689958_large.mp4' },

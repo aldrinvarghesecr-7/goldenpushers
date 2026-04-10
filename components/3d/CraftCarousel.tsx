@@ -91,7 +91,6 @@ export default function CraftCarousel({ progress }: { progress: number }) {
               color="#D4AF77"
               anchorX="center"
               anchorY="middle"
-              font="/fonts/Inter-Bold.ttf"
             >
               {chapter.id}
             </Text>
@@ -102,7 +101,6 @@ export default function CraftCarousel({ progress }: { progress: number }) {
               maxWidth={4}
               textAlign="center"
               anchorX="center"
-              font="/fonts/Inter-Bold.ttf"
             >
               {chapter.title.toUpperCase()}
             </Text>
@@ -112,7 +110,6 @@ export default function CraftCarousel({ progress }: { progress: number }) {
               color="#D4AF77"
               maxWidth={4}
               textAlign="center"
-              font="/fonts/Inter-Regular.ttf"
             >
               {chapter.category}
             </Text>
@@ -129,7 +126,6 @@ export default function CraftCarousel({ progress }: { progress: number }) {
               fillOpacity={0.6}
               maxWidth={3.5}
               textAlign="center"
-              font="/fonts/Inter-Regular.ttf"
             >
               {chapter.items}
             </Text>
