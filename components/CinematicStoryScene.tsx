@@ -19,7 +19,7 @@
 
 import React, { useRef, useMemo, useState, useEffect, useCallback } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
-import { PerspectiveCamera, Environment, AdaptiveDpr, Preload, useTexture } from '@react-three/drei';
+import { PerspectiveCamera, Environment, AdaptiveDpr, Preload, useTexture, Text } from '@react-three/drei';
 import * as THREE from 'three';
 import { useCinematicStore } from '@/lib/store';
 import gsap from 'gsap';
@@ -294,35 +294,50 @@ const Clapperboard = React.memo(({ tier }: {
   const { clapTrigger, introStage, setIntroStage } = useCinematicStore();
   const [visible, setVisible] = useState(false);
 
-  // Geometry: Memoized for performance
-  const boardGeo = useMemo(() => new THREE.BoxGeometry(0.8, 0.5, 0.05), []);
-  const armGeo = useMemo(() => new THREE.BoxGeometry(0.8, 0.08, 0.05), []);
+  // Geometry: Memoized for performance - Significantly Larger
+  const WIDTH = 1.3;
+  const HEIGHT = 1.0;
+  const boardGeo = useMemo(() => new THREE.BoxGeometry(WIDTH, HEIGHT, 0.08), []);
+  const armGeo = useMemo(() => new THREE.BoxGeometry(WIDTH, 0.12, 0.08), []);
   
-  // Materials: Premium Luxury (Metallic Gold + Ebony Wood)
-  const woodMat = useMemo(() => new THREE.MeshStandardMaterial({
-    color: '#080808',
-    roughness: 0.8,
+  // Materials: Premium Realistic (Matte Ebony + Polished Gold)
+  const boardMat = useMemo(() => new THREE.MeshStandardMaterial({
+    color: '#0D0D0D', // Slightly visible wood black
+    roughness: 0.6,
     metalness: 0.1,
     transparent: true,
     opacity: 1
   }), []);
 
-  // Gold material with high metalness for the hinges/stripes
-  const goldStripeMat = useMemo(() => new THREE.MeshStandardMaterial({
+  const goldDetailMat = useMemo(() => new THREE.MeshStandardMaterial({
     color: GOLD,
-    metalness: 1,
+    metalness: 0.9,
     roughness: 0.2,
     transparent: true,
     opacity: 1
   }), []);
 
+  const markerFontMat = useMemo(() => new THREE.MeshStandardMaterial({
+    color: '#F0F0F0', // White dry-erase marker look
+    emissive: '#FFFFFF',
+    emissiveIntensity: 0.2,
+    transparent: true,
+    opacity: 1
+  }), []);
+
+  const labelMat = useMemo(() => new THREE.MeshStandardMaterial({
+    color: GOLD,
+    opacity: 0.6,
+    transparent: true,
+  }), []);
+
   // Particle burst for the "snap"
   const sparkParticles = useMemo(() => {
-    const pos = new Float32Array(20 * 3);
-    for(let i=0; i<20; i++) {
-      pos[i*3] = (Math.random()-0.5)*0.2;
-      pos[i*3+1] = (Math.random()-0.5)*0.2;
-      pos[i*3+2] = (Math.random()-0.5)*0.2;
+    const pos = new Float32Array(40 * 3);
+    for(let i=0; i<40; i++) {
+      pos[i*3] = (Math.random()-0.5)*0.3;
+      pos[i*3+1] = (Math.random()-0.5)*0.3;
+      pos[i*3+2] = (Math.random()-0.5)*0.3;
     }
     return pos;
   }, []);
@@ -332,52 +347,56 @@ const Clapperboard = React.memo(({ tier }: {
     
     const tl = gsap.timeline();
     
-    // Smooth, cinematic snap
+    // Smooth, cinematic snap with "gravity" feeling
     tl.to(armRef.current.rotation, {
-      z: -0.6, // Open wider for drama
-      duration: 0.5,
+      z: -0.7, // Open wider
+      duration: 0.6,
       ease: "power2.out"
     })
     .to(armRef.current.rotation, {
-      z: 0.02, // Close with impact
-      duration: 0.12,
+      z: 0.01, // Snap shut with high speed
+      duration: 0.1,
       ease: "power4.in",
       onComplete: () => {
-        // Subtle impact shake
+        // High-frequency impact shake (Realistic physics)
         if (groupRef.current) {
           gsap.to(groupRef.current.position, {
-            y: "-=0.03",
-            duration: 0.05,
+            y: "-=0.04",
+            duration: 0.03,
             yoyo: true,
-            repeat: 1
+            repeat: 3,
+            ease: "bounce.out"
           });
         }
         // Spark burst
         if (sparkRef.current) {
-          gsap.fromTo(sparkRef.current.scale, { x: 0, y: 0, z: 0 }, { x: 1, y: 1, z: 1, duration: 0.3, ease: "expo.out" });
+          gsap.fromTo(sparkRef.current.scale, { x: 0, y: 0, z: 0 }, { x: 1.5, y: 1.5, z: 1.5, duration: 0.4, ease: "expo.out" });
           gsap.to(sparkRef.current.scale, { x: 0, y: 0, z: 0, duration: 0.2, delay: 0.1 });
         }
 
         // Transition out
         if (isIntro) {
           setTimeout(() => {
-            gsap.to(groupRef.current!.position, { z: -3, y: -2, duration: 1, ease: "power2.in" });
-            gsap.to([woodMat, goldStripeMat], { opacity: 0, duration: 0.8, onComplete: () => {
-              setVisible(false);
-              setIntroStage('ready');
-            }});
-          }, 600);
+            gsap.to(groupRef.current!.position, { z: -4, y: -2, duration: 1.2, ease: "power3.in" });
+            gsap.to([boardMat, goldDetailMat, markerFontMat, labelMat], { 
+              opacity: 0, 
+              duration: 1, 
+              onComplete: () => {
+                setVisible(false);
+                setIntroStage('ready');
+              }
+            });
+          }, 800);
         }
       }
     });
-  }, [setIntroStage, woodMat, goldStripeMat]);
+  }, [setIntroStage, boardMat, goldDetailMat, markerFontMat, labelMat]);
 
   // Handle Intro Logic
   useEffect(() => {
     if (introStage === 'clapper') {
       setVisible(true);
-      // Wait for camera/scene to settle slightly
-      setTimeout(() => snapAction(true), 800);
+      setTimeout(() => snapAction(true), 1000);
     }
   }, [introStage, snapAction]);
 
@@ -385,50 +404,95 @@ const Clapperboard = React.memo(({ tier }: {
     if (!groupRef.current || !visible) return;
     
     if (introStage === 'clapper') {
-      // Hovering in center screen for the intro
-      groupRef.current.position.y = 0.2 + Math.sin(state.clock.elapsedTime * 1.5) * 0.03;
-      groupRef.current.rotation.y = Math.sin(state.clock.elapsedTime * 0.5) * 0.1;
+      // Gentle floating
+      groupRef.current.position.y = 0.2 + Math.sin(state.clock.elapsedTime * 1.5) * 0.04;
+      groupRef.current.rotation.y = Math.sin(state.clock.elapsedTime * 0.5) * 0.12;
+      groupRef.current.rotation.x = -0.1 + Math.cos(state.clock.elapsedTime * 0.8) * 0.05;
     }
   });
 
   if (!visible || tier === 'mobile') return null;
 
   return (
-    <group ref={groupRef} position={[0, 0.2, 1.5]}>
-      {/* Main Board */}
-      <mesh geometry={boardGeo} material={woodMat} />
+    <group ref={groupRef} position={[0, 0.2, 1.8]} scale={[1.2, 1.2, 1.2]}>
+      {/* Main Body */}
+      <mesh geometry={boardGeo} material={boardMat} />
       
-      {/* Information Stripes */}
-      <mesh position={[0, 0.18, 0.03]}>
-        <boxGeometry args={[0.7, 0.08, 0.01]} />
-        <meshStandardMaterial color={GOLD} metalness={0.8} roughness={0.3} transparent opacity={goldStripeMat.opacity} />
-      </mesh>
-
-      {/* The Arm */}
-      <group ref={armRef} position={[-0.4, 0.25, 0]}>
-        <mesh geometry={armGeo} material={woodMat} position={[0.4, 0.04, 0]} />
-        <mesh position={[0.4, 0.04, 0.03]}>
-          <boxGeometry args={[0.7, 0.04, 0.01]} />
-          <meshStandardMaterial color={GOLD} metalness={0.8} roughness={0.3} transparent opacity={goldStripeMat.opacity} />
+      {/* Field Dividers (Etched Gold) */}
+      <group position={[0, 0, 0.045]}>
+        {/* Horizontal Line under Prod title */}
+        <mesh position={[0, 0.3, 0]}>
+           <boxGeometry args={[1.2, 0.005, 0.01]} />
+           <meshStandardMaterial color={GOLD} opacity={0.3} transparent />
+        </mesh>
+        {/* Horizontal Line above scene/take/roll */}
+        <mesh position={[0, -0.1, 0]}>
+           <boxGeometry args={[1.2, 0.005, 0.01]} />
+           <meshStandardMaterial color={GOLD} opacity={0.3} transparent />
+        </mesh>
+        {/* Vertical Dividers for Scene/Take/Roll */}
+        <mesh position={[-0.2, -0.3, 0]}>
+           <boxGeometry args={[0.005, 0.4, 0.01]} />
+           <meshStandardMaterial color={GOLD} opacity={0.3} transparent />
+        </mesh>
+        <mesh position={[0.2, -0.3, 0]}>
+           <boxGeometry args={[0.005, 0.4, 0.01]} />
+           <meshStandardMaterial color={GOLD} opacity={0.3} transparent />
         </mesh>
       </group>
 
+      {/* Writings: Labels (Small Gold) */}
+      <group position={[0, 0, 0.05]}>
+        <Text position={[-0.5, 0.42, 0]} fontSize={0.04} font="/fonts/Inter-Black.otf" material={labelMat} anchorX="left">PROD.</Text>
+        <Text position={[-0.5, 0.15, 0]} fontSize={0.04} font="/fonts/Inter-Black.otf" material={labelMat} anchorX="left">DIRECTOR</Text>
+        <Text position={[-0.5, -0.05, 0]} fontSize={0.04} font="/fonts/Inter-Black.otf" material={labelMat} anchorX="left">SCENE</Text>
+        <Text position={[-0.15, -0.05, 0]} fontSize={0.04} font="/fonts/Inter-Black.otf" material={labelMat} anchorX="left">TAKE</Text>
+        <Text position={[0.25, -0.05, 0]} fontSize={0.04} font="/fonts/Inter-Black.otf" material={labelMat} anchorX="left">ROLL</Text>
+      </group>
+
+      {/* Writings: Values (Bold White / Hand-written feeling) */}
+      <group position={[0, 0, 0.055]}>
+        <Text position={[0, 0.36, 0]} fontSize={0.06} color={GOLD} material={goldDetailMat} font="/fonts/Inter-Black.otf">GOLDEN PUSHERS</Text>
+        <Text position={[0, 0.05, 0]} fontSize={0.07} material={markerFontMat} font="/fonts/Inter-Black.otf">PRODUCTIONS</Text>
+        <Text position={[-0.4, -0.25, 0]} fontSize={0.15} material={markerFontMat} font="/fonts/Inter-Black.otf">01</Text>
+        <Text position={[0, -0.25, 0]} fontSize={0.15} material={markerFontMat} font="/fonts/Inter-Black.otf">A</Text>
+        <Text position={[0.4, -0.25, 0]} fontSize={0.15} material={markerFontMat} font="/fonts/Inter-Black.otf">12</Text>
+      </group>
+
+      {/* Top Stripe (Striped Diagonal Gold) */}
+      <mesh position={[0, 0.45, 0.041]}>
+        <boxGeometry args={[WIDTH, 0.1, 0.001]} />
+        <meshStandardMaterial color={GOLD} metalness={1} roughness={0.1} transparent opacity={goldDetailMat.opacity} />
+      </mesh>
+
+      {/* The Arm (Hinged at the left edge) */}
+      <group ref={armRef} position={[-WIDTH/2, 0.5, 0]}>
+        <mesh geometry={armGeo} material={boardMat} position={[WIDTH/2, 0.06, 0]} />
+        {/* Animated stripes for the arm */}
+        <mesh position={[WIDTH/2, 0.06, 0.041]}>
+           <boxGeometry args={[WIDTH, 0.12, 0.001]} />
+           <meshStandardMaterial color={GOLD} metalness={1} roughness={0.1} transparent opacity={goldDetailMat.opacity} />
+        </mesh>
+      </group>
+
+      {/* Gold Pivot Joint (Hardware details) */}
+      <mesh position={[-WIDTH/2, 0.5, 0.05]} rotation={[Math.PI/2, 0, 0]}>
+        <cylinderGeometry args={[0.04, 0.04, 0.15, 12]} />
+        <meshStandardMaterial color={GOLD} metalness={1} roughness={0.1} transparent opacity={goldDetailMat.opacity} />
+      </mesh>
+
       {/* Spark Burst Point Cloud */}
-      <points ref={sparkRef} scale={[0,0,0]} position={[0, 0.25, 0.05]}>
+      <points ref={sparkRef} scale={[0,0,0]} position={[0, 0.5, 0.08]}>
         <bufferGeometry>
           <bufferAttribute attach="attributes-position" args={[sparkParticles, 3]} />
         </bufferGeometry>
-        <pointsMaterial color={GOLD} size={0.02} transparent opacity={0.8} blending={THREE.AdditiveBlending} />
+        <pointsMaterial color={GOLD} size={0.03} transparent opacity={0.8} blending={THREE.AdditiveBlending} />
       </points>
-
-      {/* Gold Pivot Joint */}
-      <mesh position={[-0.4, 0.25, 0.04]} rotation={[Math.PI/2, 0, 0]}>
-        <cylinderGeometry args={[0.03, 0.03, 0.1, 8]} />
-        <meshStandardMaterial color={GOLD} metalness={1} roughness={0.1} transparent opacity={goldStripeMat.opacity} />
-      </mesh>
     </group>
   );
 });
+Clapperboard.displayName = 'Clapperboard';
+
 Clapperboard.displayName = 'Clapperboard';
 
 
