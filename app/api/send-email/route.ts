@@ -1,48 +1,35 @@
 import { NextResponse } from 'next/server';
 import { Resend } from 'resend';
 
-// NOTE: You must provide RESEND_API_KEY in your .env.local
-const resend = new Resend(process.env.RESEND_API_KEY || 're_placeholder');
+const resend = new Resend(process.env.RESEND_API_KEY);
 
-export async function POST(request: Request) {
+export async function POST(req: Request) {
   try {
-    const body = await request.json();
-    const { name, email, phone, type, message } = body;
+    const { name, email, query } = await req.json();
 
-    // Validate requirements
-    if (!name || !email || !message) {
-      return NextResponse.json(
-        { error: 'Missing required fields' },
-        { status: 400 }
-      );
+    if (!name || !email || !query) {
+      return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
     }
 
-    // Send the email using Resend
     const data = await resend.emails.send({
-      from: 'Golden Pushers <onboarding@resend.dev>', // Use a verified domain in production
-      to: 'goldenpushers@gmail.com',
-      replyTo: email,
-      subject: `New Production Inquiry from ${name}`,
-      text: `
-Name: ${name}
-Email: ${email}
-Phone: ${phone || 'N/A'}
-Project Type: ${type || 'N/A'}
-
-Message:
-${message}
+      from: 'Golden Pushers Website <onboarding@resend.dev>', // Replace with custom domain verified in Resend when ready
+      to: ['goldenpushers@gmail.com'],
+      subject: `New Cinematic Inquiry from ${name}`,
+      html: `
+        <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; background-color: #050505; color: #ffffff; padding: 40px; border: 1px solid #D4AF77;">
+          <h2 style="color: #D4AF77; text-transform: uppercase; letter-spacing: 2px;">New Inquiry</h2>
+          <hr style="border-color: #333;" />
+          <p><strong>Name:</strong> ${name}</p>
+          <p><strong>Email:</strong> ${email}</p>
+          <br/>
+          <h3 style="color: #D4AF77; font-size: 14px; text-transform: uppercase; letter-spacing: 1px;">The Vision:</h3>
+          <p style="white-space: pre-wrap; font-size: 16px; line-height: 1.6; color: #e5e5e5;">${query}</p>
+        </div>
       `,
     });
 
-    if (data.error) {
-      return NextResponse.json({ error: data.error }, { status: 400 });
-    }
-
     return NextResponse.json({ success: true, data });
-  } catch (error) {
-    return NextResponse.json(
-      { error: 'Failed to send communication' },
-      { status: 500 }
-    );
+  } catch (error: any) {
+    return NextResponse.json({ error: error.message || 'Error sending email' }, { status: 500 });
   }
 }
