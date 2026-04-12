@@ -1,13 +1,19 @@
 import { NextResponse } from 'next/server';
 import { Resend } from 'resend';
 
-const resend = new Resend(process.env.RESEND_API_KEY);
-
 export async function POST(req: Request) {
   try {
-    const { name, email, query } = await req.json();
+    const apiKey = process.env.RESEND_API_KEY;
+    
+    if (!apiKey) {
+      console.error('RESEND_API_KEY is missing');
+      return NextResponse.json({ error: 'Email service configuration incomplete' }, { status: 500 });
+    }
 
-    if (!name || !email || !query) {
+    const resend = new Resend(apiKey);
+    const { name, email, message } = await req.json();
+
+    if (!name || !email || !message) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
     }
 
@@ -23,7 +29,7 @@ export async function POST(req: Request) {
           <p><strong>Email:</strong> ${email}</p>
           <br/>
           <h3 style="color: #D4AF77; font-size: 14px; text-transform: uppercase; letter-spacing: 1px;">The Vision:</h3>
-          <p style="white-space: pre-wrap; font-size: 16px; line-height: 1.6; color: #e5e5e5;">${query}</p>
+          <p style="white-space: pre-wrap; font-size: 16px; line-height: 1.6; color: #e5e5e5;">${message}</p>
         </div>
       `,
     });
