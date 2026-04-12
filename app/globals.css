@@ -2,8 +2,8 @@
 @import "lenis/dist/lenis.css";
 
 :root {
-  --color-primary: #030303;
-  --color-accent: #CEA900;
+  --color-primary: #0A0A0A;
+  --color-accent: #D4AF77;
 }
 
 @layer base {

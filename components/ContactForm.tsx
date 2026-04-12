@@ -9,14 +9,26 @@ export default function ContactForm() {
   const [status, setStatus] = useState<'idle' | 'submitting' | 'success'>('idle');
   const triggerClap = useCinematicStore((state) => state.triggerClap);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
       e.preventDefault();
       setStatus('submitting');
-      // Simulate network request
-      setTimeout(() => {
-          setStatus('success');
-          triggerClap(); // Snap the clapper on completion
-      }, 2000);
+      
+      try {
+        const response = await fetch('/api/send-email', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(formData),
+        });
+        
+        if (!response.ok) throw new Error('Network response was not ok');
+        
+        setStatus('success');
+        triggerClap(); // Snap the clapper on completion
+      } catch (error) {
+        console.error('Failed to send inquiry', error);
+        setStatus('idle');
+        alert('Transmission failed. Please try again or use direct email.');
+      }
   };
 
   return (

@@ -76,8 +76,8 @@ function ServiceCard({
     <motion.div
       layout
       className={`
-        relative flex-shrink-0 snap-center transition-all duration-700
-        ${isExpanded ? 'w-[85vw] md:w-[600px]' : 'w-[80vw] md:w-[320px]'}
+        relative flex-shrink-0 md:snap-center transition-all duration-700
+        ${isExpanded ? 'w-full md:w-[600px] h-auto md:h-auto' : 'w-full md:w-[320px] h-auto md:h-auto'}
       `}
     >
       {/* 3D Canister Body */}
@@ -250,7 +250,7 @@ export default function TheCraft() {
 
       <div 
         ref={scrollContainerRef}
-        className="flex gap-8 px-[10vw] md:px-[calc(50vw-160px)] overflow-x-auto snap-x snap-mandatory scrollbar-hide pb-20"
+        className="flex flex-col md:flex-row gap-8 px-6 md:px-[calc(50vw-160px)] md:overflow-x-auto md:snap-x md:snap-mandatory scrollbar-hide pb-20"
       >
         {chapters.map((chapter, i) => (
           <ServiceCard 

@@ -7,7 +7,7 @@ export default function Footer() {
     <footer className="bg-[#0A0A0A] py-32 border-t border-white/5 relative overflow-hidden">
       {/* Animated Subtle Scroll Line */}
       <motion.div 
-         className="absolute top-0 left-[20%] right-[20%] h-px bg-gradient-to-r from-transparent via-[#CEA900] to-transparent opacity-30"
+         className="absolute top-0 left-[20%] right-[20%] h-px bg-gradient-to-r from-transparent via-[#D4AF77] to-transparent opacity-30"
          animate={{ x: ["-100%", "100%"] }}
          transition={{ repeat: Infinity, duration: 5, ease: "linear" }}
       />
@@ -26,19 +26,19 @@ export default function Footer() {
         </div>
 
         <div className="flex gap-12">
-          {['Instagram', 'Vimeo', 'LinkedIn'].map(social => (
-             <a
-                key={social}
-                href="#"
-                className="font-sans font-bold tracking-widest text-xs uppercase text-white/50 hover:text-accent transition-colors block"
-             >
-               {social}
-             </a>
-          ))}
+          <a href="https://instagram.com" className="font-sans font-bold tracking-widest text-xs uppercase text-[#D4AF77]/50 hover:text-[#D4AF77] transition-colors block">
+            Instagram
+          </a>
+          <a href="https://www.linkedin.com/company/goldenpushers/" className="font-sans font-bold tracking-widest text-xs uppercase text-[#D4AF77]/50 hover:text-[#D4AF77] transition-colors block">
+            LinkedIn
+          </a>
+          <a href="https://wa.me/placeholder" className="font-sans font-bold tracking-widest text-xs uppercase text-[#D4AF77]/50 hover:text-[#D4AF77] transition-colors block">
+            WhatsApp
+          </a>
         </div>
 
         <div className="pt-16 w-full flex flex-col md:flex-row justify-between items-center border-t border-white/10 text-xs text-white/30 tracking-widest uppercase font-mono">
-          <p>© {new Date().getFullYear()} Golden Pushers Productions LLP.</p>
+          <p>© 2026 Golden Pushers Productions LLP.</p>
           <p className="mt-4 md:mt-0">All Rights Reserved.</p>
         </div>
       </div>

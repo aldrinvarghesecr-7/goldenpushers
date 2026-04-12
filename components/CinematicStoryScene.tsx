@@ -1,24 +1,16 @@
 'use client';
 
 /**
- * CinematicFlowScene — Golden Film Strip Background
+ * CinematicStoryScene — Golden Film Strip & Unified Experience
  * ==================================================
  * 
- * CONCEPT: A single horizontal golden film strip stretches across the void.
- * As the user scrolls, the strip slowly unspools forward. Individual frames
- * on the strip subtly glow to match the current section. A slow, continuous
- * camera dolly creates the feeling of moving through a cinematic story.
- * 
- * PERFORMANCE:
- * - All geometry/materials memoized (zero allocations per frame)
- * - Scroll stored in useRef (zero React re-renders)
- * - Three device tiers: desktop / tablet / mobile
- * - Mobile: simplified strip, fewer particles, no Environment HDR
- * - No volumetric lights, no depth passes, no transmission materials
+ * Rebuilt as a Single, Persistent R3F Canvas.
+ * Handles the Clapperboard intro sequence, the continuous Film Strip dolly,
+ * and background atmospheric elements (lights, dust).
  */
 
 import React, { useRef, useMemo, useState, useEffect, useCallback } from 'react';
-import { Canvas, useFrame } from '@react-three/fiber';
+import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { PerspectiveCamera, Environment, AdaptiveDpr, Preload, useTexture, Text } from '@react-three/drei';
 import * as THREE from 'three';
 import { useCinematicStore } from '@/lib/store';
@@ -27,14 +19,12 @@ import gsap from 'gsap';
 // ═══════════════════════════════════════════════════════════════
 // CONSTANTS
 // ═══════════════════════════════════════════════════════════════
-
 const GOLD = '#D4AF77';
 const GOLD_WARM = '#C5A059';
 const DARK = '#050505';
 
 type DeviceTier = 'mobile' | 'tablet' | 'desktop';
 
-// Section mapping: each section maps to a "frame" on the strip
 const SECTIONS = [
   { name: 'hero',    start: 0.00, end: 0.15, color: '#D4AF77' },
   { name: 'ethos',   start: 0.15, end: 0.30, color: '#E8C87A' },
@@ -49,21 +39,171 @@ function sectionProgress(scroll: number, start: number, end: number): number {
 }
 
 // ═══════════════════════════════════════════════════════════════
-// GOLDEN FILM STRIP — The core visual element
-// A horizontal strip of connected frames that unspools with scroll.
-// Each frame subtly glows when its section is active.
+// CLAPPERBOARD ASSET (Merged into global scene)
 // ═══════════════════════════════════════════════════════════════
+const ClapperAsset = () => {
+  const groupRef = useRef<THREE.Group>(null);
+  const armRef = useRef<THREE.Group>(null);
+  const sparkRef = useRef<THREE.Points>(null);
+  const lightRef = useRef<THREE.PointLight>(null);
+  
+  const introStage = useCinematicStore((state) => state.introStage);
+  const setIntroStage = useCinematicStore((state) => state.setIntroStage);
+  const clapTrigger = useCinematicStore((state) => state.clapTrigger);
+  const [hasRun, setHasRun] = useState(false);
 
-const FilmStrip = React.memo(({ scrollRef, tier }: { 
-  scrollRef: React.MutableRefObject<number>, 
-  tier: DeviceTier 
-}) => {
+  // Materials
+  const boardMat = useMemo(() => new THREE.MeshStandardMaterial({ color: '#0A0A0A', roughness: 0.4, metalness: 0.1 }), []);
+  const goldDetailMat = useMemo(() => new THREE.MeshStandardMaterial({ color: GOLD, metalness: 1, roughness: 0.2 }), []);
+  const fontMat = useMemo(() => new THREE.MeshStandardMaterial({ color: GOLD, emissive: GOLD, emissiveIntensity: 0.3 }), []);
+
+  const WIDTH = 1.4;
+  const HEIGHT = 1.0;
+
+  const sparkParticles = useMemo(() => {
+    const pos = new Float32Array(50 * 3);
+    for(let i=0; i<50; i++) {
+      pos[i*3] = (Math.random()-0.5)*0.4;
+      pos[i*3+1] = (Math.random()-0.5)*0.4;
+      pos[i*3+2] = (Math.random()-0.5)*0.4;
+    }
+    return pos;
+  }, []);
+
+  const runClapSequence = useCallback(() => {
+    if (!armRef.current || !groupRef.current) return;
+    
+    const tl = gsap.timeline({ delay: 0.6 });
+    gsap.set(armRef.current.rotation, { z: -0.8 }); 
+
+    tl.to(armRef.current.rotation, {
+      z: 0.02,
+      duration: 0.15,
+      ease: "power4.in",
+      onComplete: () => {
+        if (lightRef.current) gsap.fromTo(lightRef.current, { intensity: 0 }, { intensity: 15, duration: 0.05, yoyo: true, repeat: 1 });
+        if (sparkRef.current) {
+          gsap.fromTo(sparkRef.current.scale, { x: 0, y: 0, z: 0 }, { x: 1.5, y: 1.5, z: 1.5, duration: 0.3, ease: "expo.out" });
+          gsap.to(sparkRef.current.scale, { x: 0, y: 0, z: 0, duration: 0.2, delay: 0.1 });
+        }
+        gsap.to(groupRef.current!.position, {
+          y: "-=0.04",
+          duration: 0.04,
+          yoyo: true,
+          repeat: 2,
+          ease: "bounce.out"
+        });
+      }
+    })
+    .to(groupRef.current.position, {
+      z: -4,
+      y: -2,
+      duration: 1.2,
+      ease: "power2.in",
+      delay: 0.5
+    })
+    .to(groupRef.current.rotation, {
+      x: -1,
+      duration: 1.2,
+      ease: "power2.in"
+    }, "<")
+    .add(() => {
+      setIntroStage('ready');
+    }, "-=0.4");
+  }, [setIntroStage]);
+
+  // Handle contact form clap trigger
+  useEffect(() => {
+    if (clapTrigger > 0 && groupRef.current && armRef.current) {
+       // Reset position quickly behind camera or drop it in
+       gsap.set(groupRef.current.position, { x: 0, y: 3, z: 2 });
+       gsap.set(groupRef.current.rotation, { x: 0.2, y: 0, z: 0 });
+       gsap.set(armRef.current.rotation, { z: -0.8 });
+
+       const tl = gsap.timeline();
+       tl.to(groupRef.current.position, { y: 0, duration: 0.5, ease: "power2.out" })
+         .to(armRef.current.rotation, {
+            z: 0.02, duration: 0.15, ease: "power4.in",
+            onComplete: () => {
+              if (lightRef.current) gsap.fromTo(lightRef.current, { intensity: 0 }, { intensity: 20, duration: 0.05, yoyo: true, repeat: 1 });
+              if (sparkRef.current) {
+                gsap.fromTo(sparkRef.current.scale, { x: 0, y: 0, z: 0 }, { x: 2, y: 2, z: 2, duration: 0.3, ease: "expo.out" });
+                gsap.to(sparkRef.current.scale, { x: 0, y: 0, z: 0, duration: 0.2, delay: 0.1 });
+              }
+            }
+         })
+         .to(groupRef.current.position, { y: -3, duration: 0.8, ease: "power2.in", delay: 1 });
+    }
+  }, [clapTrigger]);
+
+  useEffect(() => {
+    if (introStage === 'clapper' && !hasRun) {
+      setHasRun(true);
+      runClapSequence();
+    } else if (introStage === 'ready' && !hasRun) {
+      // If skipped, move out immediately
+      if (groupRef.current) groupRef.current.visible = false;
+    }
+  }, [introStage, hasRun, runClapSequence]);
+
+  useFrame((state) => {
+    if (!groupRef.current || introStage === 'ready') return;
+    groupRef.current.rotation.y = Math.sin(state.clock.elapsedTime * 0.4) * 0.05;
+  });
+
+  return (
+    <group ref={groupRef} position={[0, -0.2, 3]}>
+      <pointLight ref={lightRef} color={GOLD} intensity={0} distance={5} position={[0, 0.5, 0.5]} />
+      
+      <mesh>
+        <boxGeometry args={[WIDTH, HEIGHT, 0.1]} />
+        <primitive object={boardMat} attach="material" />
+      </mesh>
+      
+      <group position={[0, 0, 0.06]}>
+        <Text position={[-0.5, 0.35, 0]} fontSize={0.04} material={fontMat} anchorX="left">PROD.</Text>
+        <Text position={[-0.5, 0.1, 0]} fontSize={0.04} material={fontMat} anchorX="left">SCENE</Text>
+        <Text position={[0, 0.1, 0]} fontSize={0.04} material={fontMat} anchorX="left">TAKE</Text>
+        <Text position={[0.4, 0.35, 0]} fontSize={0.04} material={fontMat} anchorX="right">GOLDEN PUSHERS</Text>
+        <Text position={[0, -0.2, 0]} fontSize={0.12} material={fontMat}>ACTION!</Text>
+      </group>
+
+      <group ref={armRef} position={[-WIDTH/2, HEIGHT/2, 0]}>
+        <mesh position={[WIDTH/2, 0.05, 0]}>
+          <boxGeometry args={[WIDTH, 0.1, 0.1]} />
+          <primitive object={boardMat} attach="material" />
+        </mesh>
+        <mesh position={[WIDTH/2, 0.05, 0.051]}>
+          <boxGeometry args={[WIDTH, 0.1, 0.001]} />
+          <primitive object={goldDetailMat} attach="material" />
+        </mesh>
+      </group>
+      
+      <mesh position={[-WIDTH/2, HEIGHT/2, 0]} rotation={[Math.PI/2, 0, 0]}>
+        <cylinderGeometry args={[0.04, 0.04, 0.15, 12]} />
+        <primitive object={goldDetailMat} attach="material" />
+      </mesh>
+
+      <points ref={sparkRef} scale={[0,0,0]} position={[0, HEIGHT/2, 0.1]}>
+        <bufferGeometry>
+          <bufferAttribute attach="attributes-position" args={[sparkParticles, 3]} />
+        </bufferGeometry>
+        <pointsMaterial color={GOLD} size={0.03} transparent opacity={0.8} blending={THREE.AdditiveBlending} />
+      </points>
+    </group>
+  );
+};
+
+
+// ═══════════════════════════════════════════════════════════════
+// GOLDEN FILM STRIP
+// ═══════════════════════════════════════════════════════════════
+const FilmStrip = React.memo(({ scrollRef, tier }: { scrollRef: React.MutableRefObject<number>, tier: DeviceTier }) => {
   const stripRef = useRef<THREE.Group>(null);
   const frameCount = tier === 'mobile' ? 12 : tier === 'tablet' ? 18 : 24;
   const frameSpacing = 1.8;
   const stripLength = frameCount * frameSpacing;
 
-  // PERF: Memoize all shared materials — never recreated
   const stripMaterial = useMemo(() => new THREE.MeshStandardMaterial({
     color: '#0A0A0A',
     metalness: 0.8,
@@ -71,39 +211,31 @@ const FilmStrip = React.memo(({ scrollRef, tier }: {
     side: THREE.DoubleSide,
   }), []);
 
-  const perforationMaterial = useMemo(() => new THREE.MeshBasicMaterial({
-    color: '#000000',
-  }), []);
-
+  const perforationMaterial = useMemo(() => new THREE.MeshBasicMaterial({ color: '#000000' }), []);
   const stripGeo = useMemo(() => new THREE.PlaneGeometry(stripLength, 1.6), [stripLength]);
   const frameGeo = useMemo(() => new THREE.PlaneGeometry(1.2, 0.8), []);
   const perfGeo = useMemo(() => new THREE.CircleGeometry(0.04, 6), []);
 
-  // Load cinematic textures for the frames
-  const textures = useTexture([
-    '/work/ig-1.jpg',
-    '/work/ig-2.jpg',
-    '/work/ig-3.jpg',
-    '/work/ig-4.jpg',
-    '/work/ig-5.jpg',
-    '/work/ig-6.jpg',
+  const proxyTextures = useTexture([
+    'https://images.unsplash.com/photo-1485846234645-a62644f84728?q=80&w=800&auto=format&fit=crop',
+    'https://images.unsplash.com/photo-1621112904887-419379ce6824?q=80&w=800&auto=format&fit=crop',
+    'https://images.unsplash.com/photo-1518133910546-b6c2fb7d79e3?q=80&w=800&auto=format&fit=crop',
+    'https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?q=80&w=800&auto=format&fit=crop'
   ]);
 
-  // Per-frame emissive materials with textures
   const frameMaterials = useMemo(() => {
     return Array.from({ length: frameCount }, (_, i) => new THREE.MeshStandardMaterial({
-      map: textures[i % textures.length],
-      color: '#ffffff', // Full brightness for the texture
+      map: proxyTextures[i % proxyTextures.length],
+      color: '#ffffff',
       emissive: GOLD,
-      emissiveIntensity: 0.1, // Slightly higher emissive for a premium glow
+      emissiveIntensity: 0.1,
       metalness: 0.4,
       roughness: 0.6,
       transparent: true,
-      opacity: 0.8, // More visible but still subtle
+      opacity: 0.8,
     }));
-  }, [frameCount, textures]);
+  }, [frameCount, proxyTextures]);
 
-  // Gold edge material for the strip border
   const edgeMaterial = useMemo(() => new THREE.MeshStandardMaterial({
     color: GOLD_WARM,
     metalness: 1,
@@ -111,37 +243,22 @@ const FilmStrip = React.memo(({ scrollRef, tier }: {
     emissive: GOLD,
     emissiveIntensity: 0.05,
   }), []);
-
   const edgeGeo = useMemo(() => new THREE.PlaneGeometry(stripLength, 0.03), [stripLength]);
 
-  useFrame((state) => {
+  useFrame(() => {
     if (!stripRef.current) return;
     const p = scrollRef.current;
-
-    // ANIMATION: Strip slides leftward with scroll — "unspooling"
-    // The strip moves from right to left, like film through a projector
     stripRef.current.position.x = THREE.MathUtils.lerp(stripLength * 0.3, -stripLength * 0.4, p);
-
-    // Gentle vertical breathing
     stripRef.current.position.y = Math.sin(p * Math.PI * 2) * 0.15;
-    
-    // Very subtle rotation — strip is never perfectly flat
     stripRef.current.rotation.z = Math.sin(p * Math.PI) * 0.02;
-    stripRef.current.rotation.x = 0.1; // Slight perspective tilt
+    stripRef.current.rotation.x = 0.1;
 
-    // Per-frame glow: frames light up when their section is active
     frameMaterials.forEach((mat, i) => {
-      const frameProgress = i / frameCount; // 0 to 1 across the strip
-      
-      // Find which section this frame belongs to
+      const frameProgress = i / frameCount;
       const section = SECTIONS.find(s => frameProgress >= s.start && frameProgress < s.end);
       if (!section) return;
-
-      // Glow when the scroll is within this section's range
       const sectionActive = sectionProgress(p, section.start, section.end);
       const isCurrentFrame = Math.abs(frameProgress - p) < 0.08;
-      
-      // Smooth glow transition
       const targetGlow = isCurrentFrame ? 0.6 : sectionActive > 0 && sectionActive < 1 ? 0.15 : 0.02;
       mat.emissiveIntensity = THREE.MathUtils.lerp(mat.emissiveIntensity, targetGlow, 0.05);
     });
@@ -149,22 +266,14 @@ const FilmStrip = React.memo(({ scrollRef, tier }: {
 
   return (
     <group ref={stripRef} position={[0, 0, -3]}>
-      {/* Main strip body */}
       <mesh geometry={stripGeo} material={stripMaterial} />
-
-      {/* Gold edge lines (top and bottom of strip) */}
       <mesh geometry={edgeGeo} material={edgeMaterial} position={[0, 0.8, 0.01]} />
       <mesh geometry={edgeGeo} material={edgeMaterial} position={[0, -0.8, 0.01]} />
-
-      {/* Individual frames on the strip */}
       {frameMaterials.map((mat, i) => {
         const x = (i - frameCount / 2) * frameSpacing + frameSpacing / 2;
         return (
           <group key={i} position={[x, 0, 0.01]}>
-            {/* Frame window */}
             <mesh geometry={frameGeo} material={mat} />
-            
-            {/* Sprocket holes (top row) */}
             {tier !== 'mobile' && (
               <>
                 <mesh geometry={perfGeo} material={perforationMaterial} position={[-0.5, 0.65, 0.01]} />
@@ -183,67 +292,39 @@ const FilmStrip = React.memo(({ scrollRef, tier }: {
 });
 FilmStrip.displayName = 'FilmStrip';
 
-
 // ═══════════════════════════════════════════════════════════════
-// GOLDEN DUST — Gentle floating particles that drift with scroll
-// Much subtler than sparkles — like dust caught in projector light
+// GOLDEN DUST & PROJECTOR LIGHT
 // ═══════════════════════════════════════════════════════════════
-
-const GoldenDust = React.memo(({ scrollRef, count }: { 
-  scrollRef: React.MutableRefObject<number>, 
-  count: number 
-}) => {
+const GoldenDust = React.memo(({ scrollRef, count }: { scrollRef: React.MutableRefObject<number>, count: number }) => {
   const pointsRef = useRef<THREE.Points>(null);
-
   const positions = useMemo(() => {
     const pos = new Float32Array(count * 3);
     for (let i = 0; i < count; i++) {
-      pos[i * 3] = (Math.random() - 0.5) * 20;
-      pos[i * 3 + 1] = (Math.random() - 0.5) * 8;
-      pos[i * 3 + 2] = (Math.random() - 0.5) * 10 - 2;
+      pos[i * 3] = (Math.random() - 0.5) * 20; pos[i * 3 + 1] = (Math.random() - 0.5) * 8; pos[i * 3 + 2] = (Math.random() - 0.5) * 10 - 2;
     }
     return pos;
   }, [count]);
-
   const particleMat = useMemo(() => new THREE.PointsMaterial({
-    color: GOLD,
-    size: 0.03,
-    transparent: true,
-    opacity: 0.35,
-    sizeAttenuation: true,
-    blending: THREE.AdditiveBlending,
-    depthWrite: false,
+    color: GOLD, size: 0.03, transparent: true, opacity: 0.35, sizeAttenuation: true, blending: THREE.AdditiveBlending, depthWrite: false,
   }), []);
 
   useFrame((state) => {
     if (!pointsRef.current) return;
     const p = scrollRef.current;
     const t = state.clock.elapsedTime;
-
-    // Particles drift very slowly — like real dust
     pointsRef.current.rotation.y = t * 0.003;
     pointsRef.current.rotation.x = Math.sin(t * 0.01) * 0.02;
-    
-    // Intensity follows the story — brighter during active sections
     const intensity = p < 0.05 ? p * 8 : p > 0.95 ? (1 - p) * 20 : 0.5;
     particleMat.opacity = 0.2 + intensity * 0.3;
   });
 
   return (
     <points ref={pointsRef} material={particleMat}>
-      <bufferGeometry>
-        <bufferAttribute attach="attributes-position" args={[positions, 3]} />
-      </bufferGeometry>
+      <bufferGeometry><bufferAttribute attach="attributes-position" args={[positions, 3]} /></bufferGeometry>
     </points>
   );
 });
 GoldenDust.displayName = 'GoldenDust';
-
-
-// ═══════════════════════════════════════════════════════════════
-// LIGHT LEAK — A soft golden light that sweeps across with scroll
-// Creates the feeling of projector light sweeping across frames
-// ═══════════════════════════════════════════════════════════════
 
 const ProjectorLight = React.memo(({ scrollRef }: { scrollRef: React.MutableRefObject<number> }) => {
   const lightRef = useRef<THREE.PointLight>(null);
@@ -252,24 +333,16 @@ const ProjectorLight = React.memo(({ scrollRef }: { scrollRef: React.MutableRefO
   useFrame(() => {
     if (!lightRef.current) return;
     const p = scrollRef.current;
-
-    // Light behavior depends on the section
-    // In THE CRAFT (0.30 - 0.55), the light sweeps to the active card
     const isCraftSection = p >= 0.25 && p <= 0.6;
-    
     let targetX = THREE.MathUtils.lerp(8, -8, p);
-    
     if (isCraftSection) {
-      // Sync with the carousel's active index
       const craftProgress = activeCraftIndex / 5;
       targetX = THREE.MathUtils.lerp(2, -2, craftProgress);
     }
-
     lightRef.current.position.x = THREE.MathUtils.lerp(lightRef.current.position.x, targetX, 0.1);
     lightRef.current.position.y = 0;
     lightRef.current.position.z = 2;
 
-    // Intensity pulses gently — like projector flicker
     const intensity = isCraftSection ? 8 : 4;
     const flicker = 1 + Math.sin(p * 50) * 0.03;
     lightRef.current.intensity = THREE.MathUtils.lerp(lightRef.current.intensity, intensity * flicker, 0.1);
@@ -279,52 +352,14 @@ const ProjectorLight = React.memo(({ scrollRef }: { scrollRef: React.MutableRefO
 });
 ProjectorLight.displayName = 'ProjectorLight';
 
-
-// LIGHT LEAKS — Subtle golden flares that dance across the lens
 // ═══════════════════════════════════════════════════════════════
-
-const LightLeak = React.memo(() => {
-  const meshRef = useRef<THREE.Mesh>(null);
-  const mat = useMemo(() => new THREE.MeshBasicMaterial({
-    color: GOLD,
-    transparent: true,
-    opacity: 0,
-    blending: THREE.AdditiveBlending,
-    depthWrite: false,
-  }), []);
-
-  const geo = useMemo(() => new THREE.PlaneGeometry(8, 8), []);
-
-  useFrame((state) => {
-    if (!meshRef.current) return;
-    const t = state.clock.elapsedTime;
-    
-    // Random flare position
-    meshRef.current.position.x = Math.sin(t * 0.5) * 4;
-    meshRef.current.position.y = Math.cos(t * 0.3) * 2;
-    meshRef.current.position.z = 1;
-
-    // Pulse opacity — like light entering the lens randomly
-    const noise = Math.sin(t * 0.8) * Math.cos(t * 1.2);
-    mat.opacity = Math.max(0, noise * 0.03);
-    
-    // Rotate very slowly
-    meshRef.current.rotation.z = t * 0.05;
-  });
-
-  return <mesh ref={meshRef} geometry={geo} material={mat} />;
-});
-LightLeak.displayName = 'LightLeak';
-
-
+// SCENE ORCHESTRATOR
 // ═══════════════════════════════════════════════════════════════
-// SCENE ORCHESTRATOR — Camera dolly + scene assembly
-// ═══════════════════════════════════════════════════════════════
-
 const SceneOrchestrator = ({ tier }: { tier: DeviceTier }) => {
   const scrollRef = useRef(0);
   const cameraRef = useRef<THREE.PerspectiveCamera>(null);
   const currentLookAt = useMemo(() => new THREE.Vector3(0, 0, -3), []);
+  const introStage = useCinematicStore((state) => state.introStage);
 
   useEffect(() => {
     const onScroll = () => {
@@ -341,67 +376,55 @@ const SceneOrchestrator = ({ tier }: { tier: DeviceTier }) => {
     const p = scrollRef.current;
     const t = state.clock.elapsedTime;
 
-    // CAMERA: Continuous slow forward dolly
-    const timeDrift = t * 0.05;
-    const z = THREE.MathUtils.lerp(6, 2.5, p) - (timeDrift % 1); 
-    
-    const x = Math.sin(p * Math.PI * 2) * 0.3;
-    const y = 0.2 + Math.sin(p * Math.PI) * 0.15;
+    if (introStage === 'clapper') {
+      // Focus on clapperboard initially
+      cameraRef.current.position.lerp(new THREE.Vector3(0, 0.2, 5), 0.05);
+      currentLookAt.lerp(new THREE.Vector3(0, 0, 3), 0.05);
+      cameraRef.current.lookAt(currentLookAt);
+    } else {
+      // Continuous slow semantic forward dolly for scroll
+      const timeDrift = t * 0.05;
+      const z = THREE.MathUtils.lerp(6, 2.5, p) - (timeDrift % 1); 
+      
+      const x = Math.sin(p * Math.PI * 2) * 0.3;
+      const y = 0.2 + Math.sin(p * Math.PI) * 0.15;
 
-    cameraRef.current.position.x = THREE.MathUtils.lerp(cameraRef.current.position.x, x, 0.015);
-    cameraRef.current.position.y = THREE.MathUtils.lerp(cameraRef.current.position.y, y, 0.015);
-    cameraRef.current.position.z = THREE.MathUtils.lerp(cameraRef.current.position.z, z, 0.015);
+      cameraRef.current.position.x = THREE.MathUtils.lerp(cameraRef.current.position.x, x, 0.015);
+      cameraRef.current.position.y = THREE.MathUtils.lerp(cameraRef.current.position.y, y, 0.015);
+      cameraRef.current.position.z = THREE.MathUtils.lerp(cameraRef.current.position.z, z, 0.015);
 
-    currentLookAt.x = THREE.MathUtils.lerp(currentLookAt.x, x * 0.5, 0.02);
-    cameraRef.current.lookAt(currentLookAt);
+      currentLookAt.x = THREE.MathUtils.lerp(currentLookAt.x, x * 0.5, 0.02);
+      currentLookAt.z = THREE.MathUtils.lerp(currentLookAt.z, -3, 0.05);
+      cameraRef.current.lookAt(currentLookAt);
+    }
   });
 
   const particleCount = tier === 'mobile' ? 30 : tier === 'tablet' ? 60 : 120;
 
   return (
     <>
-      <PerspectiveCamera
-        ref={cameraRef}
-        makeDefault
-        position={[0, 0.2, 6]}
-        fov={tier === 'mobile' ? 55 : 40}
-      />
-
-      {/* Ambient — very dim base light */}
+      <PerspectiveCamera ref={cameraRef} makeDefault position={[0, 0.2, 6]} fov={tier === 'mobile' ? 55 : 40} />
       <ambientLight intensity={0.06} />
-      
-      {/* Key light from above — warm gold wash */}
       <directionalLight position={[0, 5, 3]} intensity={0.3} color={GOLD} />
-
-      {/* Environment HDR — desktop only for reflections */}
       {tier === 'desktop' && <Environment preset="night" />}
-
-      {/* The golden film strip — the hero element */}
+      
+      {/* Background Film strip element */}
       <FilmStrip scrollRef={scrollRef} tier={tier} />
-
-      {/* Floating golden dust */}
+      
       <GoldenDust scrollRef={scrollRef} count={particleCount} />
-
-      {/* Projector light sweep — desktop/tablet only */}
       {tier !== 'mobile' && <ProjectorLight scrollRef={scrollRef} />}
-
-      {/* Subtle random light leaks */}
-      {tier === 'desktop' && <LightLeak />}
-
-      {/* Subtle random light leaks */}
-      {tier === 'desktop' && <LightLeak />}
+      
+      {/* The Clapperboard runs the intro and disappears into the background */}
+      <ClapperAsset />
     </>
   );
 };
 
-
 // ═══════════════════════════════════════════════════════════════
-// MAIN EXPORT
+// EXPORT CANVAS
 // ═══════════════════════════════════════════════════════════════
-
 export default function CinematicStoryScene() {
   const [tier, setTier] = useState<DeviceTier>('desktop');
-
   const detectTier = useCallback(() => {
     const w = window.innerWidth;
     const isTouch = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
@@ -415,20 +438,15 @@ export default function CinematicStoryScene() {
   useEffect(() => {
     detectTier();
     window.addEventListener('resize', detectTier);
-    // Signal that 3D is initializing (textures start loading)
     set3DLoaded(true);
     return () => window.removeEventListener('resize', detectTier);
   }, [detectTier, set3DLoaded]);
 
   return (
-    <div className="fixed inset-0 z-[-1] pointer-events-none bg-[#050505] w-full h-screen overflow-hidden">
+    <div className="fixed inset-0 z-[-1] pointer-events-none bg-[#0A0A0A] w-full h-screen overflow-hidden">
       <Canvas
         dpr={tier === 'mobile' ? [0.75, 1] : tier === 'tablet' ? [1, 1.25] : [1, 1.5]}
-        gl={{
-          antialias: tier === 'desktop',
-          powerPreference: 'high-performance',
-          alpha: false,
-        }}
+        gl={{ antialias: tier === 'desktop', powerPreference: 'high-performance', alpha: false }}
         performance={{ min: 0.5 }}
       >
         <color attach="background" args={[DARK]} />
@@ -437,8 +455,7 @@ export default function CinematicStoryScene() {
         <Preload all />
       </Canvas>
 
-      {/* Cinematic overlays — pure CSS */}
-      <div className="absolute inset-0 pointer-events-none bg-gradient-to-b from-black/40 via-transparent to-black/50" />
+      {/* Cinematic overlays */}
       <div className="absolute inset-0 pointer-events-none shadow-[inset_0_0_120px_rgba(0,0,0,0.8)]" />
     </div>
   );
