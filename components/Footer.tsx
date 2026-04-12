@@ -1,6 +1,7 @@
 'use client';
 import { motion } from 'framer-motion';
 import BrandLogo from './BrandLogo';
+import { siteConfig } from '@/lib/config';
 
 export default function Footer() {
   return (
