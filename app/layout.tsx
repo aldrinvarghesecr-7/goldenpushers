@@ -7,13 +7,7 @@ import PageTransition from "@/components/PageTransition";
 import ScrollProgress from "@/components/ScrollProgress";
 import { siteConfig } from "@/lib/config";
 import FilmGrain from "@/components/FilmGrain";
-import dynamic from 'next/dynamic';
-
-const CinematicStoryScene = dynamic(() => import("@/components/CinematicStoryScene"), { ssr: false });
-const CinematicPreloader = dynamic(() => import("@/components/CinematicPreloader"), { ssr: false });
-const ContentReveal = dynamic(() => import("@/components/ContentReveal"), { ssr: false });
-const CursorTrailer = dynamic(() => import("@/components/CursorTrailer"), { ssr: false });
-const SmoothScrollProvider = dynamic(() => import("@/components/SmoothScrollProvider"), { ssr: false });
+import ClientWrappers from "@/components/ClientWrappers";
 
 const serif = Cinzel({ subsets: ["latin"], variable: "--font-serif", weight: ["400", "500", "600", "700", "800", "900"], display: "swap" });
 const sans = Inter({ subsets: ["latin"], variable: "--font-sans", weight: ["300", "400", "500", "600", "900"], display: "swap" });
@@ -29,20 +23,14 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en" className={`${serif.variable} ${sans.variable} ${bodyFont.variable}`}>
       <body className="bg-primary text-text-primary font-body antialiased overflow-x-hidden selection:bg-accent selection:text-primary">
         <FilmGrain />
-        <CinematicPreloader />
-        <CinematicStoryScene />
-        <ContentReveal>
-          <SmoothScrollProvider>
+        <ClientWrappers>
             <ScrollProgress />
-            <CursorTrailer />
             <Navbar />
             <PageTransition>
               <main>{children}</main>
             </PageTransition>
             <Footer />
-          </SmoothScrollProvider>
-        </ContentReveal>
-
+        </ClientWrappers>
       </body>
     </html>
   );

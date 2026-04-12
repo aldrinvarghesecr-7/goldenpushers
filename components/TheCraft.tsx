@@ -362,13 +362,12 @@ export default function TheCraft() {
             className="absolute inset-0 z-30 overflow-x-auto overflow-y-hidden snap-x snap-mandatory scrollbar-hide"
             style={{ WebkitOverflowScrolling: 'touch' }}
           >
-             {/* The Rich Content Layout rendered via DOM to catch hover events natively on top of 3D */}
+             {/* The Rich Content Layout rendered via DOM */}
               {categories.map((cat, i) => (
                 <div 
                   key={i} 
                   className="w-[100vw] h-full shrink-0 snap-center flex items-center justify-center pointer-events-auto"
                 >
-                    {/* Invisible Hitbox matching the 3D Card Size */}
                     <div 
                        className="w-[400px] h-[550px] bg-transparent cursor-pointer"
                        onPointerEnter={() => setHoverIndex(i)}
@@ -376,7 +375,6 @@ export default function TheCraft() {
                     />
                 </div>
               ))}
-            </div>
           </div>
 
           {/* Isolated Local Transparent Canvas */}

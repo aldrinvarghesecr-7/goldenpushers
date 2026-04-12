@@ -204,7 +204,7 @@ const VintageCamera = ({ scrollRef }: { scrollRef: React.MutableRefObject<number
         <group ref={groupRef} position={[-5, -0.4, -8]}>
            {/* Body */}
            <mesh><boxGeometry args={[1, 1.2, 1]} /><primitive object={mDark} attach="material" /></mesh>
-           <mesh position={[0, 0.7, 0]}><cylinderGeometry args={[0.4, 0.4, 0.6]} rotation={[0,0,Math.PI/2]} /><primitive object={mDark} attach="material" /></mesh>
+           <mesh position={[0, 0.7, 0]} rotation={[0,0,Math.PI/2]}><cylinderGeometry args={[0.4, 0.4, 0.6]} /><primitive object={mDark} attach="material" /></mesh>
            
            {/* Lens Group */}
            <group ref={lensRef} position={[0, 0, 0.5]}>
