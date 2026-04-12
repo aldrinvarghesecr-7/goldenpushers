@@ -7,12 +7,16 @@ import { Float, Html, SpotLight } from '@react-three/drei';
 import * as THREE from 'three';
 import { ChevronRight } from 'lucide-react';
 
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import gsap from 'gsap';
+
 const GOLD = '#D4AF77';
 
 const categories = [
   {
     id: "01",
     title: "Creative Development & Strategy",
+    description: "Architecting the soul of your cinematic vision.",
     items: [
       "Concept ideation and storytelling",
       "Brand strategy and campaign development",
@@ -24,6 +28,7 @@ const categories = [
   {
     id: "02",
     title: "Pre-Production Services",
+    description: "Precision planning for seamless execution.",
     items: [
       "Budgeting and project planning",
       "Location scouting",
@@ -38,16 +43,17 @@ const categories = [
   {
     id: "03",
     title: "Production (Filming & Shooting)",
+    description: "Capturing the light with masterwork precision.",
     items: [
       "Full-scale video/film production",
       "Commercials & TV advertisements",
       "Brand films and promotional videos",
       "Music videos",
       "Luxury & high-end fashion films",
-      "Corporate videos and corporate storytelling",
+      "Corporate storytelling",
       "Short films and narrative content",
       "Documentary-style content",
-      "Live event coverage and multicamera shoots",
+      "Live event coverage",
       "Aerial/drone cinematography",
       "Studio or on-location shoots"
     ]
@@ -55,10 +61,11 @@ const categories = [
   {
     id: "04",
     title: "Post-Production Services",
+    description: "Refining the cut into cinematic gold.",
     items: [
       "Video editing and assembly",
-      "Color grading and cinematic correction",
-      "Sound design, mixing, and audio post",
+      "Color grading and correction",
+      "Sound design and audio post",
       "Voice-over and ADR",
       "Visual effects (VFX) and CGI",
       "Motion graphics and animation",
@@ -69,22 +76,24 @@ const categories = [
   {
     id: "05",
     title: "Specialized Content Creation",
+    description: "Tailored narratives for the digital age.",
     items: [
-      "Social media content and short-form videos",
-      "Product videos and e-commerce content",
-      "Experiential films and immersive storytelling",
+      "Social media content (Reels, TikTok)",
+      "Product and e-commerce content",
+      "Experiential films",
       "Podcast video production",
-      "Behind-the-scenes and documentary content"
+      "Behind-the-scenes content"
     ]
   },
   {
     id: "06",
     title: "Additional Premium Services",
+    description: "Extending the reach of your visual identity.",
     items: [
-      "Photography (still shoots, campaign photography)",
-      "Full campaign production (360-degree campaigns)",
-      "Distribution strategy and platform optimization",
-      "Marketing support and promo materials",
+      "Photography (campaigns, stills)",
+      "360-degree campaign production",
+      "Distribution and optimization",
+      "Marketing support and materials",
       "Archiving and asset management"
     ]
   }
@@ -109,78 +118,69 @@ function Card3D({ category, index, spacing, progressRef, isHovered }: { category
   const filmUnspoolRef = useRef<THREE.Group>(null);
   const filmMatRef = useRef<THREE.MeshStandardMaterial>(null);
   const pointsMatRef = useRef<THREE.PointsMaterial>(null);
+  const glintRef = useRef<THREE.Mesh>(null);
+  const p = progressRef.current;
 
   useFrame((state, delta) => {
     if (!groupRef.current) return;
     const myPos = index * spacing;
-    // Total distance the carousel can move
     const maxScroll = (categories.length - 1) * spacing;
     const scrollTargetX = progressRef.current * maxScroll;
     
-    // ARRANGEMENT: Shallow Arc Logic
-    const angle = (myPos - scrollTargetX) * 0.12; 
-    const arcRadius = 12;
+    // ARRANGEMENT: Dynamic Arc
+    const angle = (myPos - scrollTargetX) * 0.1; 
+    const arcRadius = 14;
     const arcX = Math.sin(angle) * arcRadius;
-    const arcZ = Math.cos(angle) * arcRadius - arcRadius; // Offset to center
+    const arcZ = Math.cos(angle) * arcRadius - arcRadius;
 
-    // How far is this card from the center of the view?
     const distFromCenter = Math.abs(myPos - scrollTargetX);
-    const isCenter = distFromCenter < 2.5;
+    const isCenter = distFromCenter < 2.0;
     
-    // Scale & Depth effects based on center proximity
-    const baseScale = THREE.MathUtils.lerp(1.1, 0.7, distFromCenter / (spacing * 1.5));
-    const rotY = (myPos - scrollTargetX) * 0.15; // Parallax rotation
+    // SINE WAVE FLOAT
+    const floatY = Math.sin(state.clock.elapsedTime * 1.5 + index) * 0.15;
     
-    // Apply Hover interactions
+    // SCALE & DEPTH (Centering Climax)
+    const baseScale = THREE.MathUtils.mapLinear(Math.min(distFromCenter, spacing), 0, spacing, 1, 0.7);
+    const finalScale = (isCenter ? 1.04 : baseScale);
+    
+    // PARALLAX & HOVER
+    const rotY = (myPos - scrollTargetX) * 0.12;
     const activeHover = isHovered && isCenter;
-    const finalScale = Math.max(0.7, baseScale) * (activeHover ? 1.05 : 1);
+    const hoverY = activeHover ? 0.3 : 0;
+    const hoverRotY = activeHover ? rotY + (state.mouse.x * 0.2) + 0.14 : rotY;
     const hoverRotX = activeHover ? -0.1 : 0;
-    const hoverRotY = rotY + (state.mouse.x * 0.15); // Constant subtle parallax
 
-    // Tighter Snapping (Increased lerp speeds)
-    groupRef.current.position.x = THREE.MathUtils.lerp(groupRef.current.position.x, arcX, 10 * delta);
-    groupRef.current.position.z = THREE.MathUtils.lerp(groupRef.current.position.z, arcZ + (activeHover ? 1.2 : 0), 10 * delta);
-    groupRef.current.scale.lerp(new THREE.Vector3().setScalar(finalScale), 10 * delta);
-    groupRef.current.rotation.y = THREE.MathUtils.lerp(groupRef.current.rotation.y, hoverRotY, 10 * delta);
-    groupRef.current.rotation.x = THREE.MathUtils.lerp(groupRef.current.rotation.x, hoverRotX + (state.mouse.y * -0.1), 10 * delta);
+    groupRef.current.position.x = THREE.MathUtils.lerp(groupRef.current.position.x, arcX, 12 * delta);
+    groupRef.current.position.y = THREE.MathUtils.lerp(groupRef.current.position.y, floatY + hoverY, 12 * delta);
+    groupRef.current.position.z = THREE.MathUtils.lerp(groupRef.current.position.z, arcZ + (activeHover ? 1.5 : 0), 12 * delta);
+    groupRef.current.scale.lerp(new THREE.Vector3().setScalar(finalScale * 0.8), 12 * delta);
+    groupRef.current.rotation.y = THREE.MathUtils.lerp(groupRef.current.rotation.y, hoverRotY, 12 * delta);
+    groupRef.current.rotation.x = THREE.MathUtils.lerp(groupRef.current.rotation.x, hoverRotX + (state.mouse.y * -0.1), 12 * delta);
 
-    // Light pulse exactly when centered - Cranked for world-class impact
-    const lightIntensity = THREE.MathUtils.mapLinear(Math.max(0, 1 - distFromCenter / 2), 0, 1, 0, activeHover ? 35 : 22);
+    // SPECULAR GLINT SWEEP
+    if (glintRef.current) {
+        glintRef.current.position.x = Math.sin(state.clock.elapsedTime * 0.5 + p * 10) * 2;
+        glintRef.current.position.y = Math.cos(state.clock.elapsedTime * 0.5 + p * 10) * 3;
+    }
+
+    // Light pulse
+    const lightIntensity = isCenter ? (activeHover ? 35 : 25) : 0;
     if (centerSpotlightRef.current) {
-      centerSpotlightRef.current.intensity = THREE.MathUtils.lerp(
-        centerSpotlightRef.current.intensity,
-        lightIntensity,
-        12 * delta
-      );
+      centerSpotlightRef.current.intensity = THREE.MathUtils.lerp(centerSpotlightRef.current.intensity, lightIntensity, 15 * delta);
     }
 
-    // Material Glow update for performance
     if (rimMatRef.current) {
-        rimMatRef.current.emissiveIntensity = THREE.MathUtils.lerp(
-            rimMatRef.current.emissiveIntensity,
-            activeHover ? 0.8 : (isCenter ? 0.2 : 0.05),
-            12 * delta
-        );
+        rimMatRef.current.emissiveIntensity = THREE.MathUtils.lerp(rimMatRef.current.emissiveIntensity, activeHover ? 1.2 : (isCenter ? 0.3 : 0.05), 15 * delta);
     }
 
-    // Unspooling Film Animation
     if (filmUnspoolRef.current && filmMatRef.current) {
-        const targetScale = activeHover ? 1 : 0.01;
-        const targetPos = activeHover ? 1.5 : 0;
-        const targetOpacity = activeHover ? 0.8 : 0;
-
-        filmUnspoolRef.current.scale.x = THREE.MathUtils.lerp(filmUnspoolRef.current.scale.x, targetScale, 10 * delta);
-        filmUnspoolRef.current.position.x = THREE.MathUtils.lerp(filmUnspoolRef.current.position.x, targetPos + 2.2, 10 * delta);
-        filmMatRef.current.opacity = THREE.MathUtils.lerp(filmMatRef.current.opacity, targetOpacity, 10 * delta);
+        const targetScale = activeHover ? 1.2 : 0.01;
+        filmUnspoolRef.current.scale.x = THREE.MathUtils.lerp(filmUnspoolRef.current.scale.x, targetScale, 15 * delta);
+        filmMatRef.current.opacity = THREE.MathUtils.lerp(filmMatRef.current.opacity, activeHover ? 0.9 : 0, 15 * delta);
     }
 
-    // Dynamic Particle Intensity
     if (pointsMatRef.current) {
-        pointsMatRef.current.opacity = THREE.MathUtils.lerp(
-            pointsMatRef.current.opacity,
-            isCenter ? 0.6 : 0,
-            10 * delta
-        );
+        pointsMatRef.current.opacity = THREE.MathUtils.lerp(pointsMatRef.current.opacity, isCenter ? 0.9 : 0, 15 * delta);
     }
   });
 
@@ -189,47 +189,56 @@ function Card3D({ category, index, spacing, progressRef, isHovered }: { category
       <group ref={groupRef}>
         <Float speed={2} rotationIntensity={0.1} floatIntensity={0.3}>
           
-          {/* 🎞️ FILM CANISTER BODY: Replaces the flat card */}
+          {/* 🎞️ PREMIUM FILM CANISTER CARDS: 420x520 units */}
           <group>
-            {/* Main Cylindrical Body (Squashed for card-like feel) */}
-            <mesh castShadow receiveShadow scale={[1, 1, 0.3]}>
-              <cylinderGeometry args={[2.2, 2.2, 6, 32]} />
+            {/* Main Canister Body */}
+            <mesh castShadow receiveShadow>
+              <boxGeometry args={[4.2, 5.2, 0.4]} />
               <meshStandardMaterial 
                 color="#050505" 
-                metalness={0.9} 
-                roughness={0.1} 
-                envMapIntensity={2}
+                metalness={0.92} 
+                roughness={0.12} 
+                envMapIntensity={3}
               />
             </mesh>
             
             {/* Metallic Golden Ends (Canister Caps) */}
-            <mesh position={[0, 3, 0]} rotation={[0, 0, 0]} scale={[1.05, 0.1, 0.35]}>
-              <cylinderGeometry args={[2.2, 2.2, 1, 32]} />
-              <meshStandardMaterial color={GOLD} metalness={1} roughness={0.05} envMapIntensity={5} />
-            </mesh>
-            <mesh position={[0, -3, 0]} rotation={[0, 0, 0]} scale={[1.05, 0.1, 0.35]}>
-              <cylinderGeometry args={[2.2, 2.2, 1, 32]} />
-              <meshStandardMaterial color={GOLD} metalness={1} roughness={0.05} envMapIntensity={5} />
-            </mesh>
-
-            {/* Sub-surface Grooves */}
-            <mesh position={[0, 0, 0.1]} scale={[1.02, 1, 0.32]}>
-              <cylinderGeometry args={[2.18, 2.18, 5.8, 32, 1, true]} />
+            <mesh position={[0, 2.5, 0]} scale={[1.05, 0.1, 1]}>
+              <boxGeometry args={[4.2, 1, 0.5]} />
               <meshStandardMaterial 
+                ref={rimMatRef}
                 color={GOLD} 
                 metalness={1} 
-                roughness={0.2} 
-                transparent 
-                opacity={0.1}
-                wireframe
+                roughness={0.05} 
+                emissive={GOLD}
+                emissiveIntensity={0.1}
+                envMapIntensity={5} 
               />
+            </mesh>
+            <mesh position={[0, -2.5, 0]} scale={[1.05, 0.1, 1]}>
+              <boxGeometry args={[4.2, 1, 0.5]} />
+              <meshStandardMaterial 
+                ref={rimMatRef}
+                color={GOLD} 
+                metalness={1} 
+                roughness={0.05} 
+                emissive={GOLD}
+                emissiveIntensity={0.1}
+                envMapIntensity={5} 
+              />
+            </mesh>
+
+            {/* Specular Glint Mesh (Dynamic moving highlight) */}
+            <mesh ref={glintRef} position={[0, 0, 0.22]}>
+               <planeGeometry args={[0.5, 6]} />
+               <meshBasicMaterial color="#fff" transparent opacity={0.15} blending={THREE.AdditiveBlending} />
             </mesh>
           </group>
 
-          {/* 🎞️ REACTIVE UNSPOOLING FILM: Expands on Hover */}
-          <group ref={filmUnspoolRef} position={[2.2, 0, 0]}>
-             <mesh>
-                <planeGeometry args={[3, 5.5]} />
+          {/* UNSPOOLING EFFECT */}
+          <group ref={filmUnspoolRef} position={[2.1, 0, 0]}>
+             <mesh position={[1.5, 0, 0]}>
+                <planeGeometry args={[3, 4.8]} />
                 <meshStandardMaterial 
                   ref={filmMatRef}
                   color="#111" 
@@ -239,54 +248,62 @@ function Card3D({ category, index, spacing, progressRef, isHovered }: { category
                   opacity={0} 
                   side={THREE.DoubleSide}
                 />
-                {/* Film Perforations */}
-                <mesh position={[-1.4, 0, 0.01]}> <planeGeometry args={[0.1, 5.5]} /> <meshBasicMaterial color={GOLD} transparent opacity={0.3} wireframe /> </mesh>
-                <mesh position={[1.4, 0, 0.01]}> <planeGeometry args={[0.1, 5.5]} /> <meshBasicMaterial color={GOLD} transparent opacity={0.3} wireframe /> </mesh>
              </mesh>
           </group>
           
           {/* Rich content mounted via HTML Transform */}
           <Html 
             transform 
-            position={[0, 0, 0.4]} 
+            position={[0, 0, 0.25]} 
             zIndexRange={[100, 0]}
             className="pointer-events-auto select-none"
-            castShadow={false}
-            receiveShadow={false}
           >
             <div 
-              className="w-[400px] h-[550px] p-8 flex flex-col justify-start rounded-xl overflow-hidden"
+              className="w-[420px] h-[520px] p-10 flex flex-col justify-start rounded-[24px] overflow-hidden border border-white/5"
               style={{
-                background: 'linear-gradient(135deg, rgba(5,5,5,0.95), rgba(5,5,5,0.8))',
-                backdropFilter: 'blur(20px)',
-                boxShadow: isHovered ? 'inset 0 0 40px rgba(212,175,119,0.1)' : 'none',
-                transition: 'box-shadow 0.4s ease'
+                background: 'linear-gradient(135deg, rgba(5,5,5,0.95), rgba(5,5,5,0.85))',
+                backdropFilter: 'blur(25px)',
               }}
             >
-              <div className="flex items-center gap-3 mb-6">
-                 <div className="h-px w-8 bg-[#D4AF77]" />
-                 <span className="text-[#D4AF77] font-mono text-[11px] tracking-[0.4em] uppercase font-bold">
+              <div className="flex items-center gap-4 mb-8">
+                 <div className="h-px w-10 bg-[#D4AF77]/40" />
+                 <span className="text-[#D4AF77] font-sans font-black text-[10px] tracking-[0.5em] uppercase">
                    Chapter {category.id}
                  </span>
               </div>
               
-              <h3 className="text-white text-3xl font-black uppercase tracking-tighter leading-[1.1] mb-6 drop-shadow-md">
+              <h3 className="text-white text-3xl font-sans font-black uppercase tracking-tighter leading-none mb-4">
                 {category.title}
               </h3>
+
+              <p className="text-[#F8E5B1]/50 text-xs font-serif italic mb-10 tracking-wide font-medium">
+                {category.description}
+              </p>
               
-              <ul className="space-y-[10px] mt-2 flex-1 overflow-y-auto scrollbar-hide pr-2">
-                {category.items.map((item, i) => (
-                  <li key={i} className="flex items-start gap-3">
-                    <div className="w-1 h-1 flex-shrink-0 rounded-full bg-[#D4AF77] mt-[7px] shadow-[0_0_5px_rgba(212,175,119,0.8)]" />
-                    <span className="text-white/70 text-[13px] font-sans leading-tight tracking-wide">{item}</span>
-                  </li>
-                ))}
-              </ul>
-              
-              <div className="mt-8 pt-4 border-t border-white/10 flex items-center gap-2 group cursor-pointer w-fit">
-                <span className="text-[#D4AF77] text-xs uppercase tracking-widest font-black group-hover:text-white transition-colors duration-300">Explore Services</span>
-                <ChevronRight size={14} className="text-[#D4AF77] group-hover:translate-x-1 group-hover:text-white transition-all duration-300" />
-              </div>
+              <motion.div 
+                initial={false}
+                animate={{ 
+                  height: isCenter ? 'auto' : 0,
+                  opacity: isCenter ? 1 : 0
+                }}
+                transition={{ duration: 0.8, ease: [0.23, 1, 0.32, 1] }}
+                className="overflow-hidden"
+              >
+                <ul className="space-y-[14px]">
+                  {category.items.map((item, i) => (
+                    <motion.li 
+                      initial={{ x: -10, opacity: 0 }}
+                      animate={isCenter ? { x: 0, opacity: 1 } : { x: -10, opacity: 0 }}
+                      transition={{ delay: 0.1 + i * 0.08, duration: 0.5 }}
+                      key={i} 
+                      className="flex items-start gap-4"
+                    >
+                      <div className="w-1 h-1 flex-shrink-0 rounded-full bg-[#D4AF77] mt-[7px] shadow-[0_0_8px_rgba(212,175,119,0.5)]" />
+                      <span className="text-white/60 text-[13px] font-body leading-tight tracking-wide">{item}</span>
+                    </motion.li>
+                  ))}
+                </ul>
+              </motion.div>
             </div>
           </Html>
 
@@ -358,70 +375,87 @@ const Scenes3D = ({ progressRef, activeHoverIndex }: { progressRef: React.Mutabl
 export default function TheCraft() {
   const [isMobile, setIsMobile] = useState(false);
   const [hoverIndex, setHoverIndex] = useState<number | null>(null);
-  const scrollRef = useRef<HTMLDivElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
   const progressRef = useRef(0);
 
   useEffect(() => {
     const checkMobile = () => setIsMobile(window.innerWidth < 1024);
     checkMobile();
     window.addEventListener('resize', checkMobile);
-    return () => window.removeEventListener('resize', checkMobile);
-  }, []);
 
-  const handleScroll = () => {
-    if (!scrollRef.current) return;
-    const { scrollLeft, scrollWidth, clientWidth } = scrollRef.current;
-    if (scrollWidth > clientWidth) {
-      progressRef.current = scrollLeft / (scrollWidth - clientWidth);
+    if (containerRef.current && !isMobile) {
+      const scrollWidth = (categories.length) * window.innerWidth;
+      const st = ScrollTrigger.create({
+        trigger: containerRef.current,
+        start: "top top",
+        end: `+=${scrollWidth}`,
+        pin: true,
+        scrub: 1.5, // Buffer-smooth scrubbing
+        onUpdate: (self) => {
+          progressRef.current = self.progress;
+        }
+      });
+
+      return () => {
+        st.kill();
+        window.removeEventListener('resize', checkMobile);
+      };
     }
-  };
+
+    return () => window.removeEventListener('resize', checkMobile);
+  }, [isMobile]);
 
   return (
-    <section className="relative w-full bg-transparent overflow-hidden py-32" id="services">
+    <section 
+      ref={containerRef}
+      className="relative w-full bg-transparent overflow-hidden h-screen" 
+      id="services"
+    >
       
       {/* Premium Cinematic Header Overlay */}
-      <div className="absolute top-24 left-0 w-full px-8 md:px-16 z-20 pointer-events-none">
-        <div className="max-w-7xl mx-auto flex flex-col md:flex-row md:items-end justify-between gap-6">
-          <div>
-            <div className="flex items-center gap-4 mb-4">
-              <div className="h-px w-12 bg-[#D4AF77]" />
-              <span className="text-[#D4AF77] font-sans text-[10px] md:text-xs tracking-[0.5em] uppercase font-black">
-                Excellence in Motion
-              </span>
-            </div>
-            <h2 className="text-5xl md:text-8xl font-sans font-black text-white uppercase tracking-tighter leading-none drop-shadow-2xl">
-              The <span className="text-white/20">Craft</span>
-            </h2>
+      <div className="absolute top-16 left-0 w-full px-8 md:px-24 z-20 pointer-events-none">
+        <div className="max-w-[1400px] mx-auto">
+          <div className="flex items-center gap-6 mb-6">
+            <div className="h-[2px] w-16 bg-[#D4AF77]" />
+            <span className="text-[#D4AF77] font-sans text-xs tracking-[0.6em] uppercase font-black">
+              Production Standards
+            </span>
           </div>
-          <p className="max-w-md text-white/50 text-sm md:text-base font-serif italic leading-relaxed">
-            From first spark to final frame — every stage is crafted with uncompromising cinematic excellence.
+          <h2 className="text-6xl md:text-[10rem] font-sans font-black text-white uppercase tracking-[-0.05em] leading-[0.85] mb-8">
+            The <span className="text-white/10">Craft</span>
+          </h2>
+          <p className="max-w-xl text-white/40 text-sm md:text-lg font-body italic leading-relaxed">
+            From first spark to final frame — every stage is crafted with uncompromising cinematic excellence and technical precision.
           </p>
         </div>
       </div>
 
-      {/* MOBILE EXACT HTML FALLBACK (Vertical Stack, Fast, No Lag) */}
+      {/* MOBILE FALLBACK */}
       {isMobile && (
-        <div className="mt-40 px-6 flex flex-col gap-8 relative z-30 pointer-events-auto">
+        <div className="pt-40 pb-20 px-6 flex flex-col gap-10 relative z-30 overflow-y-auto h-full scrollbar-hide">
           {categories.map((cat, i) => (
             <motion.div 
-               initial={{ opacity: 0, y: 20 }}
-               whileInView={{ opacity: 1, y: 0 }}
+               initial={{ opacity: 0, scale: 0.95 }}
+               whileInView={{ opacity: 1, scale: 1 }}
                viewport={{ once: true, margin: "-50px" }}
-               transition={{ duration: 0.6 }}
                key={cat.id} 
-               className="bg-[#050505]/90 backdrop-blur-xl border border-white/10 rounded-2xl p-8"
+               className="bg-[#050505]/95 backdrop-blur-3xl border border-white/5 rounded-[32px] p-10 shadow-2xl"
             >
-              <span className="text-[#D4AF77] font-sans text-[10px] tracking-[0.3em] uppercase font-bold mb-2 block">
-                Chapter {cat.id}
-              </span>
-              <h3 className="text-white text-2xl font-black uppercase tracking-tight mb-6">
+              <div className="flex items-center gap-4 mb-6">
+                 <div className="h-px w-8 bg-[#D4AF77]" />
+                 <span className="text-[#D4AF77] font-sans text-[10px] tracking-[0.4em] uppercase font-bold">
+                   Chapter {cat.id}
+                 </span>
+              </div>
+              <h3 className="text-white text-3xl font-sans font-black uppercase mb-3">
                 {cat.title}
               </h3>
-              <ul className="space-y-3">
+              <p className="text-[#F8E5B1]/40 text-xs italic mb-8 font-serif">{cat.description}</p>
+              <ul className="space-y-4">
                 {cat.items.map((item, idx) => (
-                  <li key={idx} className="flex items-start gap-3">
-                    <div className="w-[3px] h-[3px] flex-shrink-0 rounded-full bg-[#D4AF77] mt-[8px]" />
-                    <span className="text-white/60 text-sm font-sans">{item}</span>
+                  <li key={idx} className="flex items-start gap-4">
+                    <div className="w-[4px] h-[4px] flex-shrink-0 rounded-full bg-[#D4AF77] mt-[10px]" />
+                    <span className="text-white/60 text-sm font-sans leading-relaxed">{item}</span>
                   </li>
                 ))}
               </ul>
@@ -430,56 +464,37 @@ export default function TheCraft() {
         </div>
       )}
 
-      {/* DESKTOP 3D APPLE-STYLE CAROUSEL */}
+      {/* DESKTOP 3D SCENE */}
       {!isMobile && (
-        <div className="relative w-full h-[800px] mt-24">
+        <div className="absolute inset-0 z-10">
           
-          {/* Native Horizontal Scroll Container for Momentum Snapping */}
-          <div 
-            ref={scrollRef}
-            onScroll={handleScroll}
-            className="absolute inset-0 z-30 overflow-x-auto overflow-y-hidden snap-x snap-mandatory scrollbar-hide"
-            style={{ WebkitOverflowScrolling: 'touch' }}
-          >
-             {/* The Rich Content Layout rendered via DOM */}
-              {categories.map((cat, i) => (
+          {/* Transparent Hover Overlay System (Pinned) */}
+          <div className="absolute inset-0 z-30 pointer-events-none">
+             <div className="flex h-full" style={{ width: `${categories.length * 100}vw`, transform: `translateX(-${progressRef.current * (categories.length - 1) * 100}vw)` }}>
+              {categories.map((_, i) => (
                 <div 
                   key={i} 
-                  className="w-[100vw] h-full shrink-0 snap-center flex items-center justify-center pointer-events-auto"
-                >
-                    <div 
-                       className="w-[400px] h-[550px] bg-transparent cursor-pointer"
-                       onPointerEnter={() => setHoverIndex(i)}
-                       onPointerLeave={() => setHoverIndex(null)}
-                    />
-                </div>
+                  className="w-[100vw] h-full pointer-events-auto cursor-pointer"
+                  onPointerEnter={() => setHoverIndex(i)}
+                  onPointerLeave={() => setHoverIndex(null)}
+                />
               ))}
+             </div>
           </div>
 
-          {/* Isolated Local Transparent Canvas */}
-          <div className="absolute inset-0 z-10 pointer-events-none">
-            <Canvas 
-               camera={{ position: [0, 0, 8.5], fov: 45 }} 
-               dpr={[1, 1.5]}
-               gl={{ 
-                  alpha: true, 
-                  antialias: false, 
-                  powerPreference: 'high-performance',
-                  stencil: false,
-                  depth: true
-               }}
-            >
-              <Scenes3D progressRef={progressRef} activeHoverIndex={hoverIndex} />
-            </Canvas>
+          <Canvas 
+             camera={{ position: [0, 0, 10], fov: 40 }} 
+             dpr={[1, 1.5]}
+             gl={{ alpha: true, antialias: true }}
+          >
+            <Scenes3D progressRef={progressRef} activeHoverIndex={hoverIndex} />
+          </Canvas>
+          
+          <div className="absolute bottom-16 left-1/2 -translate-x-1/2 z-20 flex items-center gap-6 opacity-40">
+             <div className="w-20 h-px bg-gradient-to-r from-transparent to-[#D4AF77]" />
+             <span className="text-[#D4AF77] text-[10px] uppercase font-sans font-black tracking-[0.5em]">Scroll through our studio</span>
+             <div className="w-20 h-px bg-gradient-to-l from-transparent to-[#D4AF77]" />
           </div>
-
-          {/* Interactive hint overlay */}
-          <div className="absolute bottom-12 left-1/2 -translate-x-1/2 z-20 pointer-events-none flex items-center gap-4 opacity-50">
-             <div className="w-16 h-px bg-gradient-to-r from-transparent to-white" />
-             <span className="text-white text-[10px] uppercase font-mono tracking-widest text-shadow">Scroll to Explore</span>
-             <div className="w-16 h-px bg-gradient-to-l from-transparent to-white" />
-          </div>
-
         </div>
       )}
 
