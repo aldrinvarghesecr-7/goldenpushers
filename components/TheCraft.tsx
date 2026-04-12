@@ -104,6 +104,9 @@ function Card3D({ category, index, spacing, progressRef, isHovered }: { category
   }, []);
 
   const rimMatRef = useRef<THREE.MeshStandardMaterial>(null);
+  const filmUnspoolRef = useRef<THREE.Group>(null);
+  const filmMatRef = useRef<THREE.MeshStandardMaterial>(null);
+  const pointsMatRef = useRef<THREE.PointsMaterial>(null);
 
   useFrame((state, delta) => {
     if (!groupRef.current) return;
@@ -157,6 +160,26 @@ function Card3D({ category, index, spacing, progressRef, isHovered }: { category
             12 * delta
         );
     }
+
+    // Unspooling Film Animation
+    if (filmUnspoolRef.current && filmMatRef.current) {
+        const targetScale = activeHover ? 1 : 0.01;
+        const targetPos = activeHover ? 1.5 : 0;
+        const targetOpacity = activeHover ? 0.8 : 0;
+
+        filmUnspoolRef.current.scale.x = THREE.MathUtils.lerp(filmUnspoolRef.current.scale.x, targetScale, 10 * delta);
+        filmUnspoolRef.current.position.x = THREE.MathUtils.lerp(filmUnspoolRef.current.position.x, targetPos + 2.2, 10 * delta);
+        filmMatRef.current.opacity = THREE.MathUtils.lerp(filmMatRef.current.opacity, targetOpacity, 10 * delta);
+    }
+
+    // Dynamic Particle Intensity
+    if (pointsMatRef.current) {
+        pointsMatRef.current.opacity = THREE.MathUtils.lerp(
+            pointsMatRef.current.opacity,
+            isCenter ? 0.6 : 0,
+            10 * delta
+        );
+    }
   });
 
   return (
@@ -164,35 +187,66 @@ function Card3D({ category, index, spacing, progressRef, isHovered }: { category
       <group ref={groupRef}>
         <Float speed={2} rotationIntensity={0.1} floatIntensity={0.3}>
           
-          {/* Metallic Card Base */}
-          <mesh castShadow receiveShadow>
-            <boxGeometry args={[4.4, 6.2, 0.2]} />
-            <meshStandardMaterial 
-              color="#020202" 
-              metalness={0.95} 
-              roughness={0.15} 
-              envMapIntensity={2.5}
-            />
-          </mesh>
+          {/* 🎞️ FILM CANISTER BODY: Replaces the flat card */}
+          <group>
+            {/* Main Cylindrical Body (Squashed for card-like feel) */}
+            <mesh castShadow receiveShadow scale={[1, 1, 0.3]}>
+              <cylinderGeometry args={[2.2, 2.2, 6, 32]} />
+              <meshStandardMaterial 
+                color="#050505" 
+                metalness={0.9} 
+                roughness={0.1} 
+                envMapIntensity={2}
+              />
+            </mesh>
+            
+            {/* Metallic Golden Ends (Canister Caps) */}
+            <mesh position={[0, 3, 0]} rotation={[0, 0, 0]} scale={[1.05, 0.1, 0.35]}>
+              <cylinderGeometry args={[2.2, 2.2, 1, 32]} />
+              <meshStandardMaterial color={GOLD} metalness={1} roughness={0.05} envMapIntensity={5} />
+            </mesh>
+            <mesh position={[0, -3, 0]} rotation={[0, 0, 0]} scale={[1.05, 0.1, 0.35]}>
+              <cylinderGeometry args={[2.2, 2.2, 1, 32]} />
+              <meshStandardMaterial color={GOLD} metalness={1} roughness={0.05} envMapIntensity={5} />
+            </mesh>
+
+            {/* Sub-surface Grooves */}
+            <mesh position={[0, 0, 0.1]} scale={[1.02, 1, 0.32]}>
+              <cylinderGeometry args={[2.18, 2.18, 5.8, 32, 1, true]} />
+              <meshStandardMaterial 
+                color={GOLD} 
+                metalness={1} 
+                roughness={0.2} 
+                transparent 
+                opacity={0.1}
+                wireframe
+              />
+            </mesh>
+          </group>
+
+          {/* 🎞️ REACTIVE UNSPOOLING FILM: Expands on Hover */}
+          <group ref={filmUnspoolRef} position={[2.2, 0, 0]}>
+             <mesh>
+                <planeGeometry args={[3, 5.5]} />
+                <meshStandardMaterial 
+                  ref={filmMatRef}
+                  color="#111" 
+                  metalness={0.8} 
+                  roughness={0.2} 
+                  transparent 
+                  opacity={0} 
+                  side={THREE.DoubleSide}
+                />
+                {/* Film Perforations */}
+                <mesh position={[-1.4, 0, 0.01]}> <planeGeometry args={[0.1, 5.5]} /> <meshBasicMaterial color={GOLD} transparent opacity={0.3} wireframe /> </mesh>
+                <mesh position={[1.4, 0, 0.01]}> <planeGeometry args={[0.1, 5.5]} /> <meshBasicMaterial color={GOLD} transparent opacity={0.3} wireframe /> </mesh>
+             </mesh>
+          </group>
           
-          {/* High-Fidelity Golden Rim */}
-          <mesh position={[0, 0, 0.08]}>
-            <boxGeometry args={[4.5, 6.3, 0.05]} />
-            <meshStandardMaterial 
-              ref={rimMatRef}
-              color={isHovered ? "#FFD700" : "#D4AF77"} 
-              metalness={1} 
-              roughness={0.05}
-              emissive="#D4AF77"
-              emissiveIntensity={0.1}
-              envMapIntensity={4}
-            />
-          </mesh>
-          
-          {/* Rich content mounted via HTML Transform allows perfect text crispness */}
+          {/* Rich content mounted via HTML Transform */}
           <Html 
             transform 
-            position={[0, 0, 0.12]} 
+            position={[0, 0, 0.4]} 
             zIndexRange={[100, 0]}
             className="pointer-events-auto select-none"
             castShadow={false}
@@ -234,28 +288,29 @@ function Card3D({ category, index, spacing, progressRef, isHovered }: { category
             </div>
           </Html>
 
-          {/* Targeted SpotLight reacting to center position */}
+          {/* Targeted SpotLight reacting to center position - Now with Golden Volumetric Hint */}
           <SpotLight
             ref={centerSpotlightRef}
-            color="#D4AF77"
-            position={[0, 4, 3]}
-            angle={0.8}
+            color="#F8E5B1"
+            position={[0, 8, 4]}
+            angle={0.4}
             penumbra={1}
             intensity={0}
-            distance={15}
+            distance={20}
             castShadow
           />
           
-          {/* Subtle Golden Particles for each card */}
+          {/* Dense Particle Accent for Centered Card */}
           <points>
             <bufferGeometry>
               <bufferAttribute attach="attributes-position" args={[particlePositions, 3]} />
             </bufferGeometry>
             <pointsMaterial 
-               color="#D4AF77" 
-               size={0.03} 
+               ref={pointsMatRef}
+               color={GOLD} 
+               size={0.05} 
                transparent 
-               opacity={isHovered ? 0.6 : 0.1} 
+               opacity={0} 
                sizeAttenuation={true} 
                blending={THREE.AdditiveBlending}
             />

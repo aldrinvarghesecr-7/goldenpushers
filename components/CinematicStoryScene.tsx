@@ -65,18 +65,46 @@ function useSharedMaterials() {
 }
 
 // ═══════════════════════════════════════════════════════════════
-// VOLUMETRIC GOD RAYS
+// ASSETS: FILM STRIP & VOLUMETRIC RAY
 // ═══════════════════════════════════════════════════════════════
-const VolumetricRay = ({ position, rotation, scale = [1, 1, 1] }: any) => {
+const FilmStrip = ({ scrollRef }: { scrollRef: React.MutableRefObject<number> }) => {
+  const meshRef = useRef<THREE.Mesh>(null);
+  const { mGold } = useSharedMaterials();
+  
+  useFrame((state, delta) => {
+    if (!meshRef.current) return;
+    const p = scrollRef.current;
+    // Unspool horizontally
+    meshRef.current.position.x = -15 + p * 30;
+    meshRef.current.rotation.y = Math.sin(p * Math.PI) * 0.2;
+  });
+
+  return (
+    <mesh ref={meshRef} position={[0, -2, -10]} rotation={[0, 0, 0]}>
+      <planeGeometry args={[40, 0.8, 64, 1]} />
+      <meshStandardMaterial 
+        color={GOLD} 
+        metalness={1} 
+        roughness={0.1} 
+        transparent 
+        opacity={0.3} 
+        envMapIntensity={2}
+        wireframe // Giving it a 'technical' strip look
+      />
+    </mesh>
+  );
+};
+
+const VolumetricRay = ({ position, rotation, scale = [1, 1, 1], color = GOLD }: any) => {
   return (
     <group position={position} rotation={rotation} scale={scale}>
       <mesh>
         <cylinderGeometry args={[0.2, 2, 10, 32, 1, true]} />
         <meshBasicMaterial 
-          color={GOLD} 
+          color={color} 
           transparent 
-          opacity={0.08} 
-          alphaMap={new THREE.TextureLoader().load('https://raw.githubusercontent.com/mrdoob/three.js/master/examples/textures/sprites/snowflake1.png')} // Fallback soft map
+          opacity={0.12} 
+          alphaMap={new THREE.TextureLoader().load('https://raw.githubusercontent.com/mrdoob/three.js/master/examples/textures/sprites/snowflake1.png')} 
           depthWrite={false}
           blending={THREE.AdditiveBlending}
           side={THREE.DoubleSide}
@@ -140,13 +168,14 @@ const ClapperAsset = ({ scrollRef }: { scrollRef: React.MutableRefObject<number>
     if (!groupRef.current || introStage !== 'ready' || clapTrigger > 0) return;
     const p = scrollRef.current;
     const ethosWeight = getSectionWeight(p, SECTIONS.ethos.s, SECTIONS.ethos.e);
+    const craftWeight = getSectionWeight(p, SECTIONS.craft.s, SECTIONS.craft.e);
     
-    // Position Clapperboard deep in scene during Ethos
-    const targetY = THREE.MathUtils.lerp(-3, -0.5, ethosWeight);
-    const targetX = THREE.MathUtils.lerp(3, 2, ethosWeight);
-    const targetZ = THREE.MathUtils.lerp(-5, -2, ethosWeight);
-    const targetRotX = THREE.MathUtils.lerp(1, 0, ethosWeight);
-    const targetRotY = THREE.MathUtils.lerp(1, -0.2, ethosWeight);
+    // Position Clapperboard
+    const targetY = craftWeight > 0.1 ? 2.5 : THREE.MathUtils.lerp(-3, -0.5, ethosWeight);
+    const targetX = craftWeight > 0.1 ? -3.5 : THREE.MathUtils.lerp(3, 2, ethosWeight);
+    const targetZ = craftWeight > 0.1 ? -4 : THREE.MathUtils.lerp(-5, -2, ethosWeight);
+    const targetRotX = craftWeight > 0.1 ? 0.2 : THREE.MathUtils.lerp(1, 0, ethosWeight);
+    const targetRotY = craftWeight > 0.1 ? 0.8 : THREE.MathUtils.lerp(1, -0.2, ethosWeight);
 
     groupRef.current.position.y = THREE.MathUtils.lerp(groupRef.current.position.y, targetY, 4 * delta);
     groupRef.current.position.x = THREE.MathUtils.lerp(groupRef.current.position.x, targetX, 4 * delta);
@@ -226,14 +255,17 @@ const VintageCamera = ({ scrollRef }: { scrollRef: React.MutableRefObject<number
     useFrame((state, delta) => {
       if(!groupRef.current || !lensRef.current) return;
       const p = scrollRef.current;
-      const weight = getSectionWeight(p, SECTIONS.work.s, SECTIONS.work.e);
+      const workWeight = getSectionWeight(p, SECTIONS.work.s, SECTIONS.work.e);
+      const craftWeight = getSectionWeight(p, SECTIONS.craft.s, SECTIONS.craft.e);
       
-      const targetX = THREE.MathUtils.lerp(-5, -1.8, weight);
-      const targetZ = THREE.MathUtils.lerp(-8, -1.5, weight);
+      const targetX = craftWeight > 0.1 ? -3.5 : THREE.MathUtils.lerp(-5, -1.8, workWeight);
+      const targetZ = craftWeight > 0.1 ? -4.5 : THREE.MathUtils.lerp(-8, -1.5, workWeight);
+      const targetY = craftWeight > 0.1 ? 0.5 : -0.4;
       
       groupRef.current.position.x = THREE.MathUtils.lerp(groupRef.current.position.x, targetX, 2 * delta);
       groupRef.current.position.z = THREE.MathUtils.lerp(groupRef.current.position.z, targetZ, 2 * delta);
-      groupRef.current.rotation.y = THREE.MathUtils.lerp(groupRef.current.rotation.y, 0.4, 2 * delta);
+      groupRef.current.position.y = THREE.MathUtils.lerp(groupRef.current.position.y, targetY, 2 * delta);
+      groupRef.current.rotation.y = THREE.MathUtils.lerp(groupRef.current.rotation.y, craftWeight > 0.1 ? 1 : 0.4, 2 * delta);
  
       // Rack Focus Twist
       lensRef.current.rotation.z = THREE.MathUtils.lerp(0, Math.PI * 2, weight);
@@ -246,14 +278,20 @@ const VintageCamera = ({ scrollRef }: { scrollRef: React.MutableRefObject<number
            <mesh><boxGeometry args={[1, 1.2, 1]} /><primitive object={mDark} attach="material" /></mesh>
            <mesh position={[0, 0.7, 0]} rotation={[0,0,Math.PI/2]}><cylinderGeometry args={[0.4, 0.4, 0.6]} /><primitive object={mDark} attach="material" /></mesh>
            
-           {/* Lens Group */}
+           {/* Projector Beam (Repurposed from lens) */}
            <group ref={lensRef} position={[0, 0, 0.5]}>
               <mesh position={[0,0,0]} rotation={[Math.PI/2,0,0]}><cylinderGeometry args={[0.3, 0.35, 0.4, 24]} /><primitive object={matteBlack} attach="material" /></mesh>
               <mesh position={[0,0,0.2]} rotation={[Math.PI/2,0,0]}><cylinderGeometry args={[0.31, 0.31, 0.05, 24]} /><primitive object={mGold} attach="material" /></mesh>
               {/* Glass Element */}
               <mesh position={[0,0,0.25]} rotation={[Math.PI/2,0,0]}><cylinderGeometry args={[0.25, 0.25, 0.02, 24]} />
-                 <meshStandardMaterial color="#0A0A0A" metalness={1} roughness={0} />
+                 <meshStandardMaterial color={GOLD} emissive={GOLD} emissiveIntensity={2} metalness={1} roughness={0} />
               </mesh>
+              <VolumetricRay 
+                position={[0, 0, 5]} 
+                rotation={[Math.PI/2, 0, 0]} 
+                scale={[2, 1, 2]} 
+                color="#F8E5B1" // Dynamic Golden Tint 
+              />
            </group>
         </group>
     );
@@ -269,12 +307,12 @@ const DirectorChair = ({ scrollRef }: { scrollRef: React.MutableRefObject<number
     useFrame((state, delta) => {
       if(!groupRef.current) return;
       const p = scrollRef.current;
-      const weight = getSectionWeight(p, SECTIONS.team.s, SECTIONS.team.e);
+      const teamWeight = getSectionWeight(p, SECTIONS.team.s, SECTIONS.team.e);
+      const craftWeight = getSectionWeight(p, SECTIONS.craft.s, SECTIONS.craft.e);
       
-      const targetX = THREE.MathUtils.lerp(5, 2.5, weight);
-      const targetZ = THREE.MathUtils.lerp(-8, -2, weight);
-      // Gentle rotation tracking the user scrolling
-      const targetRotY = THREE.MathUtils.lerp(-1.5, -0.4, weight);
+      const targetX = craftWeight > 0.1 ? 3.8 : THREE.MathUtils.lerp(5, 2.5, teamWeight);
+      const targetZ = craftWeight > 0.1 ? -3.5 : THREE.MathUtils.lerp(-8, -2, teamWeight);
+      const targetRotY = craftWeight > 0.1 ? -1 : THREE.MathUtils.lerp(-1.5, -0.4, teamWeight);
       
       groupRef.current.position.x = THREE.MathUtils.lerp(groupRef.current.position.x, targetX, 2 * delta);
       groupRef.current.position.z = THREE.MathUtils.lerp(groupRef.current.position.z, targetZ, 2 * delta);
@@ -504,7 +542,9 @@ const SceneOrchestrator = ({ tier }: { tier: DeviceTier }) => {
       {tier !== 'mobile' && <DirectorChair scrollRef={scrollRef} />}
       
       {/* Persistent Background Motion */}
+      {/* Frame the Carousel with Reels in Arc */}
       <SpinningReels scrollRef={scrollRef} />
+      <FilmStrip scrollRef={scrollRef} />
       <CinematicDust scrollRef={scrollRef} count={particleCount} tier={tier} />
     </>
   );
