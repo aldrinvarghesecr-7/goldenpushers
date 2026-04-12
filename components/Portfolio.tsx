@@ -29,7 +29,7 @@ function ProjectCard({ project, index }: { project: any, index: number }) {
 
     return (
         <motion.div 
-            className="group relative w-full md:w-[75vw] lg:w-[45vw] h-[55vh] md:h-[75vh] flex-shrink-0 cursor-pointer overflow-visible snap-center md:snap-start lg:snap-center"
+            className="group relative w-full md:w-[55vw] lg:w-[32vw] h-[45vh] md:h-[60vh] flex-shrink-0 cursor-pointer overflow-visible snap-center md:snap-start lg:snap-center"
             onHoverStart={() => setHover(true)}
             onHoverEnd={() => setHover(false)}
             initial={{ opacity: 0, y: 30 }}
