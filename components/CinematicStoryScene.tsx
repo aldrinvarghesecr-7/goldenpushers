@@ -42,11 +42,49 @@ function getSectionWeight(p: number, s: number, e: number): number {
 }
 
 function useSharedMaterials() {
-  const mDark = useMemo(() => new THREE.MeshStandardMaterial({ color: '#0A0A0A', roughness: 0.3, metalness: 0.9 }), []);
-  const mGold = useMemo(() => new THREE.MeshStandardMaterial({ color: GOLD, metalness: 1, roughness: 0.2 }), []);
-  const matteBlack = useMemo(() => new THREE.MeshStandardMaterial({ color: '#030303', roughness: 0.8, metalness: 0.2 }), []);
+  const mDark = useMemo(() => new THREE.MeshStandardMaterial({ 
+    color: '#050505', 
+    roughness: 0.15, 
+    metalness: 0.9,
+    envMapIntensity: 1.5 
+  }), []);
+  const mGold = useMemo(() => new THREE.MeshStandardMaterial({ 
+    color: GOLD, 
+    metalness: 1, 
+    roughness: 0.05, 
+    envMapIntensity: 3,
+    emissive: GOLD,
+    emissiveIntensity: 0.05
+  }), []);
+  const matteBlack = useMemo(() => new THREE.MeshStandardMaterial({ 
+    color: '#020202', 
+    roughness: 0.9, 
+    metalness: 0.1 
+  }), []);
   return { mDark, mGold, matteBlack };
 }
+
+// ═══════════════════════════════════════════════════════════════
+// VOLUMETRIC GOD RAYS
+// ═══════════════════════════════════════════════════════════════
+const VolumetricRay = ({ position, rotation, scale = [1, 1, 1] }: any) => {
+  return (
+    <group position={position} rotation={rotation} scale={scale}>
+      <mesh>
+        <cylinderGeometry args={[0.2, 2, 10, 32, 1, true]} />
+        <meshBasicMaterial 
+          color={GOLD} 
+          transparent 
+          opacity={0.08} 
+          alphaMap={new THREE.TextureLoader().load('https://raw.githubusercontent.com/mrdoob/three.js/master/examples/textures/sprites/snowflake1.png')} // Fallback soft map
+          depthWrite={false}
+          blending={THREE.AdditiveBlending}
+          side={THREE.DoubleSide}
+        />
+      </mesh>
+    </group>
+  );
+};
 
 // ═══════════════════════════════════════════════════════════════
 // CLAPPERBOARD & INTRO
@@ -137,8 +175,10 @@ const ClapperAsset = ({ scrollRef }: { scrollRef: React.MutableRefObject<number>
       <group ref={armRef} position={[-WIDTH/2, HEIGHT/2, 0]}>
         <mesh position={[WIDTH/2, 0.05, 0]}><boxGeometry args={[WIDTH, 0.1, 0.1]} /><primitive object={mDark} attach="material" /></mesh>
         <mesh position={[WIDTH/2, 0.05, 0.051]}><boxGeometry args={[WIDTH, 0.1, 0.001]} /><primitive object={mGold} attach="material" /></mesh>
+        {/* Dynamic Shadow Gap */}
+        <mesh position={[WIDTH/2, -0.01, 0.052]}><boxGeometry args={[WIDTH, 0.01, 0.001]} /><meshBasicMaterial color="#000" opacity={0.5} transparent /></mesh>
       </group>
-      <mesh position={[-WIDTH/2, HEIGHT/2, 0]} rotation={[Math.PI/2, 0, 0]}><cylinderGeometry args={[0.04, 0.04, 0.15, 12]} /><primitive object={mGold} attach="material" /></mesh>
+      <mesh position={[-WIDTH/2, HEIGHT/2, 0]} rotation={[Math.PI/2, 0, 0]}><cylinderGeometry args={[0.05, 0.05, 0.18, 16]} /><primitive object={mGold} attach="material" /></mesh>
     </group>
   );
 };
@@ -324,8 +364,14 @@ const CinematicDust = React.memo(({ scrollRef, count, tier }: { scrollRef: React
     }, [actualCount]);
   
     const particleMat = useMemo(() => new THREE.PointsMaterial({
-      color: GOLD, size: 0.04, transparent: true, opacity: 0.2, sizeAttenuation: true, blending: THREE.AdditiveBlending, depthWrite: false,
-    }), []);
+      color: GOLD, 
+      size: tier === 'desktop' ? 0.06 : 0.04, 
+      transparent: true, 
+      opacity: 0.4, 
+      sizeAttenuation: true, 
+      blending: THREE.AdditiveBlending, 
+      depthWrite: false,
+    }), [tier]);
 
     // Cleanup for disposal
     useEffect(() => {
@@ -388,12 +434,13 @@ const SceneOrchestrator = ({ tier }: { tier: DeviceTier }) => {
       currentLookAt.lerp(new THREE.Vector3(0, 0, 3), 0.05);
       cameraRef.current.lookAt(currentLookAt);
     } else {
-      // Deep Cinematic Forward Dolly mapping from z = 6 at top to z = 1 at bottom
-      const baseZ = THREE.MathUtils.lerp(6, 1, p);
+      // DRAMATIC CAMERA RE-MAPPING
+      // Deep Cinematic Forward Dolly mapping from z = 7 at top to z = 1.2 at bottom
+      const baseZ = THREE.MathUtils.lerp(7, 1.2, p);
       
-      // Slight pan corresponding to the layout structure
-      const panX = Math.sin(p * Math.PI * 3) * 0.4;
-      const panY = 0.2 + Math.sin(p * Math.PI) * 0.1;
+      // Dynamic shift based on scroll - creating a "weaving" cinematic path
+      const panX = Math.sin(p * Math.PI * 1.5) * 0.8; 
+      const panY = 0.3 + Math.cos(p * Math.PI) * 0.2;
 
       // Contact Pull-back (End of page)
       const contactWeight = getSectionWeight(p, SECTIONS.contact.s, SECTIONS.contact.e);
@@ -414,11 +461,11 @@ const SceneOrchestrator = ({ tier }: { tier: DeviceTier }) => {
         const heroWeight = getSectionWeight(p, SECTIONS.hero.s, SECTIONS.hero.e);
         
         // Volumetric buildup at top, warm dim down at bottom
-        ambientLight.current.intensity = THREE.MathUtils.lerp(0.05, 0.2, contactWeight);
+        ambientLight.current.intensity = THREE.MathUtils.lerp(0.1, 0.4, contactWeight);
         
-        // Main Spot tracks scene selectively
-        mainSpotLight.current.intensity = THREE.MathUtils.lerp(8, 2, contactWeight + heroWeight);
-        mainSpotLight.current.position.x = THREE.MathUtils.lerp(0, -2, p);
+        // Main Spot tracks scene selectively - Cranked up for cinematic visibility
+        mainSpotLight.current.intensity = THREE.MathUtils.lerp(15, 5, contactWeight + heroWeight);
+        mainSpotLight.current.position.x = THREE.MathUtils.lerp(2, -2, p);
     }
   });
 
@@ -429,18 +476,26 @@ const SceneOrchestrator = ({ tier }: { tier: DeviceTier }) => {
       <PerspectiveCamera ref={cameraRef} makeDefault position={[0, 0.2, 6]} fov={tier === 'mobile' ? 55 : 40} />
       
       {/* Lighting Base */}
-      <ambientLight ref={ambientLight} intensity={0.05} />
-      <directionalLight position={[0, 5, 2]} intensity={0.3} color={GOLD} />
+      <ambientLight ref={ambientLight} intensity={0.1} />
+      <directionalLight position={[0, 10, 5]} intensity={1.5} color={GOLD} />
       <spotLight 
          ref={mainSpotLight}
-         position={[0, 5, 5]} 
-         angle={0.6} 
+         position={[2, 8, 5]} 
+         angle={0.4} 
          penumbra={1} 
-         intensity={5} 
+         intensity={12} 
          color="#ffffff" 
          castShadow={tier !== 'mobile'} 
       />
-      {tier === 'desktop' && <Environment preset="night" />}
+      {tier === 'desktop' && <Environment preset="studio" />}
+      
+      {/* 🎬 Volumetric God Rays - Strategically placed for high-end visibility */}
+      {tier !== 'mobile' && (
+        <>
+            <VolumetricRay position={[-3, 4, -5]} rotation={[0.4, 0.3, 0]} scale={[1, 1, 1]} />
+            <VolumetricRay position={[4, 5, -8]} rotation={[0.2, -0.4, 0]} scale={[1.5, 1, 1.2]} />
+        </>
+      )}
       
       {/* Dynamic Sequenced Studio Props */}
       <ClapperAsset scrollRef={scrollRef} />

@@ -99,20 +99,46 @@ export default function ContactForm() {
                 ) : (
                     <motion.div 
                         key="success"
-                        initial={{ opacity: 0, scale: 0.9, filter: "brightness(0)" }}
-                        animate={{ opacity: 1, scale: 1, filter: "brightness(2)" }}
-                        transition={{ duration: 1.5, ease: "easeOut" }}
-                        className="flex flex-col items-center justify-center text-center h-[60vh]"
+                        initial={{ opacity: 0, scale: 0.8, filter: "brightness(0) blur(20px)" }}
+                        animate={{ opacity: 1, scale: 1, filter: "brightness(1.2) blur(0px)" }}
+                        transition={{ duration: 1.2, ease: [0.23, 1, 0.32, 1] }}
+                        className="flex flex-col items-center justify-center text-center py-20"
                     >
-                        <div className="w-24 h-24 rounded-full border border-accent flex items-center justify-center mb-8 shadow-[0_0_50px_rgba(206,169,0,0.5)]">
-                            <Check className="text-accent" size={40} />
+                        <div className="relative mb-12">
+                            <motion.div 
+                                initial={{ scale: 0 }}
+                                animate={{ scale: 1 }}
+                                transition={{ delay: 0.5, type: "spring", stiffness: 200, damping: 15 }}
+                                className="w-24 h-24 rounded-full border border-accent flex items-center justify-center relative z-10 bg-black"
+                            >
+                                <Check className="text-accent" size={40} />
+                            </motion.div>
+                            <div className="absolute inset-0 bg-accent/20 blur-[60px] rounded-full animate-pulse" />
                         </div>
-                        <h2 className="text-5xl md:text-7xl font-sans font-black text-white uppercase tracking-tighter drop-shadow-[0_0_15px_rgba(255,255,255,0.8)]">
-                           SCENE COMPLETE
+                        
+                        <h2 className="text-5xl md:text-8xl font-sans font-black text-white uppercase tracking-[0.1em] mb-4">
+                           SCENE <span className="text-accent">COMPLETE</span>
                         </h2>
-                        <p className="mt-6 text-xl font-serif text-accent tracking-widest uppercase">
-                           We will be in touch.
+                        
+                        <div className="flex items-center gap-4 mb-8">
+                            <div className="h-px w-8 bg-accent/30" />
+                            <p className="text-white/40 font-mono text-[10px] tracking-[0.5em] uppercase">Transmission Successful</p>
+                            <div className="h-px w-8 bg-accent/30" />
+                        </div>
+
+                        <p className="text-xl md:text-2xl font-serif text-white/50 italic max-w-md mx-auto leading-relaxed">
+                           Our architects will review your vision and be in touch shortly.
                         </p>
+                        
+                        <motion.button
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            transition={{ delay: 2 }}
+                            onClick={() => setStatus('idle')}
+                            className="mt-12 text-[10px] font-sans font-bold tracking-[0.4em] text-accent uppercase border-b border-accent/30 pb-1 hover:text-white hover:border-white transition-all duration-500"
+                        >
+                            Return to Studio
+                        </motion.button>
                     </motion.div>
                 )}
             </AnimatePresence>

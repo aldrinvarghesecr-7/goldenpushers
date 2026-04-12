@@ -25,15 +25,33 @@ export default function Footer() {
           </p>
         </div>
 
-        <div className="flex gap-12">
-          <a href="https://instagram.com" className="font-sans font-bold tracking-widest text-xs uppercase text-[#D4AF77]/50 hover:text-[#D4AF77] transition-colors block">
+        <div className="flex flex-wrap justify-center gap-x-12 gap-y-6 px-4">
+          <a 
+            href={siteConfig.instagram} 
+            target="_blank"
+            rel="noopener noreferrer"
+            className="group relative font-sans font-bold tracking-[0.3em] text-[10px] md:text-xs uppercase text-white/40 hover:text-accent transition-colors duration-500"
+          >
             Instagram
+            <span className="absolute -bottom-2 left-0 w-0 h-px bg-accent transition-all duration-500 group-hover:w-full" />
           </a>
-          <a href="https://www.linkedin.com/company/goldenpushers/" className="font-sans font-bold tracking-widest text-xs uppercase text-[#D4AF77]/50 hover:text-[#D4AF77] transition-colors block">
+          <a 
+            href="https://www.linkedin.com/company/goldenpushers/" 
+            target="_blank"
+            rel="noopener noreferrer"
+            className="group relative font-sans font-bold tracking-[0.3em] text-[10px] md:text-xs uppercase text-white/40 hover:text-accent transition-colors duration-500"
+          >
             LinkedIn
+            <span className="absolute -bottom-2 left-0 w-0 h-px bg-accent transition-all duration-500 group-hover:w-full" />
           </a>
-          <a href="https://wa.me/placeholder" className="font-sans font-bold tracking-widest text-xs uppercase text-[#D4AF77]/50 hover:text-[#D4AF77] transition-colors block">
+          <a 
+            href="https://wa.me/917306351867" 
+            target="_blank"
+            rel="noopener noreferrer"
+            className="group relative font-sans font-bold tracking-[0.3em] text-[10px] md:text-xs uppercase text-white/40 hover:text-accent transition-colors duration-500"
+          >
             WhatsApp
+            <span className="absolute -bottom-2 left-0 w-0 h-px bg-accent transition-all duration-500 group-hover:w-full" />
           </a>
         </div>
 

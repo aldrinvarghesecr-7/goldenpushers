@@ -63,57 +63,66 @@ const ClapperAsset = () => {
     if (!armPivotRef.current || !groupRef.current) return;
     
     // Initial State: Arm raised upward
-    gsap.set(armPivotRef.current.rotation, { z: -0.75 });
+    gsap.set(armPivotRef.current.rotation, { z: -1.1 }); // More aggressive raise
     
-    const tl = gsap.timeline({ delay: 0.5 });
+    const tl = gsap.timeline({ delay: 0.6 });
 
     // 1. Dramatic Pause & Subtle Float
-    tl.to(groupRef.current.position, { y: 0, duration: 0.8, ease: "power2.out" })
+    tl.to(groupRef.current.position, { y: 0.2, duration: 1.2, ease: "power3.out" })
     
     // 2. The High-Budget SNAP
     .to(armPivotRef.current.rotation, {
-      z: 0.03, // Slight overlap for mechanical feel
-      duration: 0.12,
-      ease: "power4.in",
+      z: 0.04, // Slight overlap for mechanical feel
+      duration: 0.08, // Much faster for 'impact'
+      ease: "power2.in",
       onComplete: () => {
-        // Impact FX: Light Flash
+        // Impact FX: Light Flash - Nuclear Spike
         if (lightRef.current) {
-          gsap.fromTo(lightRef.current, { intensity: 0 }, { intensity: 30, duration: 0.08, yoyo: true, repeat: 1 });
+          gsap.fromTo(lightRef.current, { intensity: 0 }, { intensity: 80, duration: 0.05, yoyo: true, repeat: 1 });
         }
         
         // Impact FX: Particle Burst
         if (sparkRef.current) {
-          gsap.fromTo(sparkRef.current.scale, { x: 0, y: 0, z: 0 }, { x: 2.5, y: 2.5, z: 2.5, duration: 0.4, ease: "expo.out" });
-          gsap.to(sparkRef.current.scale, { x: 0, y: 0, z: 0, duration: 0.3, delay: 0.2 });
+          gsap.fromTo(sparkRef.current.scale, { x: 0, y: 0, z: 0 }, { x: 3.5, y: 3.5, z: 3.5, duration: 0.3, ease: "slow(0.7, 0.7, false)" });
+          gsap.to(sparkRef.current.scale, { x: 0, y: 0, z: 0, duration: 0.2, delay: 0.1 });
         }
 
-        // Kinetic Shock (Impact Bounce)
+        // Kinetic Shock - Higher frequency jitter
         gsap.to(groupRef.current!.position, {
-          y: "-=0.08",
-          duration: 0.06,
+          y: "-=0.12",
+          duration: 0.04,
           yoyo: true,
-          repeat: 3,
-          ease: "sine.inOut"
+          repeat: 5,
+          ease: "rough({ template: none, strength: 2, points: 20, taper: 'none', randomize: true, clamp: false })"
+        });
+
+        // REBOUND: Arm bounces slightly open
+        gsap.to(armPivotRef.current!.rotation, {
+            z: -0.05,
+            duration: 0.1,
+            yoyo: true,
+            repeat: 1,
+            ease: "back.out(2)"
         });
       }
     })
-    // 3. Elegant Exit
+    // 3. Elegant Exit - Power Curve
     .to(groupRef.current.position, {
-      z: -5,
-      y: -2,
-      opacity: 0,
-      duration: 1.2,
-      ease: "power2.inOut",
-      delay: 0.6
+      z: -7,
+      y: -3,
+      duration: 1.5,
+      ease: "power3.inOut",
+      delay: 0.5
     })
     .to(groupRef.current.rotation, {
-      x: -1.2,
-      duration: 1.2,
-      ease: "power2.inOut"
+      x: -1.5,
+      y: 0.5,
+      duration: 1.5,
+      ease: "power3.inOut"
     }, "<")
     .add(() => {
       setIntroStage('ready');
-    }, "-=0.4");
+    }, "-=0.5");
 
   }, [setIntroStage]);
 

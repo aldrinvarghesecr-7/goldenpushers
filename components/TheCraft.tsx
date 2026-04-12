@@ -115,28 +115,29 @@ function Card3D({ category, index, spacing, progressRef, isHovered }: { category
     const isCenter = distFromCenter < 2.0;
     
     // Scale & Depth effects based on center proximity
-    const baseScale = isCenter ? 1.05 : 0.85;
-    const baseZ = isCenter ? 0 : -2.5;
-    const rotY = (myPos - scrollTargetX) * 0.15; // Parallax rotation
+    const baseScale = isCenter ? 1.08 : 0.75;
+    const baseZ = isCenter ? 0.5 : -3.5;
+    const rotY = (myPos - scrollTargetX) * 0.2; // Stronger Parallax rotation
     
     // Apply Hover interactions (Only applies if card is centered)
     const activeHover = isHovered && isCenter;
-    const finalScale = baseScale * (activeHover ? 1.03 : 1);
-    const finalZ = baseZ + (activeHover ? 0.4 : 0);
-    const hoverRotX = activeHover ? -0.05 : 0;
+    const finalScale = baseScale * (activeHover ? 1.05 : 1);
+    const finalZ = baseZ + (activeHover ? 0.8 : 0);
+    const hoverRotX = activeHover ? -0.08 : 0;
+    const hoverRotY = activeHover ? rotY + (state.mouse.x * 0.1) : rotY;
 
     // Smooth un-spring interpolation
-    groupRef.current.position.z = THREE.MathUtils.lerp(groupRef.current.position.z, finalZ, 6 * delta);
-    groupRef.current.scale.lerp(new THREE.Vector3().setScalar(finalScale), 6 * delta);
-    groupRef.current.rotation.y = THREE.MathUtils.lerp(groupRef.current.rotation.y, rotY, 6 * delta);
-    groupRef.current.rotation.x = THREE.MathUtils.lerp(groupRef.current.rotation.x, hoverRotX, 6 * delta);
+    groupRef.current.position.z = THREE.MathUtils.lerp(groupRef.current.position.z, finalZ, 5 * delta);
+    groupRef.current.scale.lerp(new THREE.Vector3().setScalar(finalScale), 5 * delta);
+    groupRef.current.rotation.y = THREE.MathUtils.lerp(groupRef.current.rotation.y, hoverRotY, 5 * delta);
+    groupRef.current.rotation.x = THREE.MathUtils.lerp(groupRef.current.rotation.x, hoverRotX, 5 * delta);
 
-    // Light pulse exactly when centered
+    // Light pulse exactly when centered - Cranked for world-class impact
     if (centerSpotlightRef.current) {
       centerSpotlightRef.current.intensity = THREE.MathUtils.lerp(
         centerSpotlightRef.current.intensity,
-        isCenter ? (activeHover ? 15 : 8) : 0,
-        8 * delta
+        isCenter ? (activeHover ? 25 : 18) : 0,
+        10 * delta
       );
     }
   });
@@ -150,21 +151,23 @@ function Card3D({ category, index, spacing, progressRef, isHovered }: { category
           <mesh castShadow receiveShadow>
             <boxGeometry args={[4.4, 6.2, 0.2]} />
             <meshStandardMaterial 
-              color="#050505" 
-              metalness={0.9} 
-              roughness={0.2} 
+              color="#020202" 
+              metalness={0.95} 
+              roughness={0.15} 
+              envMapIntensity={2.5}
             />
           </mesh>
           
-          {/* Golden Rim */}
+          {/* High-Fidelity Golden Rim */}
           <mesh position={[0, 0, 0.08]}>
             <boxGeometry args={[4.5, 6.3, 0.05]} />
             <meshStandardMaterial 
               color={isHovered ? "#FFD700" : "#D4AF77"} 
               metalness={1} 
-              roughness={0.1}
+              roughness={0.05}
               emissive="#D4AF77"
-              emissiveIntensity={isHovered ? 0.3 : 0.05}
+              emissiveIntensity={activeHover ? 0.5 : 0.1}
+              envMapIntensity={4}
             />
           </mesh>
           
@@ -248,7 +251,7 @@ function Card3D({ category, index, spacing, progressRef, isHovered }: { category
 
 const Scenes3D = ({ progressRef, activeHoverIndex }: { progressRef: React.MutableRefObject<number>, activeHoverIndex: number | null }) => {
   const groupRef = useRef<THREE.Group>(null);
-  const spacing = 5.2;
+  const spacing = 6.4; // Increased spacing for more cinematic breathing room
 
   useFrame((state, delta) => {
     if (!groupRef.current) return;
@@ -256,8 +259,9 @@ const Scenes3D = ({ progressRef, activeHoverIndex }: { progressRef: React.Mutabl
     const totalWidth = (categories.length - 1) * spacing;
     const targetX = -(progressRef.current * totalWidth);
     
-    // Smooth camera pan linked to scroll
-    groupRef.current.position.x = THREE.MathUtils.lerp(groupRef.current.position.x, targetX, 5 * delta);
+    // Smooth camera pan linked to scroll - added subtle float
+    groupRef.current.position.x = THREE.MathUtils.lerp(groupRef.current.position.x, targetX, 4 * delta);
+    groupRef.current.position.y = THREE.MathUtils.lerp(groupRef.current.position.y, Math.sin(state.clock.elapsedTime * 0.5) * 0.1, 2 * delta);
   });
 
   return (
