@@ -1,7 +1,6 @@
 'use client';
 import { useRef, useState } from 'react';
-
-import { motion } from 'framer-motion';
+import { motion, useScroll, useTransform } from 'framer-motion';
 import { Play, Pause, ChevronDown } from 'lucide-react';
 import gsap from 'gsap';
 import { useGSAP } from '@gsap/react';
@@ -12,6 +11,8 @@ export default function Hero3D() {
   const title1Ref = useRef<HTMLHeadingElement>(null);
   const title2Ref = useRef<HTMLHeadingElement>(null);
   const [isVideoPlaying, setIsVideoPlaying] = useState(true);
+  const { scrollY } = useScroll();
+  const y = useTransform(scrollY, [0, 500], [0, 150]);
 
   useGSAP(() => {
     const tl = gsap.timeline({ delay: 4 }); // Sync with 3.5s preloader + 0.5s buffer
@@ -29,13 +30,16 @@ export default function Hero3D() {
   return (
     <section ref={container} className="relative w-full h-screen overflow-hidden bg-black/40">
       <motion.div
-        initial={{ scale: 1.05 }}
-        animate={{ scale: 1 }}
-        transition={{ duration: 6, ease: "easeOut" }}
+        initial={{ scale: 1.1, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        transition={{ duration: 4, ease: "easeOut" }}
         className="absolute inset-0 w-full h-full"
       >
-        <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/60 to-black/80" />
-        <motion.div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1536440136628-849c177e76a1?auto=format&fit=crop&w=2400&q=80')] bg-cover opacity-30" />
+        <div className="absolute inset-0 bg-gradient-to-b from-black via-black/40 to-black z-10" />
+        <motion.div 
+            style={{ y }}
+            className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1533107862482-0e6974b06ec4?auto=format&fit=crop&w=2400&q=80')] bg-cover bg-center opacity-40 filter brightness-75 contrast-125" 
+        />
       </motion.div>
 
       {/* Foreground Content */}

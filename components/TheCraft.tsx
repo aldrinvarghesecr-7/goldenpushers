@@ -7,13 +7,6 @@ import { Float, Html, SpotLight } from '@react-three/drei';
 import * as THREE from 'three';
 import { ChevronRight } from 'lucide-react';
 
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import gsap from 'gsap';
-
-if (typeof window !== 'undefined') {
-  gsap.registerPlugin(ScrollTrigger);
-}
-
 const GOLD = '#D4AF77';
 
 const categories = [
@@ -139,8 +132,7 @@ function Card3D({ category, index, spacing, progressRef, isHovered }: { category
     const arcZ = Math.cos(angle) * arcRadius - arcRadius;
 
     const distFromCenter = Math.abs(myPos - scrollTargetX);
-    const centerStatus = distFromCenter < 2.0;
-    if (centerStatus !== isCenter) setIsCenter(centerStatus);
+    const isCenter = distFromCenter < 2.5;
     
     // SINE WAVE FLOAT
     const floatY = Math.sin(state.clock.elapsedTime * 1.5 + index) * 0.15;
@@ -381,45 +373,29 @@ const Scenes3D = ({ progressRef, activeHoverIndex }: { progressRef: React.Mutabl
 export default function TheCraft() {
   const [isMobile, setIsMobile] = useState(false);
   const [hoverIndex, setHoverIndex] = useState<number | null>(null);
-  const containerRef = useRef<HTMLDivElement>(null);
+  const scrollRef = useRef<HTMLDivElement>(null);
   const progressRef = useRef(0);
 
   useEffect(() => {
     const checkMobile = () => setIsMobile(window.innerWidth < 1024);
     checkMobile();
     window.addEventListener('resize', checkMobile);
-
-    if (containerRef.current && !isMobile) {
-      const scrollWidth = (categories.length) * window.innerWidth;
-      const st = ScrollTrigger.create({
-        trigger: containerRef.current,
-        start: "top top",
-        end: `+=${scrollWidth}`,
-        pin: true,
-        scrub: 1.5, // Buffer-smooth scrubbing
-        onUpdate: (self) => {
-          progressRef.current = self.progress;
-        }
-      });
-
-      return () => {
-        st.kill();
-        window.removeEventListener('resize', checkMobile);
-      };
-    }
-
     return () => window.removeEventListener('resize', checkMobile);
-  }, [isMobile]);
+  }, []);
+
+  const handleScroll = () => {
+    if (!scrollRef.current) return;
+    const { scrollLeft, scrollWidth, clientWidth } = scrollRef.current;
+    if (scrollWidth > clientWidth) {
+      progressRef.current = scrollLeft / (scrollWidth - clientWidth);
+    }
+  };
 
   return (
-    <section 
-      ref={containerRef}
-      className="relative w-full bg-transparent overflow-hidden h-screen" 
-      id="services"
-    >
+    <section className="relative w-full bg-transparent overflow-hidden py-32" id="services">
       
       {/* Premium Cinematic Header Overlay */}
-      <div className="absolute top-16 left-0 w-full px-8 md:px-24 z-20 pointer-events-none">
+      <div className="absolute top-24 left-0 w-full px-8 md:px-24 z-20 pointer-events-none">
         <div className="max-w-[1400px] mx-auto">
           <div className="flex items-center gap-6 mb-6">
             <div className="h-[2px] w-16 bg-[#D4AF77]" />
@@ -438,11 +414,11 @@ export default function TheCraft() {
 
       {/* MOBILE FALLBACK */}
       {isMobile && (
-        <div className="pt-40 pb-20 px-6 flex flex-col gap-10 relative z-30 overflow-y-auto h-full scrollbar-hide">
+        <div className="pt-40 pb-20 px-6 flex flex-col gap-10 relative z-30">
           {categories.map((cat, i) => (
             <motion.div 
-               initial={{ opacity: 0, scale: 0.95 }}
-               whileInView={{ opacity: 1, scale: 1 }}
+               initial={{ opacity: 0, y: 20 }}
+               whileInView={{ opacity: 1, y: 0 }}
                viewport={{ once: true, margin: "-50px" }}
                key={cat.id} 
                className="bg-[#050505]/95 backdrop-blur-3xl border border-white/5 rounded-[32px] p-10 shadow-2xl"
@@ -470,37 +446,49 @@ export default function TheCraft() {
         </div>
       )}
 
-      {/* DESKTOP 3D SCENE */}
+      {/* DESKTOP 3D CAROUSEL (REVERTED TO STABLE) */}
       {!isMobile && (
-        <div className="absolute inset-0 z-10">
+        <div className="relative w-full h-[850px] mt-24">
           
-          {/* Transparent Hover Overlay System (Pinned) */}
-          <div className="absolute inset-0 z-30 pointer-events-none">
-             <div className="flex h-full" style={{ width: `${categories.length * 100}vw`, transform: `translateX(-${progressRef.current * (categories.length - 1) * 100}vw)` }}>
-              {categories.map((_, i) => (
+          {/* Native Horizontal Scroll Container for Momentum Snapping */}
+          <div 
+            ref={scrollRef}
+            onScroll={handleScroll}
+            className="absolute inset-0 z-30 overflow-x-auto overflow-y-hidden snap-x snap-mandatory scrollbar-hide pointer-events-auto"
+            style={{ WebkitOverflowScrolling: 'touch' }}
+          >
+             {/* Interaction Area Panels */}
+              {categories.map((cat, i) => (
                 <div 
                   key={i} 
-                  className="w-[100vw] h-full pointer-events-auto cursor-pointer"
-                  onPointerEnter={() => setHoverIndex(i)}
-                  onPointerLeave={() => setHoverIndex(null)}
-                />
+                  className="w-[100vw] h-full shrink-0 snap-center flex items-center justify-center pointer-events-auto"
+                >
+                    <div 
+                       className="w-[420px] h-[520px] bg-transparent cursor-pointer"
+                       onPointerEnter={() => setHoverIndex(i)}
+                       onPointerLeave={() => setHoverIndex(null)}
+                    />
+                </div>
               ))}
-             </div>
           </div>
 
-          <Canvas 
-             camera={{ position: [0, 0, 10], fov: 40 }} 
-             dpr={[1, 1.5]}
-             gl={{ alpha: true, antialias: true }}
-          >
-            <Scenes3D progressRef={progressRef} activeHoverIndex={hoverIndex} />
-          </Canvas>
-          
+          {/* Persistent Stable Canvas */}
+          <div className="absolute inset-0 z-10 pointer-events-none">
+            <Canvas 
+               camera={{ position: [0, 0, 10], fov: 40 }} 
+               dpr={[1, 1.5]}
+               gl={{ alpha: true, antialias: true }}
+            >
+              <Scenes3D progressRef={progressRef} activeHoverIndex={hoverIndex} />
+            </Canvas>
+          </div>
+
           <div className="absolute bottom-16 left-1/2 -translate-x-1/2 z-20 flex items-center gap-6 opacity-40">
              <div className="w-20 h-px bg-gradient-to-r from-transparent to-[#D4AF77]" />
-             <span className="text-[#D4AF77] text-[10px] uppercase font-sans font-black tracking-[0.5em]">Scroll through our studio</span>
+             <span className="text-[#D4AF77] text-[10px] uppercase font-sans font-black tracking-[0.5em]">Scroll to explore the craft</span>
              <div className="w-20 h-px bg-gradient-to-l from-transparent to-[#D4AF77]" />
           </div>
+
         </div>
       )}
 
