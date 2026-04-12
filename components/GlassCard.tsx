@@ -49,15 +49,15 @@ export default function GlassCard({ children, className = "" }: Props) {
         rotateY,
         transformStyle: "preserve-3d",
       }}
-      whileHover={{ scale: 1.02 }}
-      transition={{ type: "spring", stiffness: 400, damping: 30 }}
+      whileHover={{ scale: 1.015 }}
+      transition={{ type: "spring", stiffness: 300, damping: 30, mass: 0.8 }}
       className={`glass glass-hover relative overflow-hidden rounded-xl ${className}`}
     >
       {/* Light Refraction orb that follows the mouse */}
       <motion.div
-        className="absolute pointer-events-none rounded-full blur-[60px]"
+        className="absolute pointer-events-none rounded-full blur-[60px] mix-blend-screen"
         style={{
-          background: 'radial-gradient(circle, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0) 70%)',
+          background: 'radial-gradient(circle, rgba(212,175,119,0.2) 0%, rgba(212,175,119,0) 70%)',
           width: '300px',
           height: '300px',
           left: mousePosition.x - 150,

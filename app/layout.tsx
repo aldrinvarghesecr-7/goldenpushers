@@ -3,15 +3,17 @@ import { Cinzel, Inter, Playfair_Display } from "next/font/google";
 import "./globals.css";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import SmoothScrollProvider from "@/components/SmoothScrollProvider";
-import ScrollProgress from "@/components/ScrollProgress";
-import CursorTrailer from "@/components/CursorTrailer";
 import PageTransition from "@/components/PageTransition";
+import ScrollProgress from "@/components/ScrollProgress";
 import { siteConfig } from "@/lib/config";
 import FilmGrain from "@/components/FilmGrain";
-import CinematicStoryScene from "@/components/CinematicStoryScene";
-import CinematicPreloader from "@/components/CinematicPreloader";
-import ContentReveal from "@/components/ContentReveal";
+import dynamic from 'next/dynamic';
+
+const CinematicStoryScene = dynamic(() => import("@/components/CinematicStoryScene"), { ssr: false });
+const CinematicPreloader = dynamic(() => import("@/components/CinematicPreloader"), { ssr: false });
+const ContentReveal = dynamic(() => import("@/components/ContentReveal"), { ssr: false });
+const CursorTrailer = dynamic(() => import("@/components/CursorTrailer"), { ssr: false });
+const SmoothScrollProvider = dynamic(() => import("@/components/SmoothScrollProvider"), { ssr: false });
 
 const serif = Cinzel({ subsets: ["latin"], variable: "--font-serif", weight: ["400", "500", "600", "700", "800", "900"], display: "swap" });
 const sans = Inter({ subsets: ["latin"], variable: "--font-sans", weight: ["300", "400", "500", "600", "900"], display: "swap" });

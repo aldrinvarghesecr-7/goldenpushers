@@ -37,14 +37,14 @@ export default function TiltCard({ children, className = "" }: Props) {
         transformStyle: "preserve-3d",
       }}
       whileHover={{ scale: 1.015 }}
-      transition={{ type: "spring", stiffness: 400, damping: 25 }}
+      transition={{ type: "spring", stiffness: 300, damping: 25, mass: 0.8 }}
       className={`relative overflow-hidden ${className}`}
     >
       {children}
       {/* Subtle shine overlay */}
       <motion.div
-        className="absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-transparent pointer-events-none"
-        style={{ opacity: useTransform(x, [0, 200], [0, 0.15]) }}
+        className="absolute inset-0 bg-gradient-to-br from-[rgba(212,175,119,0.15)] via-transparent to-transparent pointer-events-none mix-blend-screen"
+        style={{ opacity: useTransform(x, [0, 200], [0, 0.4]) }}
       />
     </motion.div>
   );

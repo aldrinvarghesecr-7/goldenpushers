@@ -1,270 +1,411 @@
 'use client';
 
-/**
- * TheCraft — 3D Canister-Style Service Carousel
- * ============================================
- * 
- * Rebuilt to blend "Luxury Cinematic" with "Modern Agency" polish.
- * Features 3D film-canister style cards that expand to reveal details.
- * Synced with the global 3D background light sweep.
- */
+import React, { useRef, useState, useEffect, useMemo } from 'react';
+import { motion } from 'framer-motion';
+import { Canvas, useFrame } from '@react-three/fiber';
+import { Float, Html, SpotLight } from '@react-three/drei';
+import * as THREE from 'three';
+import { ChevronRight } from 'lucide-react';
 
-import React, { useRef, useState, useEffect, useCallback } from 'react';
-import { motion, AnimatePresence, useScroll, useTransform } from 'framer-motion';
-import { ChevronLeft, ChevronRight, Plus, Minus, ArrowRight } from 'lucide-react';
-import { useCinematicStore } from '@/lib/store';
-
-const chapters = [
+const categories = [
   {
     id: "01",
-    title: "The Spark",
-    category: "Creative Development",
-    description: "Every masterpiece begins in darkness. We architect the soul of your narrative before the first frame is ever captured.",
-    items: ["Concept Ideation", "Brand Strategy", "Scriptwriting", "Storyboarding", "Creative Direction"]
+    title: "Creative Development & Strategy",
+    items: [
+      "Concept ideation and storytelling",
+      "Brand strategy and campaign development",
+      "Scriptwriting and screenplay development",
+      "Storyboarding and visual planning",
+      "Creative consulting and direction"
+    ]
   },
   {
     id: "02",
-    title: "The Blueprint",
-    category: "Pre-Production",
-    description: "Mastering the logistics of visual gold. We map out every detail to ensure a seamless transition from thought to reality.",
-    items: ["Budgeting", "Location Scouting", "Casting", "Set Design", "Production Planning"]
+    title: "Pre-Production Services",
+    items: [
+      "Budgeting and project planning",
+      "Location scouting",
+      "Casting (talent/actors/models)",
+      "Talent direction and choreography",
+      "Set design and art direction",
+      "Wardrobe, styling, hair & makeup",
+      "Equipment planning and crew assembly",
+      "Scheduling and logistics"
+    ]
   },
   {
     id: "03",
-    title: "The Shoot",
-    category: "Production",
-    description: "Visceral truth captured through light. Our world-class crew brings the vision to life with uncompromising precision.",
-    items: ["Cinematography", "Directing", "Aerial Filming", "High-End Lighting", "Sound Capture"]
+    title: "Production (Filming & Shooting)",
+    items: [
+      "Full-scale video/film production",
+      "Commercials & TV advertisements",
+      "Brand films and promotional videos",
+      "Music videos",
+      "Luxury & high-end fashion films",
+      "Corporate videos and corporate storytelling",
+      "Short films and narrative content",
+      "Documentary-style content",
+      "Live event coverage and multicamera shoots",
+      "Aerial/drone cinematography",
+      "Studio or on-location shoots"
+    ]
   },
   {
     id: "04",
-    title: "The Magic",
-    category: "Post-Production",
-    description: "Carving masterpieces from raw frames. The edit is where the story truly finds its pulse and emotional resonance.",
-    items: ["Editing", "Color Grading", "VFX & CGI", "Sound Design", "Motion Graphics"]
+    title: "Post-Production Services",
+    items: [
+      "Video editing and assembly",
+      "Color grading and cinematic correction",
+      "Sound design, mixing, and audio post",
+      "Voice-over and ADR",
+      "Visual effects (VFX) and CGI",
+      "Motion graphics and animation",
+      "Title design and end credits",
+      "Final mastering and delivery"
+    ]
   },
   {
     id: "05",
-    title: "The Reach",
-    category: "Specialized Content",
-    description: "Amplifying impact in the digital void. We tailor the experience for every platform, ensuring your message resonates everywhere.",
-    items: ["Social Media Content", "Product Films", "Digital Campaigns", "Vertical Video", "Podcast Production"]
+    title: "Specialized Content Creation",
+    items: [
+      "Social media content and short-form videos",
+      "Product videos and e-commerce content",
+      "Experiential films and immersive storytelling",
+      "Podcast video production",
+      "Behind-the-scenes and documentary content"
+    ]
   },
   {
     id: "06",
-    title: "The Legacy",
-    category: "Premium Distribution",
-    description: "The final golden frame. We ensure your project leaves a lasting impact and is preserved with the dignity it deserves.",
-    items: ["Final Mastering", "Asset Management", "Marketing Support", "Campaign Rollout", "Archive Strategy"]
+    title: "Additional Premium Services",
+    items: [
+      "Photography (still shoots, campaign photography)",
+      "Full campaign production (360-degree campaigns)",
+      "Distribution strategy and platform optimization",
+      "Marketing support and promo materials",
+      "Archiving and asset management"
+    ]
   }
 ];
 
-function ServiceCard({ 
-  chapter, 
-  index, 
-  isCenter, 
-  isExpanded, 
-  onToggle 
-}: { 
-  chapter: typeof chapters[0], 
-  index: number, 
-  isCenter: boolean,
-  isExpanded: boolean,
-  onToggle: () => void
-}) {
+function Card3D({ category, index, spacing, progressRef, isHovered }: { category: typeof categories[0], index: number, spacing: number, progressRef: React.MutableRefObject<number>, isHovered: boolean }) {
+  const groupRef = useRef<THREE.Group>(null);
+  const centerSpotlightRef = useRef<THREE.SpotLight>(null);
+
+  // Subtle particle accents assigned to card
+  const particlePositions = useMemo(() => {
+    const pos = new Float32Array(30 * 3);
+    for (let i = 0; i < 30; i++) {
+      pos[i * 3] = (Math.random() - 0.5) * 4;
+      pos[i * 3 + 1] = (Math.random() - 0.5) * 6;
+      pos[i * 3 + 2] = (Math.random() - 0.5) * 1.5;
+    }
+    return pos;
+  }, []);
+
+  useFrame((state, delta) => {
+    if (!groupRef.current) return;
+    const myPos = index * spacing;
+    // Total distance the carousel can move
+    const maxScroll = (categories.length - 1) * spacing;
+    const scrollTargetX = progressRef.current * maxScroll;
+    
+    // How far is this card from the center of the view?
+    const distFromCenter = Math.abs(myPos - scrollTargetX);
+    const isCenter = distFromCenter < 2.0;
+    
+    // Scale & Depth effects based on center proximity
+    const baseScale = isCenter ? 1.05 : 0.85;
+    const baseZ = isCenter ? 0 : -2.5;
+    const rotY = (myPos - scrollTargetX) * 0.15; // Parallax rotation
+    
+    // Apply Hover interactions (Only applies if card is centered)
+    const activeHover = isHovered && isCenter;
+    const finalScale = baseScale * (activeHover ? 1.03 : 1);
+    const finalZ = baseZ + (activeHover ? 0.4 : 0);
+    const hoverRotX = activeHover ? -0.05 : 0;
+
+    // Smooth un-spring interpolation
+    groupRef.current.position.z = THREE.MathUtils.lerp(groupRef.current.position.z, finalZ, 6 * delta);
+    groupRef.current.scale.lerp(new THREE.Vector3().setScalar(finalScale), 6 * delta);
+    groupRef.current.rotation.y = THREE.MathUtils.lerp(groupRef.current.rotation.y, rotY, 6 * delta);
+    groupRef.current.rotation.x = THREE.MathUtils.lerp(groupRef.current.rotation.x, hoverRotX, 6 * delta);
+
+    // Light pulse exactly when centered
+    if (centerSpotlightRef.current) {
+      centerSpotlightRef.current.intensity = THREE.MathUtils.lerp(
+        centerSpotlightRef.current.intensity,
+        isCenter ? (activeHover ? 15 : 8) : 0,
+        8 * delta
+      );
+    }
+  });
+
   return (
-    <motion.div
-      layout
-      className={`
-        relative flex-shrink-0 md:snap-center transition-all duration-700
-        ${isExpanded ? 'w-full md:w-[600px] h-auto md:h-auto' : 'w-full md:w-[320px] h-auto md:h-auto'}
-      `}
-    >
-      {/* 3D Canister Body */}
-      <div 
-        onClick={onToggle}
-        className={`
-          relative h-[500px] rounded-[40px] border transition-all duration-700 cursor-pointer overflow-hidden
-          ${isCenter 
-            ? 'border-[#D4AF77]/40 shadow-[0_40px_80px_rgba(0,0,0,0.4)]' 
-            : 'border-white/5 opacity-40 hover:opacity-100'
-          }
-          bg-gradient-to-br from-black/60 to-black/20 backdrop-blur-md
-        `}
-      >
-        {/* Glossy Reflection Overlay */}
-        <div className="absolute inset-0 bg-gradient-to-tr from-white/5 via-transparent to-transparent pointer-events-none" />
-
-        <div className="relative h-full p-8 md:p-12 flex flex-col justify-between">
-          <div className="space-y-6">
-            <div className="flex justify-between items-start">
-              <span className="text-[#D4AF77] font-sans text-xs tracking-[0.4em] uppercase font-black">
-                CH. {chapter.id}
-              </span>
-              <motion.div 
-                animate={{ rotate: isExpanded ? 180 : 0 }}
-                className="w-10 h-10 rounded-full border border-white/10 flex items-center justify-center text-[#D4AF77]"
-              >
-                {isExpanded ? <Minus size={18} /> : <Plus size={18} />}
-              </motion.div>
-            </div>
-
-            <div>
-              <h3 className="text-white text-3xl md:text-4xl font-sans font-black uppercase tracking-tighter leading-none mb-3">
-                {chapter.title}
-              </h3>
-              <p className="text-[#D4AF77]/60 font-serif italic text-sm">
-                {chapter.category}
-              </p>
-            </div>
-
-            <AnimatePresence mode="wait">
-              {isExpanded ? (
-                <motion.div
-                  key="expanded"
-                  initial={{ opacity: 0, height: 0 }}
-                  animate={{ opacity: 1, height: 'auto' }}
-                  exit={{ opacity: 0, height: 0 }}
-                  transition={{ duration: 0.5, ease: [0.23, 1, 0.32, 1] }}
-                  className="space-y-6 pt-6 border-t border-white/5"
-                >
-                  <p className="text-white/60 text-sm leading-relaxed">
-                    {chapter.description}
-                  </p>
-                  <ul className="grid grid-cols-1 gap-3">
-                    {chapter.items.map((item, idx) => (
-                      <li key={idx} className="flex items-center gap-3 text-white/40 text-[10px] tracking-widest uppercase font-bold">
-                        <div className="w-1 h-1 rounded-full bg-[#D4AF77]" />
-                        {item}
-                      </li>
-                    ))}
-                  </ul>
-                  <button className="group flex items-center gap-3 text-[#D4AF77] text-xs underline-offset-8 hover:underline uppercase tracking-widest font-black transition-all pt-4">
-                    Learn More <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
-                  </button>
-                </motion.div>
-              ) : (
-                <motion.div
-                  key="collapsed"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  className="pt-6"
-                >
-                  <p className="text-white/30 text-xs uppercase tracking-[0.2em] font-bold line-clamp-2">
-                    {chapter.description}
-                  </p>
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </div>
-        </div>
-
-        {/* Dynamic Light Sweep Highlight */}
-        <AnimatePresence>
-          {isCenter && (
-            <motion.div 
-              initial={{ x: '-100%' }}
-              animate={{ x: '100%' }}
-              transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}
-              className="absolute inset-0 bg-gradient-to-r from-transparent via-[#D4AF77]/5 to-transparent pointer-events-none"
+    <group position={[index * spacing, 0, 0]}>
+      <group ref={groupRef}>
+        <Float speed={2} rotationIntensity={0.1} floatIntensity={0.3}>
+          
+          {/* Metallic Card Base */}
+          <mesh castShadow receiveShadow>
+            <boxGeometry args={[4.4, 6.2, 0.2]} />
+            <meshStandardMaterial 
+              color="#050505" 
+              metalness={0.9} 
+              roughness={0.2} 
             />
-          )}
-        </AnimatePresence>
-      </div>
-    </motion.div>
+          </mesh>
+          
+          {/* Golden Rim */}
+          <mesh position={[0, 0, 0.08]}>
+            <boxGeometry args={[4.5, 6.3, 0.05]} />
+            <meshStandardMaterial 
+              color={isHovered ? "#FFD700" : "#D4AF77"} 
+              metalness={1} 
+              roughness={0.1}
+              emissive="#D4AF77"
+              emissiveIntensity={isHovered ? 0.3 : 0.05}
+            />
+          </mesh>
+          
+          {/* Rich content mounted via HTML Transform allows perfect text crispness */}
+          <Html 
+            transform 
+            position={[0, 0, 0.12]} 
+            zIndexRange={[100, 0]}
+            className="pointer-events-auto select-none"
+            castShadow={false}
+            receiveShadow={false}
+          >
+            <div 
+              className="w-[400px] h-[550px] p-8 flex flex-col justify-start rounded-xl overflow-hidden"
+              style={{
+                background: 'linear-gradient(135deg, rgba(5,5,5,0.95), rgba(5,5,5,0.8))',
+                backdropFilter: 'blur(20px)',
+                boxShadow: isHovered ? 'inset 0 0 40px rgba(212,175,119,0.1)' : 'none',
+                transition: 'box-shadow 0.4s ease'
+              }}
+            >
+              <div className="flex items-center gap-3 mb-6">
+                 <div className="h-px w-8 bg-[#D4AF77]" />
+                 <span className="text-[#D4AF77] font-mono text-[11px] tracking-[0.4em] uppercase font-bold">
+                   Chapter {category.id}
+                 </span>
+              </div>
+              
+              <h3 className="text-white text-3xl font-black uppercase tracking-tighter leading-[1.1] mb-6 drop-shadow-md">
+                {category.title}
+              </h3>
+              
+              <ul className="space-y-[10px] mt-2 flex-1 overflow-y-auto scrollbar-hide pr-2">
+                {category.items.map((item, i) => (
+                  <li key={i} className="flex items-start gap-3">
+                    <div className="w-1 h-1 flex-shrink-0 rounded-full bg-[#D4AF77] mt-[7px] shadow-[0_0_5px_rgba(212,175,119,0.8)]" />
+                    <span className="text-white/70 text-[13px] font-sans leading-tight tracking-wide">{item}</span>
+                  </li>
+                ))}
+              </ul>
+              
+              <div className="mt-8 pt-4 border-t border-white/10 flex items-center gap-2 group cursor-pointer w-fit">
+                <span className="text-[#D4AF77] text-xs uppercase tracking-widest font-black group-hover:text-white transition-colors duration-300">Explore Services</span>
+                <ChevronRight size={14} className="text-[#D4AF77] group-hover:translate-x-1 group-hover:text-white transition-all duration-300" />
+              </div>
+            </div>
+          </Html>
+
+          {/* Targeted SpotLight reacting to center position */}
+          <SpotLight
+            ref={centerSpotlightRef}
+            color="#D4AF77"
+            position={[0, 4, 3]}
+            angle={0.8}
+            penumbra={1}
+            intensity={0}
+            distance={15}
+            castShadow
+          />
+          
+          {/* Subtle Golden Particles for each card */}
+          <points>
+            <bufferGeometry>
+              <bufferAttribute attach="attributes-position" args={[particlePositions, 3]} />
+            </bufferGeometry>
+            <pointsMaterial 
+               color="#D4AF77" 
+               size={0.03} 
+               transparent 
+               opacity={isHovered ? 0.6 : 0.1} 
+               sizeAttenuation={true} 
+               blending={THREE.AdditiveBlending}
+            />
+          </points>
+
+        </Float>
+      </group>
+    </group>
   );
 }
 
-export default function TheCraft() {
-  const scrollContainerRef = useRef<HTMLDivElement>(null);
-  const [activeIndex, setActiveIndex] = useState(0);
-  const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
-  const { setActiveCraftIndex } = useCinematicStore();
+const Scenes3D = ({ progressRef, activeHoverIndex }: { progressRef: React.MutableRefObject<number>, activeHoverIndex: number | null }) => {
+  const groupRef = useRef<THREE.Group>(null);
+  const spacing = 5.2;
 
-  const handleScroll = useCallback(() => {
-    if (!scrollContainerRef.current) return;
-    const { scrollLeft, clientWidth } = scrollContainerRef.current;
+  useFrame((state, delta) => {
+    if (!groupRef.current) return;
+    // Map overall progress (0-1) to the negative X translation
+    const totalWidth = (categories.length - 1) * spacing;
+    const targetX = -(progressRef.current * totalWidth);
     
-    // Calculate which card is closest to center
-    const cardWidth = window.innerWidth < 768 ? clientWidth * 0.8 : 320;
-    const gap = 32;
-    const index = Math.round(scrollLeft / (cardWidth + gap));
-    const boundedIndex = Math.max(0, Math.min(index, chapters.length - 1));
-    
-    if (boundedIndex !== activeIndex) {
-      setActiveIndex(boundedIndex);
-      setActiveCraftIndex(boundedIndex);
-    }
-  }, [activeIndex, setActiveCraftIndex]);
+    // Smooth camera pan linked to scroll
+    groupRef.current.position.x = THREE.MathUtils.lerp(groupRef.current.position.x, targetX, 5 * delta);
+  });
+
+  return (
+    <>
+      <ambientLight intensity={0.4} />
+      <directionalLight position={[5, 10, 5]} intensity={1.5} color="#D4AF77" />
+      {/* Ensures the metallic cards reflect something rich */}
+      <spotLight position={[-5, 5, 5]} intensity={2} color="#ffffff" penumbra={1} />
+      
+      <group ref={groupRef} position={[0, -0.2, 0]}>
+        {categories.map((cat, i) => (
+          <Card3D key={cat.id} category={cat} index={i} spacing={spacing} progressRef={progressRef} isHovered={activeHoverIndex === i} />
+        ))}
+      </group>
+    </>
+  );
+};
+
+export default function TheCraft() {
+  const [isMobile, setIsMobile] = useState(false);
+  const [hoverIndex, setHoverIndex] = useState<number | null>(null);
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const progressRef = useRef(0);
 
   useEffect(() => {
-    const el = scrollContainerRef.current;
-    if (!el) return;
-    el.addEventListener('scroll', handleScroll, { passive: true });
-    return () => el.removeEventListener('scroll', handleScroll);
-  }, [handleScroll]);
+    const checkMobile = () => setIsMobile(window.innerWidth < 1024);
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
-  const scrollCarousel = (direction: 'left' | 'right') => {
-    if (!scrollContainerRef.current) return;
-    const { scrollLeft, clientWidth } = scrollContainerRef.current;
-    const move = direction === 'left' ? -352 : 352;
-    scrollContainerRef.current.scrollTo({ left: scrollLeft + move, behavior: 'smooth' });
+  const handleScroll = () => {
+    if (!scrollRef.current) return;
+    const { scrollLeft, scrollWidth, clientWidth } = scrollRef.current;
+    if (scrollWidth > clientWidth) {
+      progressRef.current = scrollLeft / (scrollWidth - clientWidth);
+    }
   };
 
   return (
-    <section className="relative py-32 md:py-48 bg-transparent" id="services">
-      <div className="max-w-7xl mx-auto px-6 md:px-12 mb-24 md:mb-32">
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-12">
-          <div className="space-y-6">
-            <div className="flex items-center gap-4">
-              <div className="h-[1px] w-12 bg-[#D4AF77]" />
-              <span className="text-[#D4AF77] font-sans text-xs tracking-[0.5em] uppercase font-black">
+    <section className="relative w-full bg-transparent overflow-hidden py-32" id="services">
+      
+      {/* Premium Cinematic Header Overlay */}
+      <div className="absolute top-24 left-0 w-full px-8 md:px-16 z-20 pointer-events-none">
+        <div className="max-w-7xl mx-auto flex flex-col md:flex-row md:items-end justify-between gap-6">
+          <div>
+            <div className="flex items-center gap-4 mb-4">
+              <div className="h-px w-12 bg-[#D4AF77]" />
+              <span className="text-[#D4AF77] font-sans text-[10px] md:text-xs tracking-[0.5em] uppercase font-black">
                 Excellence in Motion
               </span>
             </div>
-            <h2 className="text-5xl md:text-8xl font-sans font-black text-white uppercase tracking-tighter leading-none">
+            <h2 className="text-5xl md:text-8xl font-sans font-black text-white uppercase tracking-tighter leading-none drop-shadow-2xl">
               The <span className="text-white/20">Craft</span>
             </h2>
-            <p className="max-w-xl text-white/50 text-base md:text-lg font-serif italic leading-relaxed">
-              Six chapters of meticulously architected cinema. From early ideation to premium global distribution, we forge masterpieces.
-            </p>
           </div>
-
-          <div className="flex gap-4">
-            <button 
-              onClick={() => scrollCarousel('left')}
-              className="w-16 h-16 rounded-full border border-white/10 flex items-center justify-center text-white/40 hover:border-[#D4AF77] hover:text-[#D4AF77] hover:bg-[#D4AF77]/5 transition-all duration-500"
-            >
-              <ChevronLeft size={24} />
-            </button>
-            <button 
-              onClick={() => scrollCarousel('right')}
-              className="w-16 h-16 rounded-full border border-white/10 flex items-center justify-center text-white/40 hover:border-[#D4AF77] hover:text-[#D4AF77] hover:bg-[#D4AF77]/5 transition-all duration-500"
-            >
-              <ChevronRight size={24} />
-            </button>
-          </div>
+          <p className="max-w-md text-white/50 text-sm md:text-base font-serif italic leading-relaxed">
+            From first spark to final frame — every stage is crafted with uncompromising cinematic excellence.
+          </p>
         </div>
       </div>
 
-      <div 
-        ref={scrollContainerRef}
-        className="flex flex-col md:flex-row gap-8 px-6 md:px-[calc(50vw-160px)] md:overflow-x-auto md:snap-x md:snap-mandatory scrollbar-hide pb-20"
-      >
-        {chapters.map((chapter, i) => (
-          <ServiceCard 
-            key={chapter.id} 
-            chapter={chapter} 
-            index={i} 
-            isCenter={activeIndex === i}
-            isExpanded={expandedIndex === i}
-            onToggle={() => setExpandedIndex(expandedIndex === i ? null : i)}
-          />
-        ))}
-        {/* Spacer for end scroll */}
-        <div className="min-w-[40vw] flex-shrink-0" />
-      </div>
+      {/* MOBILE EXACT HTML FALLBACK (Vertical Stack, Fast, No Lag) */}
+      {isMobile && (
+        <div className="mt-40 px-6 flex flex-col gap-8 relative z-30 pointer-events-auto">
+          {categories.map((cat, i) => (
+            <motion.div 
+               initial={{ opacity: 0, y: 20 }}
+               whileInView={{ opacity: 1, y: 0 }}
+               viewport={{ once: true, margin: "-50px" }}
+               transition={{ duration: 0.6 }}
+               key={cat.id} 
+               className="bg-[#050505]/90 backdrop-blur-xl border border-white/10 rounded-2xl p-8"
+            >
+              <span className="text-[#D4AF77] font-sans text-[10px] tracking-[0.3em] uppercase font-bold mb-2 block">
+                Chapter {cat.id}
+              </span>
+              <h3 className="text-white text-2xl font-black uppercase tracking-tight mb-6">
+                {cat.title}
+              </h3>
+              <ul className="space-y-3">
+                {cat.items.map((item, idx) => (
+                  <li key={idx} className="flex items-start gap-3">
+                    <div className="w-[3px] h-[3px] flex-shrink-0 rounded-full bg-[#D4AF77] mt-[8px]" />
+                    <span className="text-white/60 text-sm font-sans">{item}</span>
+                  </li>
+                ))}
+              </ul>
+            </motion.div>
+          ))}
+        </div>
+      )}
+
+      {/* DESKTOP 3D APPLE-STYLE CAROUSEL */}
+      {!isMobile && (
+        <div className="relative w-full h-[800px] mt-24">
+          
+          {/* Native Horizontal Scroll Container for Momentum Snapping */}
+          <div 
+            ref={scrollRef}
+            onScroll={handleScroll}
+            className="absolute inset-0 z-30 overflow-x-auto overflow-y-hidden snap-x snap-mandatory scrollbar-hide"
+            style={{ WebkitOverflowScrolling: 'touch' }}
+          >
+             {/* The Rich Content Layout rendered via DOM to catch hover events natively on top of 3D */}
+              {categories.map((cat, i) => (
+                <div 
+                  key={i} 
+                  className="w-[100vw] h-full shrink-0 snap-center flex items-center justify-center pointer-events-auto"
+                >
+                    {/* Invisible Hitbox matching the 3D Card Size */}
+                    <div 
+                       className="w-[400px] h-[550px] bg-transparent cursor-pointer"
+                       onPointerEnter={() => setHoverIndex(i)}
+                       onPointerLeave={() => setHoverIndex(null)}
+                    />
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Isolated Local Transparent Canvas */}
+          <div className="absolute inset-0 z-10 pointer-events-none">
+            <Canvas 
+               camera={{ position: [0, 0, 8.5], fov: 45 }} 
+               dpr={[1, 1.5]}
+               gl={{ 
+                  alpha: true, 
+                  antialias: false, 
+                  powerPreference: 'high-performance',
+                  stencil: false,
+                  depth: true
+               }}
+            >
+              <Scenes3D progressRef={progressRef} activeHoverIndex={hoverIndex} />
+            </Canvas>
+          </div>
+
+          {/* Interactive hint overlay */}
+          <div className="absolute bottom-12 left-1/2 -translate-x-1/2 z-20 pointer-events-none flex items-center gap-4 opacity-50">
+             <div className="w-16 h-px bg-gradient-to-r from-transparent to-white" />
+             <span className="text-white text-[10px] uppercase font-mono tracking-widest text-shadow">Scroll to Explore</span>
+             <div className="w-16 h-px bg-gradient-to-l from-transparent to-white" />
+          </div>
+
+        </div>
+      )}
+
     </section>
   );
 }

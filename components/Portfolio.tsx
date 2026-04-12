@@ -2,6 +2,7 @@
 import { useRef, useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
+import Image from 'next/image';
 
 const projects = [
   { id: 1, title: 'TEMPLE SCALE', category: 'HERITAGE FILM', image: 'https://images.unsplash.com/photo-1485846234645-a62644f84728?q=80&w=1200&auto=format&fit=crop', video: 'https://assets.mixkit.co/videos/preview/mixkit-cinematic-shot-of-a-man-working-on-a-production-set-33824-large.mp4' },
@@ -41,20 +42,25 @@ function ProjectCard({ project, index }: { project: any, index: number }) {
                whileHover={{ y: -25, scale: 1.02 }}
                transition={{ type: "spring", stiffness: 150, damping: 25 }}
             >
-                {/* Fallback Image */}
-                <img 
+                {/* Optimized Fallback Image */}
+                <Image 
                     src={project.image} 
                     alt={project.title}
-                    className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ${hover ? 'opacity-0' : 'opacity-70'}`}
+                    fill
+                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 75vw, 45vw"
+                    className={`object-cover transition-opacity duration-1000 ${hover ? 'opacity-0' : 'opacity-70'}`}
+                    priority={index < 2} // Priority for first two images to reduce LCP
+                    quality={75}
                 />
                 
-                {/* Video Playback */}
+                {/* Video Playback - Lazy Load with specific attributes */}
                 <video 
                     ref={videoRef}
                     src={project.video}
                     loop 
                     muted 
                     playsInline
+                    preload="none" // Performance: Don't preload video until necessary
                     className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ${hover ? 'opacity-100' : 'opacity-0'}`}
                 />
 

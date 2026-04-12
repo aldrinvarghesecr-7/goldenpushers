@@ -17,23 +17,38 @@
   h1, h2, h3, h4, h5 {
     font-family: var(--font-sans);
     font-weight: 900;
-    letter-spacing: -0.05em;
+    letter-spacing: -0.04em; /* Slightly adjusted for better cinematic breathing room */
+    line-height: 1.1; /* Tighter line height for large headings */
     text-transform: uppercase;
+  }
+  
+  p, span, li {
+    letter-spacing: 0.01em; /* Subtle spacing for luxury reading text */
+    line-height: 1.6;
+  }
+  
+  /* Beautiful focus states for keyboard navigation */
+  *:focus-visible {
+    outline: 2px solid var(--color-accent, #D4AF77);
+    outline-offset: 4px;
+    border-radius: 2px;
+    transition: outline-offset 0.2s ease;
   }
   
   /* Cinematic link micro-interaction */
   a {
-    transition: color 0.3s ease;
+    transition: color 0.4s cubic-bezier(0.22, 1, 0.36, 1);
   }
   p a {
     text-decoration: underline;
-    text-underline-offset: 4px;
+    text-underline-offset: 6px;
     text-decoration-color: transparent;
-    transition: all 0.3s ease;
+    transition: all 0.4s cubic-bezier(0.22, 1, 0.36, 1);
   }
   p a:hover {
-    color: var(--color-accent, #CEA900);
-    text-decoration-color: var(--color-accent, #CEA900);
+    color: var(--color-accent, #D4AF77);
+    text-decoration-color: var(--color-accent, #D4AF77);
+    text-shadow: 0 0 15px rgba(212, 175, 119, 0.4);
   }
 }
 

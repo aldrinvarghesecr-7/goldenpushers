@@ -1,6 +1,7 @@
 'use client';
 import { useState, useRef } from 'react';
 import { motion, useMotionValue, useSpring, useTransform } from 'framer-motion';
+import Image from 'next/image';
 
 const team = [
   { id: 1, name: 'AVRIL JOHN VARGHESE', role: 'Founder', bio: 'Visionary architect of cinematic experiences. Pushing the boundaries of storytelling.', image: '/team/founder.jpg' },
@@ -71,11 +72,15 @@ function TeamCard({ member }: { member: any }) {
                className="w-full h-full preserve-3d relative overflow-hidden"
                style={{ rotateX, rotateY }}
             >
-                <img 
+                <Image 
                    src={imgSrc} 
                    alt={member.name}
+                   fill
+                   sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
                    onError={() => setImgSrc(fallbacks[member.id])}
-                   className="absolute inset-0 w-full h-full object-cover transition-all duration-700" 
+                   className="object-cover transition-all duration-700" 
+                   quality={80}
+                   loading="lazy"
                 />
                 
                 {/* Gold Rim Lighting Array triggered on hover */}

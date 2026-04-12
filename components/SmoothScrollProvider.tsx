@@ -19,10 +19,11 @@ export default function SmoothScrollProvider({ children }: { children: ReactNode
     const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
 
     const lenis = new Lenis({
-      duration: isTouchDevice ? 1.0 : 1.5,       // Faster on touch for responsiveness
+      duration: isTouchDevice ? 0.8 : 1.2,       // Optimized for tactile response
       easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
       smoothWheel: true,
-      touchMultiplier: 1.5,                        // Better touch scroll feel
+      touchMultiplier: 2.0,                        // Increased for snappier mobile flicking
+      infinite: false,
     });
 
     lenis.on('scroll', ScrollTrigger.update);
