@@ -158,7 +158,7 @@ const ClapperAsset = () => {
             <Text position={[0.4, -0.15, 0]} fontSize={0.08} material={fontMat}>A</Text>
         </group>
 
-        <Text position={[0, -0.35, 0]} fontSize={0.15} material={fontMat} tracking={0.2} font="/fonts/Inter-Black.woff">ACTION!</Text>
+        <Text position={[0, -0.35, 0]} fontSize={0.15} material={fontMat} letterSpacing={0.2} font="/fonts/Inter-Black.woff">ACTION!</Text>
       </group>
 
       {/* The Clapper Arm (Pivot at top-left hinge) */}
