@@ -7,6 +7,8 @@ import { Float, Html, SpotLight } from '@react-three/drei';
 import * as THREE from 'three';
 import { ChevronRight } from 'lucide-react';
 
+const GOLD = '#D4AF77';
+
 const categories = [
   {
     id: "01",
