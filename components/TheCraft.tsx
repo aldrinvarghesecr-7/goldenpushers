@@ -100,6 +100,7 @@ const categories = [
 ];
 
 function Card3D({ category, index, spacing, progressRef, isHovered }: { category: typeof categories[0], index: number, spacing: number, progressRef: React.MutableRefObject<number>, isHovered: boolean }) {
+  const [isCenter, setIsCenter] = useState(false);
   const groupRef = useRef<THREE.Group>(null);
   const centerSpotlightRef = useRef<THREE.SpotLight>(null);
 
@@ -134,7 +135,8 @@ function Card3D({ category, index, spacing, progressRef, isHovered }: { category
     const arcZ = Math.cos(angle) * arcRadius - arcRadius;
 
     const distFromCenter = Math.abs(myPos - scrollTargetX);
-    const isCenter = distFromCenter < 2.0;
+    const centerStatus = distFromCenter < 2.0;
+    if (centerStatus !== isCenter) setIsCenter(centerStatus);
     
     // SINE WAVE FLOAT
     const floatY = Math.sin(state.clock.elapsedTime * 1.5 + index) * 0.15;
