@@ -37,7 +37,7 @@ export default function Navbar() {
                 <span className="absolute -bottom-1 left-0 w-0 h-px bg-accent group-hover/link:w-full transition-all duration-500" />
             </Link>
           ))}
-          <Link href="#contact" className="px-8 py-3 ml-4 border border-accent/30 text-accent text-[10px] tracking-[0.4em] uppercase font-black hover:bg-accent hover:text-black transition-all duration-700 glass">
+          <Link href="#contact" className="px-6 py-2.5 ml-2 border border-accent/20 text-accent text-[9px] tracking-[0.4em] uppercase font-black hover:bg-accent hover:text-black transition-all duration-700 glass">
              Enquire
           </Link>
         </div>

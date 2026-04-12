@@ -10,6 +10,10 @@ import { ChevronRight } from 'lucide-react';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import gsap from 'gsap';
 
+if (typeof window !== 'undefined') {
+  gsap.registerPlugin(ScrollTrigger);
+}
+
 const GOLD = '#D4AF77';
 
 const categories = [

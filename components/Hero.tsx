@@ -15,9 +15,6 @@ export default function Hero() {
         transition={{ duration: 6, ease: "easeOut" }}
         className="absolute inset-0 w-full h-full"
       >
-        <video autoPlay muted loop playsInline className="absolute inset-0 w-full h-full object-cover">
-          <source src="/hero-video.mp4" type="video/mp4" />
-        </video>
         <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/60 to-black/80" />
         <motion.div style={{ y }} className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1506905925346-21bda4d32df4?auto=format&fit=crop&w=2400&q=95')] bg-cover opacity-40" />
       </motion.div>

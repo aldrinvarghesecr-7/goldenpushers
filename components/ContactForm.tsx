@@ -46,7 +46,7 @@ export default function ContactForm() {
                         className="grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-24"
                     >
                         <div className="flex flex-col justify-center">
-                            <h2 className="text-6xl md:text-8xl font-serif font-black text-white uppercase tracking-tighter mix-blend-difference">
+                            <h2 className="text-5xl md:text-7xl md:-ml-4 font-serif font-black text-white uppercase tracking-tighter mix-blend-difference">
                                 Enquire.
                             </h2>
                             <p className="mt-6 text-accent font-serif italic text-xl">

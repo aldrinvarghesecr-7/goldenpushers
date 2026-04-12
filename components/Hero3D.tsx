@@ -28,17 +28,15 @@ export default function Hero3D() {
 
   return (
     <section ref={container} className="relative w-full h-screen overflow-hidden bg-black/40">
-      {/* Background Video (Subtle Overlay) */}
-      <div className="absolute inset-0 z-0 opacity-10 mix-blend-screen overflow-hidden">
-        <video 
-          autoPlay={isVideoPlaying}
-          muted 
-          loop 
-          playsInline
-          className="w-full h-full object-cover scale-105"
-          src="https://cdn.pixabay.com/video/2021/08/11/84687-587841398_large.mp4"
-        />
-      </div>
+      <motion.div
+        initial={{ scale: 1.05 }}
+        animate={{ scale: 1 }}
+        transition={{ duration: 6, ease: "easeOut" }}
+        className="absolute inset-0 w-full h-full"
+      >
+        <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/60 to-black/80" />
+        <motion.div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1536440136628-849c177e76a1?auto=format&fit=crop&w=2400&q=80')] bg-cover opacity-30" />
+      </motion.div>
 
       {/* Foreground Content */}
       <div className="relative z-20 flex flex-col items-center justify-center h-full px-4 pt-20">
