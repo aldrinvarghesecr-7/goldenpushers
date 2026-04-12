@@ -32,7 +32,7 @@ export default function ContactForm() {
   };
 
   return (
-    <section id="contact" className="relative w-full flex flex-col items-center justify-center py-16 overflow-hidden">
+    <section id="contact" className="relative w-full min-h-screen bg-black/70 flex flex-col items-center justify-center py-32 overflow-hidden">
 
         <div className="relative z-10 w-full max-w-4xl px-8 mx-auto">
             <AnimatePresence mode="wait">

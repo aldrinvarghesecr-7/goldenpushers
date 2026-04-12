@@ -449,10 +449,11 @@ export default function CinematicStoryScene() {
         gl={{ antialias: tier === 'desktop', powerPreference: 'high-performance', alpha: false }}
         performance={{ min: 0.5 }}
       >
-        <color attach="background" args={[DARK]} />
-        <SceneOrchestrator tier={tier} />
-        <AdaptiveDpr pixelated />
-        <Preload all />
+        <React.Suspense fallback={null}>
+          <color attach="background" args={[DARK]} />
+          <SceneOrchestrator tier={tier} />
+          <AdaptiveDpr pixelated />
+        </React.Suspense>
       </Canvas>
 
       {/* Cinematic overlays */}
