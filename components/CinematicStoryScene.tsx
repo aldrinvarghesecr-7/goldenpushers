@@ -268,8 +268,8 @@ const VintageCamera = ({ scrollRef }: { scrollRef: React.MutableRefObject<number
       groupRef.current.rotation.y = THREE.MathUtils.lerp(groupRef.current.rotation.y, craftWeight > 0.1 ? 1 : 0.4, 2 * delta);
  
       // Rack Focus Twist
-      lensRef.current.rotation.z = THREE.MathUtils.lerp(0, Math.PI * 2, weight);
-      lensRef.current.position.z = THREE.MathUtils.lerp(0.5, 0.65, weight); // lens expands
+      lensRef.current.rotation.z = THREE.MathUtils.lerp(0, Math.PI * 2, workWeight);
+      lensRef.current.position.z = THREE.MathUtils.lerp(0.5, 0.65, workWeight); // lens expands
     });
  
     return (
