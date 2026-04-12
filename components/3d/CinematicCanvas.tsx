@@ -329,19 +329,18 @@ export default function CinematicCanvas() {
         
         {/* ScrollControls manages Lenis-like damping entirely within R3F */}
         <ScrollControls pages={6} damping={0.15} distance={1.2}>
-          
-          {/* 3D Scene */}
-          <SceneOrchestrator tier={tier} />
+          <React.Suspense fallback={null}>
+            {/* 3D Scene */}
+            <SceneOrchestrator tier={tier} />
 
-          {/* Connected HTML DOM */}
-          <Scroll html style={{ width: '100vw' }}>
-            <HTMLOverlay />
-          </Scroll>
-
+            {/* Connected HTML DOM */}
+            <Scroll html style={{ width: '100vw' }}>
+              <HTMLOverlay />
+            </Scroll>
+          </React.Suspense>
         </ScrollControls>
 
         <AdaptiveDpr pixelated />
-        <Preload all />
       </Canvas>
     </div>
   );

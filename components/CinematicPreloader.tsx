@@ -44,8 +44,18 @@ export default function CinematicPreloader() {
 
   useEffect(() => {
     rafId.current = requestAnimationFrame(animate);
-    return () => cancelAnimationFrame(rafId.current);
-  }, [animate]);
+    
+    // Safety exit: If for any reason the RAF hang, dismiss anyway after 4s
+    const safetyExit = setTimeout(() => {
+      setIsVisible(false);
+      setIntroStage('clapper');
+    }, DURATION + 500);
+
+    return () => {
+      cancelAnimationFrame(rafId.current);
+      clearTimeout(safetyExit);
+    };
+  }, [animate, setIntroStage]);
 
   return (
     <AnimatePresence>

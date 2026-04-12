@@ -95,10 +95,10 @@ export default function FilmCarousel3D({ tier }: { tier: 'mobile' | 'tablet' | '
             </mesh>
             
             {/* 3D Typography */}
-            <Text position={[0, 1.2, 0]} fontSize={0.3} color={GOLD} anchorX="center" font="/fonts/Cinzel-VariableFont_wght.ttf">
+            <Text position={[0, 1.2, 0]} fontSize={0.3} color={GOLD} anchorX="center">
               {srv.id}
             </Text>
-            <Text position={[0, -1.2, 0]} fontSize={0.15} color="#ffffff" anchorX="center" font="/fonts/Inter-VariableFont_slnt,wght.ttf">
+            <Text position={[0, -1.2, 0]} fontSize={0.15} color="#ffffff" anchorX="center">
               {srv.title}
             </Text>
           </Float>
