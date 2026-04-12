@@ -103,6 +103,8 @@ function Card3D({ category, index, spacing, progressRef, isHovered }: { category
     return pos;
   }, []);
 
+  const rimMatRef = useRef<THREE.MeshStandardMaterial>(null);
+
   useFrame((state, delta) => {
     if (!groupRef.current) return;
     const myPos = index * spacing;
@@ -140,6 +142,15 @@ function Card3D({ category, index, spacing, progressRef, isHovered }: { category
         10 * delta
       );
     }
+
+    // Material Glow update for performance
+    if (rimMatRef.current) {
+        rimMatRef.current.emissiveIntensity = THREE.MathUtils.lerp(
+            rimMatRef.current.emissiveIntensity,
+            activeHover ? 0.5 : 0.1,
+            8 * delta
+        );
+    }
   });
 
   return (
@@ -162,11 +173,12 @@ function Card3D({ category, index, spacing, progressRef, isHovered }: { category
           <mesh position={[0, 0, 0.08]}>
             <boxGeometry args={[4.5, 6.3, 0.05]} />
             <meshStandardMaterial 
+              ref={rimMatRef}
               color={isHovered ? "#FFD700" : "#D4AF77"} 
               metalness={1} 
               roughness={0.05}
               emissive="#D4AF77"
-              emissiveIntensity={activeHover ? 0.5 : 0.1}
+              emissiveIntensity={0.1}
               envMapIntensity={4}
             />
           </mesh>
