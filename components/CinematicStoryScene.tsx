@@ -4,7 +4,7 @@ import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { Environment, SpotLight, Points, PointMaterial } from '@react-three/drei';
 import * as THREE from 'three';
 import { useRef, useMemo } from 'react';
-import { useScrollStore } from './scrollStore';
+import { useScrollStore } from './scrollstore';
 
 // =============================================
 // CINEMATIC STORY SCENE (Persistent 3D Canvas)

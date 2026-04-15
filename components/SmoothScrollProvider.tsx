@@ -4,7 +4,7 @@ import { ReactNode, useEffect } from 'react';
 import Lenis from 'lenis';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { useScrollStore } from '@/components/scrollStore';
+import { useScrollStore } from '@/components/scrollstore';
 
 export default function SmoothScrollProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
