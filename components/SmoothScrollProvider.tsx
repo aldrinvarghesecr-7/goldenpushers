@@ -1,32 +1,36 @@
 'use client';
 
-/**
- * SmoothScrollProvider — Lenis integration with GSAP ScrollTrigger
- * ================================================================
- * PERF: Touch-optimized settings for mobile. Sync mode instead of smooth
- * on low-power devices to prevent scroll jank with the 3D canvas.
- */
-
 import { ReactNode, useEffect } from 'react';
 import Lenis from 'lenis';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { useScrollStore } from '@/components/scrollStore';
 
 export default function SmoothScrollProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     gsap.registerPlugin(ScrollTrigger);
 
+    // Fix Lenis container warning
+    document.documentElement.style.position = 'relative';
+    document.body.style.position = 'relative';
+
     const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
 
     const lenis = new Lenis({
-      duration: isTouchDevice ? 0.8 : 1.2,       // Optimized for tactile response
+      duration: isTouchDevice ? 0.8 : 1.2,
       easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
       smoothWheel: true,
-      touchMultiplier: 2.0,                        // Increased for snappier mobile flicking
+      // smoothTouch removed (caused type error)
+      touchMultiplier: 2.0,
       infinite: false,
     });
 
-    lenis.on('scroll', ScrollTrigger.update);
+    // Update ScrollTrigger + 3D camera progress
+    lenis.on('scroll', ({ scroll, limit }) => {
+      ScrollTrigger.update();
+      const progress = limit > 0 ? scroll / limit : 0;
+      useScrollStore.getState().setProgress(progress);
+    });
 
     gsap.ticker.add((time) => {
       lenis.raf(time * 1000);
@@ -36,6 +40,8 @@ export default function SmoothScrollProvider({ children }: { children: ReactNode
 
     return () => {
       lenis.destroy();
+      if (document.documentElement) document.documentElement.style.position = '';
+      if (document.body) document.body.style.position = '';
     };
   }, []);
 

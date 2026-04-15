@@ -1,3 +1,5 @@
+'use client';
+
 import Hero3D from '@/components/Hero3D';
 import AboutParallax from '@/components/AboutParallax';
 import CinematicStats from '@/components/CinematicStats';
@@ -10,16 +12,19 @@ import KonamiCode from '@/components/KonamiCode';
 export default function Home() {
   return (
     <>
-      <KonamiCode />
       <Hero3D />
-      <AboutParallax />
-      <CinematicStats />
-      <div className="py-24 md:py-32" /> {/* Generous agency whitespace */}
-      <TheCraft />
-      <div className="py-24 md:py-32" />
-      <Portfolio />
-      <TeamGrid />
-      <ContactForm />
+
+      <main className="relative z-10 min-h-screen text-white font-light tracking-wide">
+        <KonamiCode />
+        <AboutParallax />
+        <CinematicStats />
+        <div className="py-24 md:py-32" />
+        <TheCraft />
+        <div className="py-24 md:py-32" />
+        <Portfolio />
+        <TeamGrid />
+        <ContactForm />
+      </main>
     </>
   );
 }

@@ -8,6 +8,7 @@ import ScrollProgress from "@/components/ScrollProgress";
 import { siteConfig } from "@/lib/config";
 import FilmGrain from "@/components/FilmGrain";
 import ClientWrappers from "@/components/ClientWrappers";
+import SmoothScrollProvider from "@/components/SmoothScrollProvider";
 
 const serif = Cinzel({ subsets: ["latin"], variable: "--font-serif", weight: ["400", "500", "600", "700", "800", "900"], display: "swap" });
 const sans = Inter({ subsets: ["latin"], variable: "--font-sans", weight: ["300", "400", "500", "600", "900"], display: "swap" });
@@ -22,15 +23,17 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en" className={`${serif.variable} ${sans.variable} ${bodyFont.variable}`}>
       <body className="bg-primary text-text-primary font-body antialiased overflow-x-hidden selection:bg-accent selection:text-primary">
-        <FilmGrain />
-        <ClientWrappers>
+        <SmoothScrollProvider>
+          <FilmGrain />
+          <ClientWrappers>
             <ScrollProgress />
             <Navbar />
             <PageTransition>
               <main>{children}</main>
             </PageTransition>
             <Footer />
-        </ClientWrappers>
+          </ClientWrappers>
+        </SmoothScrollProvider>
       </body>
     </html>
   );
