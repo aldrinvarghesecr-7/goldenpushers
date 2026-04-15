@@ -12,20 +12,19 @@ import dynamic from 'next/dynamic';
 
 const CinematicStoryScene = dynamic(() => import("@/components/CinematicStoryScene"), { ssr: false });
 const CinematicPreloader = dynamic(() => import("@/components/CinematicPreloader"), { ssr: false });
+const ClapperboardIntro = dynamic(() => import("@/components/ClapperboardIntro"), { ssr: false });
 const ContentReveal = dynamic(() => import("@/components/ContentReveal"), { ssr: false });
 const CursorTrailer = dynamic(() => import("@/components/CursorTrailer"), { ssr: false });
-const SmoothScrollProvider = dynamic(() => import("@/components/SmoothScrollProvider"), { ssr: false });
 
 export default function ClientWrappers({ children }: { children: React.ReactNode }) {
   return (
     <>
       <CinematicPreloader />
+      <ClapperboardIntro />
       <CinematicStoryScene />
       <ContentReveal>
-        <SmoothScrollProvider>
-          {children}
-          <CursorTrailer />
-        </SmoothScrollProvider>
+        {children}
+        <CursorTrailer />
       </ContentReveal>
     </>
   );
