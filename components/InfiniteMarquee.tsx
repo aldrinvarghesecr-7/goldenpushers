@@ -11,9 +11,9 @@ export default function InfiniteMarquee() {
         transition={{ duration: 35, repeat: Infinity, ease: "linear" }}
         className="flex whitespace-nowrap gap-24"
       >
-        {[...siteConfig.logos, ...siteConfig.logos].map((logo, i) => (
+        {[1, 2, 3, 4, 5, 6].map((i) => (
           <div key={i} className="flex-shrink-0 h-8 opacity-40 hover:opacity-80 transition-opacity">
-            <Image src={logo} alt="Featured in" width={180} height={32} className="h-full w-auto" />
+            <Image src={siteConfig.logo} alt="Featured in" width={180} height={32} className="h-full w-auto" />
           </div>
         ))}
       </motion.div>

@@ -1,15 +1,21 @@
+// ═══════════════════════════════════════════════════════════════
+// SITE CONFIGURATION — Golden Pushers Productions LLP
+// Central config for all brand constants and social links
+// ═══════════════════════════════════════════════════════════════
+
 export const siteConfig = {
-  name: "Aldrin",
-  fullName: "Aldrin Criro",
+  name: "Golden Pushers",
+  fullName: "Golden Pushers Productions LLP",
   title: "GOLDEN PUSHERS PRODUCTIONS",
   tagline: "Cinematic Visual Excellence",
-  bio: "Chasing light across continents. Based in India. Exhibited worldwide.",
-  email: "hello@aldrincriro.com",
-  instagram: "https://instagram.com/aldrincriro7",
+  headline: "PUSHING VISION INTO GOLD",
+  subline: "A Premium Creative Production House. Uncompromising Cinematic Excellence.",
+  bio: "We don't just capture light. We architect moments of visceral truth. Every frame is meticulously crafted — a symphony of shadow, gold, and gravity.",
+  email: "goldenpushers@gmail.com",
+  phone: "+91 73063 51867",
+  instagram: "https://instagram.com/goldenpushersproductions",
+  linkedin: "https://www.linkedin.com/company/goldenpushers/",
+  whatsapp: "https://wa.me/917306351867",
   logo: "/logo.png",
-  logos: [
-    "https://upload.wikimedia.org/wikipedia/commons/thumb/9/98/International_National_Geographic_Logo.svg/2560px-International_National_Geographic_Logo.svg.png",
-    "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a6/Vogue_logo.svg/2560px-Vogue_logo.svg.png",
-    "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2f/Apple_Inc._logo.svg/2560px-Apple_Inc._logo.svg.png",
-  ],
+  copyright: "© 2026 Golden Pushers Productions LLP",
 };

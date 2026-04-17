@@ -1,36 +1,28 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Golden Pushers Productions LLP
+
+The greatest cinematic 3D luxury film production house website ever created.
+
+## Core Concept
+One single persistent full-screen React Three Fiber canvas runs throughout the entire site. The background is a hyper-realistic empty professional film studio at night. As the user scrolls, the camera performs a smooth, elegant, film-like dolly + subtle crane movement through the studio, slowly moving toward different pieces of equipment in sync with each section.
+
+## Features
+- **Persistent 3D Studio Background**: Powered by React Three Fiber and Three.js, operating synchronously with global scroll state.
+- **Cinematic Camera Moves**: Exact framing for each section (Hero, Ethos, Craft, Reels, Architects, Enquire).
+- **Smooth Scroll**: Integrated `@studio-freight/lenis` for buttery smooth native-feeling scrolling.
+- **GSAP Animations**: Micro-interactions, horizontal scrolling, and staggered reveals powered by GSAP and ScrollTrigger.
+- **Framer Motion**: Complex UI physics and 3D tilts on our team architect portraits.
+
+## Technical Stack
+- Next.js 15 App Router
+- React 19 + TypeScript
+- React Three Fiber + Drei
+- GSAP + Lenis
+- Framer Motion
 
 ## Getting Started
-
-First, run the development server:
-
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+*Make this dark, rich, expensive, cinematic, and legendary.*

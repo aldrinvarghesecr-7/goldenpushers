@@ -1,30 +1,59 @@
 'use client';
 
-import Hero3D from '@/components/Hero3D';
-import AboutParallax from '@/components/AboutParallax';
-import CinematicStats from '@/components/CinematicStats';
-import TheCraft from '@/components/TheCraft';
-import Portfolio from '@/components/Portfolio';
-import TeamGrid from '@/components/TeamGrid';
-import ContactForm from '@/components/ContactForm';
-import KonamiCode from '@/components/KonamiCode';
+// ═══════════════════════════════════════════════════════════════
+// HOME PAGE — Golden Pushers Productions LLP
+// Single-page cinematic experience. All sections composed here.
+// Persistent R3F canvas behind content, smooth scroll with Lenis,
+// GSAP-powered animations throughout.
+// ═══════════════════════════════════════════════════════════════
+
+import dynamic from 'next/dynamic';
+import SmoothScroll from '@/components/SmoothScroll';
+import Navbar from '@/components/Navbar';
+import ScrollProgress from '@/components/ScrollProgress';
+import FilmGrain from '@/components/FilmGrain';
+import HeroSection from '@/components/HeroSection';
+import EthosSection from '@/components/EthosSection';
+import CraftSection from '@/components/CraftSection';
+import ReelsSection from '@/components/ReelsSection';
+import ArchitectsSection from '@/components/ArchitectsSection';
+import EnquireSection from '@/components/EnquireSection';
+import Footer from '@/components/Footer';
+
+// R3F Canvas — loaded client-only to prevent SSR issues with Three.js
+const LuxuryCanvas = dynamic(() => import('@/components/LuxuryCanvas'), {
+  ssr: false,
+});
 
 export default function Home() {
   return (
-    <>
-      <Hero3D />
+    <SmoothScroll>
+      {/* ─── Persistent 3D Background (z-0) ─── */}
+      <LuxuryCanvas />
 
-      <main className="relative z-10 min-h-screen text-white font-light tracking-wide">
-        <KonamiCode />
-        <AboutParallax />
-        <CinematicStats />
-        <div className="py-24 md:py-32" />
-        <TheCraft />
-        <div className="py-24 md:py-32" />
-        <Portfolio />
-        <TeamGrid />
-        <ContactForm />
+      {/* ─── Film Grain Overlay (z-150) ─── */}
+      <FilmGrain />
+
+      {/* ─── Scroll Progress Bar (z-999) ─── */}
+      <ScrollProgress />
+
+      {/* ─── Navigation (z-100) ─── */}
+      <Navbar />
+
+      {/* ─── Main Content (z-10) ─── */}
+      <main className="relative z-10">
+        <HeroSection />
+        <EthosSection />
+        <CraftSection />
+        <ReelsSection />
+        <ArchitectsSection />
+        <EnquireSection />
       </main>
-    </>
+
+      {/* ─── Footer ─── */}
+      <div className="relative z-10">
+        <Footer />
+      </div>
+    </SmoothScroll>
   );
 }

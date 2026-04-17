@@ -1,127 +1,156 @@
 @import "tailwindcss";
-@import "lenis/dist/lenis.css";
+
+/* ═══════════════════════════════════════════════════════════════
+   GOLDEN PUSHERS — LUXURY DESIGN SYSTEM
+   Dark, rich, expensive, cinematic.
+   ═══════════════════════════════════════════════════════════════ */
 
 :root {
   --color-primary: #0A0A0A;
   --color-accent: #D4AF77;
+  --color-accent-dark: #B8943F;
+  --color-accent-glow: rgba(212, 175, 119, 0.15);
+  --ease-cinematic: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-luxury: cubic-bezier(0.77, 0, 0.175, 1);
 }
 
+/* ─── BASE RESETS & TYPOGRAPHY ─── */
 @layer base {
   html {
-    scroll-behavior: smooth;
+    scroll-behavior: auto; /* Lenis handles smooth scroll */
     background-color: var(--color-primary);
   }
+
   body {
     font-feature-settings: "kern" 1, "liga" 1;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
+
   h1, h2, h3, h4, h5 {
-    font-family: var(--font-sans);
+    font-family: var(--font-serif);
     font-weight: 900;
-    letter-spacing: -0.04em; /* Slightly adjusted for better cinematic breathing room */
-    line-height: 1.1; /* Tighter line height for large headings */
+    letter-spacing: -0.04em;
+    line-height: 1.05;
     text-transform: uppercase;
   }
-  
+
   p, span, li {
-    letter-spacing: 0.01em; /* Subtle spacing for luxury reading text */
-    line-height: 1.6;
+    letter-spacing: 0.01em;
+    line-height: 1.7;
   }
-  
-  /* Beautiful focus states for keyboard navigation */
+
+  /* Premium focus states */
   *:focus-visible {
-    outline: 2px solid var(--color-accent, #D4AF77);
+    outline: 2px solid var(--color-accent);
     outline-offset: 4px;
     border-radius: 2px;
     transition: outline-offset 0.2s ease;
   }
-  
-  /* Cinematic link micro-interaction */
+
+  /* Cinematic link transitions */
   a {
-    transition: color 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+    transition: color 0.4s var(--ease-cinematic);
   }
-  p a {
-    text-decoration: underline;
-    text-underline-offset: 6px;
-    text-decoration-color: transparent;
-    transition: all 0.4s cubic-bezier(0.22, 1, 0.36, 1);
-  }
-  p a:hover {
-    color: var(--color-accent, #D4AF77);
-    text-decoration-color: var(--color-accent, #D4AF77);
-    text-shadow: 0 0 15px rgba(212, 175, 119, 0.4);
+
+  ::selection {
+    background: var(--color-accent);
+    color: var(--color-primary);
   }
 }
 
+/* ─── UTILITY CLASSES ─── */
 @layer utilities {
+  /* Glassmorphism */
   .glass {
-    background-color: rgba(255, 255, 255, 0.05);
+    background-color: rgba(255, 255, 255, 0.03);
     backdrop-filter: blur(24px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    -webkit-backdrop-filter: blur(24px);
+    border: 1px solid rgba(255, 255, 255, 0.06);
   }
+
   .glass-hover {
-    transition: all 500ms;
+    transition: all 500ms var(--ease-cinematic);
   }
   .glass-hover:hover {
-    background-color: rgba(255, 255, 255, 0.1);
-    border-color: rgba(255, 255, 255, 0.2);
+    background-color: rgba(255, 255, 255, 0.08);
+    border-color: rgba(212, 175, 119, 0.15);
   }
+
+  /* 3D perspective */
   .perspective-container {
-    perspective: 1000px;
+    perspective: 1200px;
   }
   .preserve-3d {
     transform-style: preserve-3d;
   }
-  
-  /* Ripple Micro-interaction */
-  .ripple {
-    position: absolute;
-    border-radius: 50%;
-    transform: scale(0);
-    animation: ripple-anim 600ms linear;
-    background-color: rgba(255, 255, 255, 0.4);
-    pointer-events: none;
-  }
 
-  /* Shimmer effect for loader */
-  .shimmer-gradient {
-    background: linear-gradient(
-      90deg,
-      rgba(206, 169, 0, 0) 0%,
-      rgba(206, 169, 0, 0.2) 50%,
-      rgba(206, 169, 0, 0) 100%
-    );
-    background-size: 200% 100%;
-    animation: shimmer 2s infinite linear;
-  }
-  
+  /* Hidden scrollbar */
   .scrollbar-hide::-webkit-scrollbar {
     display: none;
   }
   .scrollbar-hide {
-    -ms-overflow-style: none; /* IE and Edge */
-    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none;
+    scrollbar-width: none;
   }
-}
 
-@keyframes ripple-anim {
-  to {
-    transform: scale(4);
+  /* Gold text gradient */
+  .text-gold-gradient {
+    background: linear-gradient(135deg, #F5E6C8, #D4AF77, #B8943F, #D4AF77);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  /* Gold border glow */
+  .gold-glow {
+    box-shadow:
+      0 0 20px rgba(212, 175, 119, 0.1),
+      inset 0 0 20px rgba(212, 175, 119, 0.05);
+  }
+
+  /* Section divider line */
+  .section-divider {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(212, 175, 119, 0.15), transparent);
+  }
+
+  /* GSAP reveal helper — content starts hidden, GSAP reveals it */
+  .gsap-reveal {
     opacity: 0;
+    transform: translateY(40px);
+  }
+
+  /* Radial vignette for cinematic dark depth */
+  .bg-radial-vignette {
+    background: radial-gradient(circle, transparent 30%, rgba(5, 5, 5, 0.95) 90%, #050505 100%);
   }
 }
 
+/* ─── KEYFRAME ANIMATIONS ─── */
 @keyframes shimmer {
-  0% {
-    background-position: -200% 0;
-  }
-  100% {
-    background-position: 200% 0;
-  }
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
 }
-@keyframes projectorLine {
-  0% { transform: translateX(0); opacity: 0; }
-  10% { transform: translateX(10vw); opacity: 0.3; }
-  20% { transform: translateX(-5vw); opacity: 0.1; }
-  30% { transform: translateX(15vw); opacity: 0.4; }
-  100% { transform: translateX(0); opacity: 0; }
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+@keyframes pulse-gold {
+  0%, 100% { opacity: 0.3; }
+  50% { opacity: 0.6; }
+}
+
+/* Shimmer gradient for loading and decorative elements */
+.shimmer-gradient {
+  background: linear-gradient(
+    90deg,
+    rgba(212, 175, 119, 0) 0%,
+    rgba(212, 175, 119, 0.2) 50%,
+    rgba(212, 175, 119, 0) 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 3s infinite linear;
 }
