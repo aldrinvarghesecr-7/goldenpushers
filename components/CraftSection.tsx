@@ -4,11 +4,12 @@
 // THE CRAFT — Services Section
 // 6 categories with all bullet points. GSAP staggered reveals.
 // Cards with gold accents and hover glow effects.
+// Added 3D Magnetic Tilt Micro-interactions.
 // Desktop: 3-column grid | Mobile: clean vertical stack
 // ═══════════════════════════════════════════════════════════════
 
-import { useRef } from 'react';
-import { motion } from 'framer-motion';
+import React, { useRef } from 'react';
+import { motion, useMotionValue, useSpring, useTransform } from 'framer-motion';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { useGSAP } from '@gsap/react';
@@ -100,6 +101,82 @@ const categories = [
   },
 ];
 
+function TiltCard({ cat }: { cat: typeof categories[0] }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const x = useMotionValue(0);
+  const y = useMotionValue(0);
+
+  const mouseXSpring = useSpring(x);
+  const mouseYSpring = useSpring(y);
+
+  const rotateX = useTransform(mouseYSpring, [-0.5, 0.5], ["7deg", "-7deg"]);
+  const rotateY = useTransform(mouseXSpring, [-0.5, 0.5], ["-7deg", "7deg"]);
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!ref.current) return;
+    const rect = ref.current.getBoundingClientRect();
+    const width = rect.width;
+    const height = rect.height;
+    const mouseX = e.clientX - rect.left;
+    const mouseY = e.clientY - rect.top;
+    const xPct = mouseX / width - 0.5;
+    const yPct = mouseY / height - 0.5;
+    x.set(xPct);
+    y.set(yPct);
+  };
+
+  const handleMouseLeave = () => {
+    x.set(0);
+    y.set(0);
+  };
+
+  return (
+    <motion.div
+      ref={ref}
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
+      style={{ rotateX, rotateY, transformStyle: "preserve-3d" }}
+      className="craft-card group relative p-8 md:p-10 rounded-sm border border-white/[0.04] hover:border-[#D4AF77]/40 bg-white/[0.015] hover:bg-white/[0.03] transition-colors duration-700 perspective-1000"
+      data-cursor-hover
+    >
+      <div style={{ transform: "translateZ(30px)" }}>
+        {/* Card Number + Divider */}
+        <div className="flex items-baseline gap-4 mb-6">
+          <span className="text-[#D4AF77]/25 font-sans font-black text-4xl tracking-tighter group-hover:text-[#D4AF77]/80 transition-colors duration-500">
+            {cat.id}
+          </span>
+          <div className="h-px flex-grow bg-white/5 group-hover:bg-[#D4AF77]/30 transition-all duration-700" />
+        </div>
+
+        {/* Title */}
+        <h3 className="text-white text-lg md:text-xl font-sans font-black uppercase tracking-tight mb-3 group-hover:translate-x-2 group-hover:text-[#D4AF77] transition-all duration-700">
+          {cat.title}
+        </h3>
+
+        {/* Description */}
+        <p className="text-white/30 text-sm font-sans italic mb-8">
+          {cat.description}
+        </p>
+
+        {/* Items List */}
+        <ul className="space-y-3">
+          {cat.items.map((item, idx) => (
+            <li key={idx} className="flex items-start gap-3">
+              <div className="w-1 h-1 flex-shrink-0 rounded-full bg-[#D4AF77]/30 mt-[7px] group-hover:bg-[#D4AF77]/90 group-hover:shadow-[0_0_8px_#D4AF77] transition-all duration-500" />
+              <span className="text-white/25 text-xs font-sans tracking-wide leading-relaxed group-hover:text-white/70 transition-colors duration-500">
+                {item}
+              </span>
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      {/* Hover glow effect behind content */}
+      <div className="absolute inset-0 rounded-sm opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none shadow-[inset_0_0_60px_rgba(212,175,119,0.05)]" />
+    </motion.div>
+  );
+}
+
 export default function CraftSection() {
   const container = useRef<HTMLDivElement>(null);
 
@@ -109,16 +186,16 @@ export default function CraftSection() {
 
       // Stagger-reveal each card as it enters the viewport
       const cards = container.current?.querySelectorAll('.craft-card');
-      if (cards) {
+      if (cards && cards.length > 0) {
         gsap.fromTo(
           cards,
-          { opacity: 0, y: 60, scale: 0.97 },
+          { opacity: 0, y: 80, rotateX: -10 },
           {
             opacity: 1,
             y: 0,
-            scale: 1,
-            stagger: 0.1,
-            duration: 1,
+            rotateX: 0,
+            stagger: 0.15,
+            duration: 1.2,
             ease: 'power3.out',
             scrollTrigger: {
               trigger: container.current,
@@ -133,7 +210,7 @@ export default function CraftSection() {
   );
 
   return (
-    <section ref={container} id="services" className="relative py-32 md:py-40 px-6 md:px-12 overflow-hidden">
+    <section ref={container} id="services" className="relative py-32 md:py-40 px-6 md:px-12 overflow-hidden perspective-1000">
       <div className="max-w-[1400px] mx-auto">
         {/* Section Header */}
         <div className="mb-20 md:mb-28">
@@ -144,7 +221,7 @@ export default function CraftSection() {
             className="flex items-center gap-6 mb-8"
           >
             <div className="h-px w-12 bg-[#D4AF77]/40" />
-            <span className="text-[#D4AF77] font-sans text-[10px] md:text-xs tracking-[0.5em] uppercase font-bold">
+            <span className="text-[#D4AF77] font-sans text-[10px] md:text-xs tracking-[0.5em] uppercase font-bold" data-cursor-hover>
               Our Expertise
             </span>
           </motion.div>
@@ -154,7 +231,8 @@ export default function CraftSection() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 1.2, ease: [0.23, 1, 0.32, 1] }}
-            className="text-5xl sm:text-6xl md:text-8xl lg:text-9xl font-serif font-black text-white uppercase tracking-tighter leading-none mb-6"
+            className="text-5xl sm:text-6xl md:text-8xl lg:text-9xl font-serif font-black text-white uppercase tracking-tighter leading-none mb-6 cursor-default"
+            data-cursor-hover
           >
             The <span className="text-gold-gradient">Craft</span>
           </motion.h2>
@@ -174,43 +252,7 @@ export default function CraftSection() {
         {/* Cards Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-10">
           {categories.map((cat) => (
-            <div
-              key={cat.id}
-              className="craft-card group relative p-8 md:p-10 rounded-sm border border-white/[0.04] hover:border-[#D4AF77]/20 bg-white/[0.015] hover:bg-white/[0.03] transition-all duration-700"
-            >
-              {/* Card Number + Divider */}
-              <div className="flex items-baseline gap-4 mb-6">
-                <span className="text-[#D4AF77]/25 font-sans font-black text-4xl tracking-tighter group-hover:text-[#D4AF77]/60 transition-colors duration-500">
-                  {cat.id}
-                </span>
-                <div className="h-px flex-grow bg-white/5 group-hover:bg-[#D4AF77]/15 transition-all duration-700" />
-              </div>
-
-              {/* Title */}
-              <h3 className="text-white text-lg md:text-xl font-sans font-black uppercase tracking-tight mb-3 group-hover:translate-x-2 transition-transform duration-700">
-                {cat.title}
-              </h3>
-
-              {/* Description */}
-              <p className="text-white/30 text-sm font-sans italic mb-8">
-                {cat.description}
-              </p>
-
-              {/* Items List */}
-              <ul className="space-y-3">
-                {cat.items.map((item, idx) => (
-                  <li key={idx} className="flex items-start gap-3">
-                    <div className="w-1 h-1 flex-shrink-0 rounded-full bg-[#D4AF77]/30 mt-[7px] group-hover:bg-[#D4AF77]/70 transition-colors duration-500" />
-                    <span className="text-white/25 text-xs font-sans tracking-wide leading-relaxed group-hover:text-white/55 transition-colors duration-500">
-                      {item}
-                    </span>
-                  </li>
-                ))}
-              </ul>
-
-              {/* Hover glow effect */}
-              <div className="absolute inset-0 rounded-sm opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none shadow-[inset_0_0_40px_rgba(212,175,119,0.03)]" />
-            </div>
+            <TiltCard key={cat.id} cat={cat} />
           ))}
         </div>
       </div>

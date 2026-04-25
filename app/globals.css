@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
 /* ═══════════════════════════════════════════════════════════════
-   GOLDEN PUSHERS — LUXURY DESIGN SYSTEM
+   GOLDEN PUSHERS — $50K LUXURY DESIGN SYSTEM
    Dark, rich, expensive, cinematic.
    ═══════════════════════════════════════════════════════════════ */
 
@@ -109,6 +109,11 @@
       inset 0 0 20px rgba(212, 175, 119, 0.05);
   }
 
+  /* Cinematic text glow */
+  .text-gold-glow {
+    text-shadow: 0 0 25px rgba(212, 175, 119, 0.4), 0 0 10px rgba(212, 175, 119, 0.2);
+  }
+
   /* Section divider line */
   .section-divider {
     height: 1px;
@@ -124,6 +129,16 @@
   /* Radial vignette for cinematic dark depth */
   .bg-radial-vignette {
     background: radial-gradient(circle, transparent 30%, rgba(5, 5, 5, 0.95) 90%, #050505 100%);
+  }
+  
+  /* Intense cinematic vignette overlay */
+  .cinematic-vignette {
+    pointer-events: none;
+    position: fixed;
+    inset: 0;
+    z-index: 50;
+    background: radial-gradient(circle at center, transparent 40%, rgba(0,0,0,0.6) 100%);
+    mix-blend-mode: multiply;
   }
 }
 
@@ -153,4 +168,35 @@
   );
   background-size: 200% 100%;
   animation: shimmer 3s infinite linear;
+}
+
+/* ─── MARQUEE ANIMATIONS ─── */
+@keyframes marquee {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+@keyframes marquee-reverse {
+  0% { transform: translateX(-50%); }
+  100% { transform: translateX(0); }
+}
+
+.animate-marquee {
+  animation: marquee linear infinite;
+}
+
+.animate-marquee-reverse {
+  animation: marquee-reverse linear infinite;
+}
+
+/* ─── HORIZONTAL LINE GROW (used on section entrances) ─── */
+@keyframes line-grow {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+
+.line-grow-on-view {
+  transform: scaleX(0);
+  transform-origin: left;
+  animation: line-grow 1.5s var(--ease-cinematic) forwards;
 }

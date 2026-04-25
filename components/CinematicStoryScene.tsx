@@ -1,32 +1,31 @@
 'use client';
 
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
-import { Environment, SpotLight, Points, PointMaterial } from '@react-three/drei';
+import { Points, PointMaterial } from '@react-three/drei';
 import * as THREE from 'three';
 import { useRef, useMemo } from 'react';
 import { useScrollStore } from './scrollstore';
 
 // =============================================
 // CINEMATIC STORY SCENE (Persistent 3D Canvas)
+// OPTIMIZED: Removed shadows, reduced geometry,
+// removed Environment preset, simplified lighting,
+// lowered particle count, disabled antialias.
 // =============================================
 export default function CinematicStoryScene() {
   return (
     <div className="fixed inset-0 z-0 pointer-events-none">
       <Canvas
-        shadows
         gl={{
-          antialias: true,
+          antialias: false,
           toneMapping: THREE.ACESFilmicToneMapping,
           toneMappingExposure: 1.15,
           outputColorSpace: THREE.SRGBColorSpace,
+          powerPreference: 'high-performance',
         }}
+        dpr={[1, 1.5]}
         camera={{ position: [0, 14, 38], fov: 45, near: 0.1, far: 100 }}
         className="bg-transparent"
-        onCreated={(state) => {
-          // ✅ Fixed: removes PCFSoftShadowMap deprecation warning
-          state.gl.shadowMap.type = THREE.PCFShadowMap;
-          state.gl.shadowMap.enabled = true;
-        }}
       >
         <StudioScene />
       </Canvas>
@@ -35,7 +34,7 @@ export default function CinematicStoryScene() {
 }
 
 // =============================================
-// STUDIO SCENE
+// STUDIO SCENE — Simplified for performance
 // =============================================
 function StudioScene() {
   const { camera } = useThree();
@@ -75,13 +74,11 @@ function StudioScene() {
   return (
     <>
       <fog attach="fog" args={['#0a0a0a', 20, 80]} />
-      <ambientLight intensity={0.3} color="#3a2a1f" />
+      <ambientLight intensity={0.4} color="#3a2a1f" />
       <directionalLight
         position={[30, 28, -25]}
-        intensity={2.8}
+        intensity={2.5}
         color="#f5d8a0"
-        castShadow
-        shadow-mapSize={[2048, 2048]}
       />
 
       <StudioFloor />
@@ -95,27 +92,13 @@ function StudioScene() {
 
       <GoldenParticles />
       <FloatingFilmStrips />
-
-      <SpotLight
-        position={[10, 20, -28]}
-        angle={0.5}
-        penumbra={0.7}
-        intensity={10}
-        color="#f5c400"
-        distance={60}
-      />
-
-      <Environment preset="night" background={false} />
     </>
   );
 }
 
-// =============================================
-// ALL ANIMATIONS FIXED (delta-based → no Clock deprecation)
-// =============================================
 function StudioFloor() {
   return (
-    <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0, 0]} receiveShadow>
+    <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0, 0]}>
       <planeGeometry args={[80, 80]} />
       <meshStandardMaterial color="#1a1814" metalness={0.15} roughness={0.75} />
     </mesh>
@@ -125,15 +108,15 @@ function StudioFloor() {
 function StudioWalls() {
   return (
     <>
-      <mesh position={[0, 10, -30]} receiveShadow>
+      <mesh position={[0, 10, -30]}>
         <planeGeometry args={[80, 30]} />
         <meshStandardMaterial color="#11100c" metalness={0.1} roughness={0.85} />
       </mesh>
-      <mesh position={[-30, 10, 0]} rotation={[0, Math.PI / 2, 0]} receiveShadow>
+      <mesh position={[-30, 10, 0]} rotation={[0, Math.PI / 2, 0]}>
         <planeGeometry args={[80, 30]} />
         <meshStandardMaterial color="#11100c" metalness={0.1} roughness={0.85} />
       </mesh>
-      <mesh position={[30, 10, 0]} rotation={[0, -Math.PI / 2, 0]} receiveShadow>
+      <mesh position={[30, 10, 0]} rotation={[0, -Math.PI / 2, 0]}>
         <planeGeometry args={[80, 30]} />
         <meshStandardMaterial color="#11100c" metalness={0.1} roughness={0.85} />
       </mesh>
@@ -142,7 +125,6 @@ function StudioWalls() {
 }
 
 function FilmReelsGroup() {
-  const group = useRef<THREE.Group>(null);
   const reelRefs = useRef<THREE.Mesh[]>([]);
 
   useFrame((_, delta) => {
@@ -152,19 +134,17 @@ function FilmReelsGroup() {
   });
 
   return (
-    <group ref={group} position={[-12, 3, 14]}>
+    <group position={[-12, 3, 14]}>
       {[-3, -1, 1, 3].map((x, i) => (
         <group key={i} position={[x, 0, 0]}>
           <mesh
             ref={(el) => { if (el) reelRefs.current[i] = el; }}
-            castShadow
-            receiveShadow
           >
-            <cylinderGeometry args={[1.9, 1.9, 0.7, 32]} />
+            <cylinderGeometry args={[1.9, 1.9, 0.7, 16]} />
             <meshStandardMaterial color="#1c1a16" metalness={0.9} roughness={0.15} />
           </mesh>
           <mesh>
-            <cylinderGeometry args={[0.7, 0.7, 0.9, 32]} />
+            <cylinderGeometry args={[0.7, 0.7, 0.9, 16]} />
             <meshStandardMaterial color="#f5c400" metalness={1} roughness={0.1} />
           </mesh>
         </group>
@@ -176,23 +156,15 @@ function FilmReelsGroup() {
 function ProjectorGroup() {
   return (
     <group position={[0, 2.2, -18]}>
-      <mesh castShadow receiveShadow>
+      <mesh>
         <boxGeometry args={[3, 1.8, 4.5]} />
         <meshStandardMaterial color="#22201c" metalness={0.85} roughness={0.2} />
       </mesh>
-      <mesh position={[0, 0, 2.4]} castShadow>
-        <cylinderGeometry args={[0.45, 0.45, 1, 32]} />
+      <mesh position={[0, 0, 2.4]}>
+        <cylinderGeometry args={[0.45, 0.45, 1, 16]} />
         <meshStandardMaterial color="#111" metalness={1} roughness={0} />
       </mesh>
-      <SpotLight
-        position={[0, 0, 3]}
-        target-position={[0, 0, -25]}
-        angle={0.4}
-        penumbra={0.85}
-        intensity={14}
-        color="#f5d8a0"
-        distance={40}
-      />
+      <pointLight position={[0, 0, 3]} intensity={8} color="#f5d8a0" distance={40} />
     </group>
   );
 }
@@ -200,16 +172,16 @@ function ProjectorGroup() {
 function BoomMicGroup() {
   return (
     <group position={[16, 5, 8]}>
-      <mesh position={[0, 5, 0]} castShadow>
-        <cylinderGeometry args={[0.08, 0.08, 14, 16]} />
+      <mesh position={[0, 5, 0]}>
+        <cylinderGeometry args={[0.08, 0.08, 14, 8]} />
         <meshStandardMaterial color="#1c1a16" metalness={0.75} roughness={0.3} />
       </mesh>
-      <mesh position={[3, 9, 0]} rotation={[0, 0, Math.PI / 2]} castShadow>
-        <cylinderGeometry args={[0.08, 0.08, 6, 16]} />
+      <mesh position={[3, 9, 0]} rotation={[0, 0, Math.PI / 2]}>
+        <cylinderGeometry args={[0.08, 0.08, 6, 8]} />
         <meshStandardMaterial color="#1c1a16" metalness={0.75} roughness={0.3} />
       </mesh>
-      <mesh position={[5.5, 9, 0]} castShadow>
-        <sphereGeometry args={[0.4, 24, 24]} />
+      <mesh position={[5.5, 9, 0]}>
+        <sphereGeometry args={[0.4, 12, 12]} />
         <meshStandardMaterial color="#222" metalness={0.9} roughness={0.1} />
       </mesh>
     </group>
@@ -219,11 +191,11 @@ function BoomMicGroup() {
 function DirectorChairGroup() {
   return (
     <group position={[22, 2, -8]}>
-      <mesh position={[0, 1, 0]} castShadow>
+      <mesh position={[0, 1, 0]}>
         <boxGeometry args={[2.4, 0.2, 2.2]} />
         <meshStandardMaterial color="#1c1a16" metalness={0.3} roughness={0.6} />
       </mesh>
-      <mesh position={[0, 2.4, -1]} castShadow>
+      <mesh position={[0, 2.4, -1]}>
         <boxGeometry args={[2.4, 2.2, 0.2]} />
         <meshStandardMaterial color="#1c1a16" metalness={0.3} roughness={0.6} />
       </mesh>
@@ -235,18 +207,18 @@ function CStandsAndLights() {
   return (
     <>
       <group position={[-20, 0, -10]}>
-        <mesh position={[0, 5, 0]} castShadow>
+        <mesh position={[0, 5, 0]}>
           <cylinderGeometry args={[0.1, 0.1, 11, 8]} />
           <meshStandardMaterial color="#1c1a16" metalness={0.6} roughness={0.4} />
         </mesh>
-        <SpotLight position={[2, 10, 2]} angle={0.7} penumbra={1} intensity={7} color="#f5d8a0" distance={28} />
+        <pointLight position={[2, 10, 2]} intensity={5} color="#f5d8a0" distance={28} />
       </group>
       <group position={[18, 0, -22]}>
-        <mesh position={[0, 5, 0]} castShadow>
+        <mesh position={[0, 5, 0]}>
           <cylinderGeometry args={[0.1, 0.1, 11, 8]} />
           <meshStandardMaterial color="#1c1a16" metalness={0.6} roughness={0.4} />
         </mesh>
-        <SpotLight position={[-2, 10, -2]} angle={0.7} penumbra={1} intensity={7} color="#f5d8a0" distance={28} />
+        <pointLight position={[-2, 10, -2]} intensity={5} color="#f5d8a0" distance={28} />
       </group>
     </>
   );
@@ -254,7 +226,7 @@ function CStandsAndLights() {
 
 function GoldenParticles() {
   const pointsRef = useRef<THREE.Points>(null);
-  const count = 1200;
+  const count = 400;
   const timeRef = useRef(0);
 
   const positions = useMemo(() => {
@@ -287,7 +259,7 @@ function FloatingFilmStrips() {
   useFrame((_, delta) => {
     if (!groupRef.current) return;
     timeRef.current += delta;
-    groupRef.current.children.forEach((strip: any, i) => {
+    groupRef.current.children.forEach((strip, i) => {
       strip.position.y = 5 + Math.sin(timeRef.current * 1.4 + i) * 3;
       strip.rotation.z = Math.sin(timeRef.current * 0.7 + i) * 0.12;
     });

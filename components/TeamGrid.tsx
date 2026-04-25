@@ -59,7 +59,7 @@ function TeamCard({ member }: { member: any }) {
     return (
         <motion.div
             ref={cardRef}
-            className="relative w-full aspect-[3/4] cursor-pointer perspective-container"
+            className="group relative w-full aspect-[3/4] cursor-pointer perspective-container"
             onMouseMove={handleMouseMove}
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={handleMouseLeave}
@@ -90,8 +90,8 @@ function TeamCard({ member }: { member: any }) {
                 <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent pointer-events-none" />
 
                 {/* Information */}
-                <div className="absolute bottom-6 left-6 right-6 flex flex-col gap-1 preserve-3d translate-z-[50px]">
-                    <h4 className="text-2xl font-serif font-black text-white tracking-widest uppercase">
+                <div className="absolute bottom-6 left-6 right-6 flex flex-col gap-1 preserve-3d translate-z-[50px] bg-black/40 backdrop-blur-md p-6 border border-white/5 rounded-sm transition-all duration-500 group-hover:border-[#D4AF77]/30 group-hover:bg-black/60">
+                    <h4 className={`text-2xl font-serif font-black text-white tracking-widest uppercase transition-all duration-500 ${isHovered ? 'text-gold-glow text-[#D4AF77]' : ''}`}>
                         {member.name}
                     </h4>
                     <p className="font-serif text-accent text-sm italic tracking-wider">

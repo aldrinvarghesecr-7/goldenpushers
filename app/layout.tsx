@@ -1,7 +1,9 @@
+import React from "react";
 import type { Metadata } from "next";
 import { Cinzel, Inter, Playfair_Display } from "next/font/google";
 import "./globals.css";
 import { siteConfig } from "@/lib/config";
+import CursorTrailer from "@/components/CursorTrailer";
 
 // ═══════════════════════════════════════════════════════════════
 // ROOT LAYOUT — Golden Pushers Productions LLP
@@ -61,6 +63,8 @@ export default function RootLayout({
       className={`${serif.variable} ${sans.variable} ${body.variable}`}
     >
       <body className="bg-[#0A0A0A] text-white font-sans antialiased overflow-x-hidden">
+        <div className="cinematic-vignette" />
+        <CursorTrailer />
         {children}
       </body>
     </html>

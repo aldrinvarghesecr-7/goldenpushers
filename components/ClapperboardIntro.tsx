@@ -130,10 +130,13 @@ const ClapperAsset = () => {
     runIntroSequence();
   }, [runIntroSequence]);
 
-  useFrame((state) => {
+  const timeRef = useRef(0);
+
+  useFrame((_, delta) => {
     if (!groupRef.current) return;
+    timeRef.current += delta;
     // Breathing motion
-    groupRef.current.rotation.y = Math.sin(state.clock.elapsedTime * 0.6) * 0.03;
+    groupRef.current.rotation.y = Math.sin(timeRef.current * 0.6) * 0.03;
   });
 
   return (

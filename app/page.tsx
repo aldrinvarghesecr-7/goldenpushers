@@ -2,9 +2,7 @@
 
 // ═══════════════════════════════════════════════════════════════
 // HOME PAGE — Golden Pushers Productions LLP
-// Single-page cinematic experience. All sections composed here.
-// Persistent R3F canvas behind content, smooth scroll with Lenis,
-// GSAP-powered animations throughout.
+// Single-page cinematic experience with marquee dividers.
 // ═══════════════════════════════════════════════════════════════
 
 import dynamic from 'next/dynamic';
@@ -19,17 +17,18 @@ import ReelsSection from '@/components/ReelsSection';
 import ArchitectsSection from '@/components/ArchitectsSection';
 import EnquireSection from '@/components/EnquireSection';
 import Footer from '@/components/Footer';
+import Marquee from '@/components/Marquee';
 
-// R3F Canvas — loaded client-only to prevent SSR issues with Three.js
-const LuxuryCanvas = dynamic(() => import('@/components/LuxuryCanvas'), {
+// Minimal interactive 3D background
+const MinimalInteractive3D = dynamic(() => import('@/components/3d/MinimalInteractive3D'), {
   ssr: false,
 });
 
 export default function Home() {
   return (
     <SmoothScroll>
-      {/* ─── Persistent 3D Background (z-0) ─── */}
-      <LuxuryCanvas />
+      {/* ─── Persistent Minimal 3D Background (z-0) ─── */}
+      <MinimalInteractive3D />
 
       {/* ─── Film Grain Overlay (z-150) ─── */}
       <FilmGrain />
@@ -43,7 +42,24 @@ export default function Home() {
       {/* ─── Main Content (z-10) ─── */}
       <main className="relative z-10">
         <HeroSection />
+
+        {/* Marquee Divider — Cinematic */}
+        <Marquee 
+          text="CINEMATIC EXCELLENCE" 
+          speed={35} 
+          className="py-6 text-[10vw] md:text-[6vw] font-serif font-black text-white/[0.015] leading-none border-y border-white/[0.03]" 
+        />
+
         <EthosSection />
+
+        {/* Marquee Divider — Services */}
+        <Marquee 
+          text="CRAFT & PRECISION" 
+          speed={40} 
+          reverse 
+          className="py-4 text-[8vw] md:text-[5vw] font-serif font-black text-white/[0.02] leading-none" 
+        />
+
         <CraftSection />
         <ReelsSection />
         <ArchitectsSection />

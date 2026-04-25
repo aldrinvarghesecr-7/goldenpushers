@@ -7,8 +7,8 @@
 // ═══════════════════════════════════════════════════════════════
 
 import { useRef, useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { ChevronLeft, ChevronRight, X } from 'lucide-react';
 import Image from 'next/image';
 
 const projects = [
@@ -57,21 +57,25 @@ const projects = [
 ];
 
 // ─── PROJECT CARD ───
-function ProjectCard({ project, index }: { project: (typeof projects)[0]; index: number }) {
+function ProjectCard({ project, index, onClick }: { project: (typeof projects)[0]; index: number; onClick: () => void }) {
   const [hover, setHover] = useState(false);
   const [imgSrc, setImgSrc] = useState(project.image);
 
   return (
     <motion.div
-      className="group relative w-full md:w-[50vw] lg:w-[35vw] h-[50vh] md:h-[65vh] flex-shrink-0 cursor-pointer snap-center"
+      className="group relative w-full md:w-[30vw] lg:w-[22vw] aspect-[3/4] flex-shrink-0 cursor-none snap-center"
       onHoverStart={() => setHover(true)}
       onHoverEnd={() => setHover(false)}
+      onClick={onClick}
       initial={{ opacity: 0, y: 40 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: '-80px' }}
       transition={{ duration: 0.9, delay: index * 0.1, ease: [0.23, 1, 0.32, 1] }}
+      data-cursor-hover
+      data-cursor-text="VIEW"
     >
       <motion.div
+        layoutId={`project-${project.id}`}
         className="w-full h-full relative overflow-hidden rounded-sm"
         whileHover={{ y: -15, scale: 1.015 }}
         transition={{ type: 'spring', stiffness: 200, damping: 25 }}
@@ -96,10 +100,10 @@ function ProjectCard({ project, index }: { project: (typeof projects)[0]; index:
 
         {/* Content */}
         <div className="absolute bottom-8 left-8 md:bottom-12 md:left-12 right-8 z-10 transition-all duration-700 group-hover:translate-x-2">
-          <p className="text-[#D4AF77] text-[9px] md:text-[10px] tracking-[0.5em] font-sans font-bold mb-3 uppercase">
+          <p className="text-[#D4AF77] text-[9px] md:text-[10px] tracking-[0.5em] font-sans font-bold mb-3 uppercase transition-colors duration-500 group-hover:text-white">
             {project.category}
           </p>
-          <h3 className="text-2xl md:text-4xl lg:text-5xl font-serif font-black text-white uppercase tracking-tighter leading-none">
+          <h3 className="text-2xl md:text-4xl lg:text-5xl font-serif font-black text-white uppercase tracking-tighter leading-none transition-colors duration-500 group-hover:text-[#D4AF77]">
             {project.title}
           </h3>
         </div>
@@ -115,6 +119,7 @@ function ProjectCard({ project, index }: { project: (typeof projects)[0]; index:
 export default function ReelsSection() {
   const scrollRef = useRef<HTMLDivElement>(null);
   const [scrollProgress, setScrollProgress] = useState(0);
+  const [selectedProject, setSelectedProject] = useState<(typeof projects)[0] | null>(null);
 
   useEffect(() => {
     const el = scrollRef.current;
@@ -128,6 +133,21 @@ export default function ReelsSection() {
     el.addEventListener('scroll', handleScroll, { passive: true });
     return () => el.removeEventListener('scroll', handleScroll);
   }, []);
+
+  // Lock body scroll and handle Escape key
+  useEffect(() => {
+    if (selectedProject) {
+      document.body.style.overflow = 'hidden';
+      const handleEsc = (e: KeyboardEvent) => {
+        if (e.key === 'Escape') setSelectedProject(null);
+      };
+      window.addEventListener('keydown', handleEsc);
+      return () => {
+        document.body.style.overflow = '';
+        window.removeEventListener('keydown', handleEsc);
+      };
+    }
+  }, [selectedProject]);
 
   const scroll = (dir: 'left' | 'right') => {
     if (!scrollRef.current) return;
@@ -192,7 +212,7 @@ export default function ReelsSection() {
         className="flex flex-col md:flex-row gap-8 md:gap-12 px-6 md:px-[8vw] overflow-y-visible md:overflow-x-auto md:snap-x md:snap-mandatory scrollbar-hide py-8 relative z-10"
       >
         {projects.map((proj, i) => (
-          <ProjectCard key={proj.id} project={proj} index={i} />
+          <ProjectCard key={proj.id} project={proj} index={i} onClick={() => setSelectedProject(proj)} />
         ))}
         {/* End spacer for scroll */}
         <div className="hidden md:block min-w-[15vw] h-1 flex-shrink-0" />
@@ -211,6 +231,71 @@ export default function ReelsSection() {
           <span>0{projects.length}</span>
         </div>
       </div>
+
+      {/* ─── FULLSCREEN LIGHTBOX MODAL ─── */}
+      <AnimatePresence>
+        {selectedProject && (
+          <div className="fixed inset-0 z-[999] flex items-center justify-center p-4 md:p-8">
+            {/* Dark Blurred Backdrop */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setSelectedProject(null)}
+              className="absolute inset-0 bg-black/90 backdrop-blur-md cursor-pointer"
+              data-cursor-hover
+              data-cursor-text="CLOSE"
+            />
+
+            {/* Modal Content */}
+            <motion.div
+              layoutId={`project-${selectedProject.id}`}
+              className="relative w-full max-w-xl aspect-[3/4] md:aspect-[3/4] rounded-sm overflow-hidden shadow-2xl bg-[#0A0A0A] border border-white/5"
+            >
+              {/* Image */}
+              <Image
+                src={selectedProject.image}
+                alt={selectedProject.title}
+                fill
+                className="object-cover"
+                quality={100}
+                priority
+              />
+
+              {/* Close Button (Top Right) */}
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setSelectedProject(null);
+                }}
+                className="absolute top-4 right-4 md:top-6 md:right-6 z-50 p-2 bg-black/40 hover:bg-black/80 backdrop-blur-md rounded-full text-white/50 hover:text-white transition-all border border-white/10 group"
+                data-cursor-hover
+              >
+                <X size={20} className="group-hover:rotate-90 transition-transform duration-500" />
+              </button>
+
+              {/* Info Overlay (Team Member Style) */}
+              <motion.div
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 20 }}
+                transition={{ delay: 0.2, duration: 0.5 }}
+                className="absolute bottom-6 left-6 right-6 flex flex-col gap-1 bg-black/40 backdrop-blur-md p-6 border border-white/5 rounded-sm z-10"
+              >
+                <p className="font-serif text-[#D4AF77] text-xs md:text-sm italic tracking-wider">
+                  {selectedProject.category}
+                </p>
+                <h3 className="text-2xl md:text-3xl font-serif font-black text-white tracking-widest uppercase">
+                  {selectedProject.title}
+                </h3>
+              </motion.div>
+              
+              {/* Vignette */}
+              <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent pointer-events-none" />
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </section>
   );
 }

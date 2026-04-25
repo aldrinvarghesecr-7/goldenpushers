@@ -1,7 +1,7 @@
 'use client';
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
-import { useState } from 'react';
 import MagneticWrap from './MagneticWrap';
 
 interface ButtonProps {
@@ -30,18 +30,18 @@ export default function Button({
     const y = e.clientY - rect.top;
     const newRipple = { x, y, id: Date.now() };
     
-    setRipples(prev => [...prev, newRipple]);
+    setRipples((prev: { x: number, y: number, id: number }[]) => [...prev, newRipple]);
     
     // Clean up ripple after animation
     setTimeout(() => {
-      setRipples(prev => prev.filter(r => r.id !== newRipple.id));
+      setRipples((prev: { x: number, y: number, id: number }[]) => prev.filter(r => r.id !== newRipple.id));
     }, 600);
   };
 
-  const base = "px-12 py-5 text-sm tracking-[3px] font-medium border transition-[shadow,border-color] duration-500 relative overflow-hidden flex items-center justify-center rounded-sm";
+  const base = "group px-12 py-5 text-sm tracking-[3px] font-medium border transition-all duration-700 relative overflow-hidden flex items-center justify-center rounded-sm";
   const styles = variant === 'primary'
-    ? "bg-accent text-primary border-accent hover:shadow-[0_0_25px_rgba(212,175,119,0.5)]"
-    : "border-accent text-accent hover:shadow-[inset_0_0_20px_rgba(212,175,119,0.15),0_0_15px_rgba(212,175,119,0.2)] hover:border-white/40";
+    ? "bg-accent text-primary border-accent hover:shadow-[0_0_40px_rgba(212,175,119,0.8)]"
+    : "border-accent text-accent hover:shadow-[inset_0_0_30px_rgba(212,175,119,0.2),0_0_25px_rgba(212,175,119,0.3)] hover:border-[#D4AF77] bg-black/20 hover:bg-[#D4AF77]/10";
 
   const content = (
     <MagneticWrap strength={0.2} className="block">
@@ -54,7 +54,7 @@ export default function Button({
         transition={{ type: "spring", stiffness: 400, damping: 25, mass: 0.5 }}
         className={`${base} ${styles} ${className}`}
       >
-        {ripples.map(r => (
+        {ripples.map((r: { x: number, y: number, id: number }) => (
           <span 
             key={r.id} 
             className="absolute border-radius-50 pointer-events-none"
@@ -73,8 +73,12 @@ export default function Button({
             }}
           />
         ))}
+        
+        {/* Sweeping Shine Effect */}
+        <div className="absolute inset-0 -translate-x-full group-hover:animate-[shimmer_1.5s_infinite] bg-gradient-to-r from-transparent via-white/10 to-transparent skew-x-12 z-0" />
+        
         {/* Added z-10 so text stays above ripple */}
-        <span className="relative z-10 drop-shadow-md">{children}</span>
+        <span className="relative z-10 drop-shadow-md group-hover:text-gold-glow transition-all duration-300">{children}</span>
       </motion.button>
     </MagneticWrap>
   );
