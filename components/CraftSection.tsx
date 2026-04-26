@@ -227,22 +227,22 @@ export default function CraftSection() {
           </motion.div>
 
           <motion.h2
-            initial={{ opacity: 0, y: 40 }}
-            whileInView={{ opacity: 1, y: 0 }}
+            initial={{ opacity: 0, y: 40, filter: 'blur(15px)' }}
+            whileInView={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
             viewport={{ once: true }}
             transition={{ duration: 1.2, ease: [0.23, 1, 0.32, 1] }}
-            className="text-5xl sm:text-6xl md:text-8xl lg:text-9xl font-serif font-black text-white uppercase tracking-tighter leading-none mb-6 cursor-default"
+            className="text-5xl sm:text-6xl md:text-8xl lg:text-9xl font-serif font-black text-white uppercase tracking-tighter leading-none mb-8 cursor-default"
             data-cursor-hover
           >
             The <span className="text-gold-gradient">Craft</span>
           </motion.h2>
 
           <motion.p
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
+            initial={{ opacity: 0, y: 30, filter: 'blur(10px)' }}
+            whileInView={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
             viewport={{ once: true }}
-            transition={{ duration: 1, delay: 0.2 }}
-            className="max-w-xl text-white/35 text-base md:text-lg font-sans font-light leading-relaxed"
+            transition={{ duration: 1.2, delay: 0.3, ease: [0.23, 1, 0.32, 1] }}
+            className="max-w-lg text-white/30 text-sm md:text-base font-sans font-light leading-relaxed"
           >
             From first spark to final frame — every stage is crafted with
             uncompromising cinematic excellence and technical masterwork.

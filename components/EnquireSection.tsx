@@ -88,18 +88,18 @@ export default function EnquireSection() {
                   <div className="flex flex-col justify-center">
                     <motion.h2
                       style={{ y: yTitle }}
-                      initial={{ opacity: 0, y: 30 }}
-                      whileInView={{ opacity: 1, y: 0 }}
+                      initial={{ opacity: 0, y: 40, filter: 'blur(15px)' }}
+                      whileInView={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
                       viewport={{ once: true }}
-                      transition={{ duration: 1 }}
-                      className="text-5xl md:text-7xl font-serif font-black text-white uppercase tracking-tighter cursor-default"
+                      transition={{ duration: 1.2, ease: [0.23, 1, 0.32, 1] }}
+                      className="text-6xl md:text-8xl font-serif font-black text-white uppercase tracking-tighter leading-none cursor-default"
                       data-cursor-hover
                     >
                       Enquire.
                     </motion.h2>
                     <motion.p 
                       style={{ y: yTitle }}
-                      className="mt-6 text-[#D4AF77] font-sans italic text-lg md:text-xl font-light"
+                      className="mt-8 text-[#D4AF77] font-sans italic text-base md:text-lg font-light tracking-wide opacity-60"
                     >
                       Let&apos;s forge your vision into gold.
                     </motion.p>

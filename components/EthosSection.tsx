@@ -93,29 +93,27 @@ export default function EthosSection() {
           />
 
           <div className="max-w-6xl mx-auto px-6 md:px-12 relative">
-            {/* Section Label */}
-            <motion.div
-              initial={{ opacity: 0, x: -30 }}
-              whileInView={{ opacity: 1, x: 0 }}
+            {/* Section Label -> Now a Refined Heading */}
+            <motion.h2
+              initial={{ opacity: 0, y: 40, filter: 'blur(15px)' }}
+              whileInView={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
               viewport={{ once: true }}
-              transition={{ duration: 1 }}
-              className="flex items-center gap-4 mb-20"
+              transition={{ duration: 1.2, ease: [0.23, 1, 0.32, 1] }}
+              className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-serif font-black text-white uppercase tracking-tighter leading-none mb-10 cursor-default"
+              data-cursor-hover
             >
-              <div className="h-px w-16 bg-[#D4AF77]/30" />
-              <span className="text-[#D4AF77] text-[10px] md:text-xs tracking-[0.5em] uppercase font-sans font-bold" data-cursor-hover>
-                The Ethos
-              </span>
-            </motion.div>
+              The <span className="text-[#D4AF77]">Ethos</span>
+            </motion.h2>
 
-            {/* Large Quote — Scroll-Linked Word-by-Word Reveal */}
-            <div className="text-2xl sm:text-3xl md:text-4xl lg:text-[2.8rem] font-serif text-white/90 leading-[1.5] md:leading-[1.6] max-w-5xl mb-20 cursor-default" data-cursor-hover>
+            {/* Quote — Now more restrained and elegant */}
+            <div className="text-xl sm:text-2xl md:text-3xl font-serif text-white/60 leading-[1.6] max-w-3xl mb-24 cursor-default" data-cursor-hover>
               <AnimatedText text="We don't just capture light. We architect moments of visceral truth. Every frame is meticulously crafted — a symphony of shadow, gold, and gravity." />
             </div>
 
             {/* Body Text — with blur dissolve entrance */}
             <p
               ref={bodyRef}
-              className="text-base md:text-lg text-white/35 font-sans font-light tracking-wide leading-[1.9] max-w-2xl mb-32 md:mb-40 opacity-0"
+              className="text-lg md:text-2xl text-white/40 font-sans font-light tracking-wide leading-[1.8] max-w-4xl mb-32 md:mb-48 opacity-0"
             >
               Golden Pushers isn't an agency. It's a sanctuary for cinematic obsession.
               From breathtaking brand films to bespoke luxury productions, we forge

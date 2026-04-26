@@ -1,16 +1,16 @@
 'use client';
 
-import React, { useRef, useMemo } from 'react';
+import React, { useRef, useMemo, useState, useEffect } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { Points, PointMaterial } from '@react-three/drei';
 import * as THREE from 'three';
 
-function BokehField() {
+function BokehField({ isMobile }: { isMobile: boolean }) {
   const ref = useRef<THREE.Points>(null);
 
   // Generate a field of bokeh particles
   const [positions, colors, sizes] = useMemo(() => {
-    const count = 400; // Fewer but larger and more visible
+    const count = isMobile ? 150 : 400; // Significantly fewer on mobile
     const pos = new Float32Array(count * 3);
     const col = new Float32Array(count * 3);
     const sz = new Float32Array(count);
@@ -35,18 +35,19 @@ function BokehField() {
       sz[i] = Math.random() * 0.5 + 0.1;
     }
     return [pos, col, sz];
-  }, []);
+  }, [isMobile]);
 
   const mouse = useRef({ x: 0, y: 0 });
 
-  React.useEffect(() => {
+  useEffect(() => {
+    if (isMobile) return; // Skip mouse listener on mobile
     const handleMouseMove = (e: MouseEvent) => {
       mouse.current.x = (e.clientX / window.innerWidth) * 2 - 1;
       mouse.current.y = -(e.clientY / window.innerHeight) * 2 + 1;
     };
-    window.addEventListener('mousemove', handleMouseMove);
+    window.addEventListener('mousemove', handleMouseMove, { passive: true });
     return () => window.removeEventListener('mousemove', handleMouseMove);
-  }, []);
+  }, [isMobile]);
 
   useFrame((state, delta) => {
     if (!ref.current) return;
@@ -55,12 +56,14 @@ function BokehField() {
     ref.current.rotation.y += delta * 0.02;
     ref.current.rotation.x += delta * 0.01;
 
-    // Interactive parallax - much more responsive
-    const targetX = mouse.current.x * 3;
-    const targetY = mouse.current.y * 3;
-    
-    ref.current.position.x += (targetX - ref.current.position.x) * 0.05;
-    ref.current.position.y += (targetY - ref.current.position.y) * 0.05;
+    // Interactive parallax - only if not mobile
+    if (!isMobile) {
+      const targetX = mouse.current.x * 2.5;
+      const targetY = mouse.current.y * 2.5;
+      
+      ref.current.position.x += (targetX - ref.current.position.x) * 0.05;
+      ref.current.position.y += (targetY - ref.current.position.y) * 0.05;
+    }
   });
 
   return (
@@ -68,48 +71,67 @@ function BokehField() {
       <PointMaterial
         transparent
         vertexColors
-        size={0.8} // Much larger for visibility
+        size={isMobile ? 0.6 : 0.8} // Slightly smaller on mobile to avoid fill rate issues
         sizeAttenuation={true}
         depthWrite={false}
         blending={THREE.AdditiveBlending}
-        opacity={0.4}
-        // Use a round bokeh-like texture (procedural)
+        opacity={isMobile ? 0.3 : 0.4}
       />
     </Points>
   );
 }
 
 export default function MinimalInteractive3D() {
-  const [mousePos, setMousePos] = React.useState({ x: 50, y: 50 });
+  const [mousePos, setMousePos] = useState({ x: 50, y: 50 });
+  const [isMobile, setIsMobile] = useState(false);
 
-  React.useEffect(() => {
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768 || ('ontouchstart' in window) || navigator.maxTouchPoints > 0);
+    };
+    
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+
     const handleMouseMove = (e: MouseEvent) => {
+      if (isMobile) return;
       setMousePos({
         x: (e.clientX / window.innerWidth) * 100,
         y: (e.clientY / window.innerHeight) * 100,
       });
     };
-    window.addEventListener('mousemove', handleMouseMove);
-    return () => window.removeEventListener('mousemove', handleMouseMove);
-  }, []);
+
+    window.addEventListener('mousemove', handleMouseMove, { passive: true });
+    return () => {
+      window.removeEventListener('resize', checkMobile);
+      window.removeEventListener('mousemove', handleMouseMove);
+    };
+  }, [isMobile]);
 
   return (
     <div className="fixed inset-0 w-full h-full bg-[#020202] z-0 pointer-events-none overflow-hidden">
-      {/* ─── BASE AMBIENT GLOW (The "Gold Aura") ─── */}
-      <div 
-        className="absolute inset-0 opacity-40 transition-opacity duration-1000"
-        style={{
-          background: `radial-gradient(circle at ${mousePos.x}% ${mousePos.y}%, rgba(212, 175, 119, 0.15) 0%, transparent 60%)`,
-        }}
-      />
+      {/* ─── BASE AMBIENT GLOW ─── */}
+      {!isMobile && (
+        <div 
+          className="absolute inset-0 opacity-40 transition-opacity duration-1000"
+          style={{
+            background: `radial-gradient(circle at ${mousePos.x}% ${mousePos.y}%, rgba(212, 175, 119, 0.15) 0%, transparent 60%)`,
+          }}
+        />
+      )}
 
       <Canvas
         camera={{ position: [0, 0, 10], fov: 60 }}
-        gl={{ alpha: true, antialias: true, powerPreference: "high-performance" }}
-        dpr={[1, 2]}
+        gl={{ 
+          alpha: true, 
+          antialias: !isMobile, // Disable antialias on mobile for FPS
+          powerPreference: "high-performance",
+          precision: isMobile ? 'mediump' : 'highp'
+        }}
+        dpr={isMobile ? [1, 1] : [1, 1.5]} // Lower DPR on mobile
       >
-        <BokehField />
-        <ambientLight intensity={0.5} />
+        <BokehField isMobile={isMobile} />
+        <ambientLight intensity={isMobile ? 0.3 : 0.5} />
       </Canvas>
 
       {/* ─── VIGNETTE ─── */}

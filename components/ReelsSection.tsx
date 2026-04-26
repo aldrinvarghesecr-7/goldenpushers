@@ -134,20 +134,40 @@ export default function ReelsSection() {
     return () => el.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Lock body scroll and handle Escape key
+  // Lock body scroll and handle history/Escape key
   useEffect(() => {
     if (selectedProject) {
       document.body.style.overflow = 'hidden';
-      const handleEsc = (e: KeyboardEvent) => {
-        if (e.key === 'Escape') setSelectedProject(null);
+
+      // Push state for back button support
+      window.history.pushState({ modalOpen: true }, '');
+
+      const handlePopState = () => {
+        setSelectedProject(null);
       };
+
+      const handleEsc = (e: KeyboardEvent) => {
+        if (e.key === 'Escape') {
+          window.history.back();
+        }
+      };
+
+      window.addEventListener('popstate', handlePopState);
       window.addEventListener('keydown', handleEsc);
+
       return () => {
         document.body.style.overflow = '';
+        window.removeEventListener('popstate', handlePopState);
         window.removeEventListener('keydown', handleEsc);
       };
     }
   }, [selectedProject]);
+
+  const closeModal = () => {
+    if (selectedProject) {
+      window.history.back();
+    }
+  };
 
   const scroll = (dir: 'left' | 'right') => {
     if (!scrollRef.current) return;
@@ -165,22 +185,22 @@ export default function ReelsSection() {
       <div className="max-w-[90vw] mx-auto mb-12 md:mb-20 flex flex-col md:flex-row md:items-end justify-between gap-8 relative z-10">
         <div>
           <motion.h2
-            initial={{ opacity: 0, y: 40 }}
-            whileInView={{ opacity: 1, y: 0 }}
+            initial={{ opacity: 0, y: 40, filter: 'blur(15px)' }}
+            whileInView={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
             viewport={{ once: true }}
-            transition={{ duration: 1.2, ease: [0.23, 1, 0.32, 1] }}
-            className="text-5xl sm:text-6xl md:text-8xl lg:text-9xl font-serif font-black tracking-tighter text-white uppercase leading-none"
+            transition={{ duration: 1.4, ease: [0.23, 1, 0.32, 1] }}
+            className="text-6xl sm:text-7xl md:text-8xl lg:text-9xl font-serif font-black tracking-tighter text-white uppercase leading-none"
           >
             The <span className="text-[#D4AF77]">Reels</span>
           </motion.h2>
           <motion.div
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
+            initial={{ opacity: 0, x: -20, filter: 'blur(10px)' }}
+            whileInView={{ opacity: 1, x: 0, filter: 'blur(0px)' }}
             viewport={{ once: true }}
-            transition={{ delay: 0.3 }}
-            className="flex items-center gap-4 mt-4 ml-1"
+            transition={{ delay: 0.5, duration: 1 }}
+            className="flex items-center gap-4 mt-6 ml-1"
           >
-            <div className="h-px w-12 bg-[#D4AF77]/40" />
+            <div className="h-px w-12 bg-[#D4AF77]/30" />
             <p className="text-white/30 tracking-[0.4em] uppercase text-[10px] font-sans font-bold">
               Selected Works 2024
             </p>
@@ -235,13 +255,13 @@ export default function ReelsSection() {
       {/* ─── FULLSCREEN LIGHTBOX MODAL ─── */}
       <AnimatePresence>
         {selectedProject && (
-          <div className="fixed inset-0 z-[999] flex items-center justify-center p-4 md:p-8">
+          <div className="fixed inset-0 z-[999] flex items-center justify-center p-4 md:p-8 overflow-hidden">
             {/* Dark Blurred Backdrop */}
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              onClick={() => setSelectedProject(null)}
+              onClick={closeModal}
               className="absolute inset-0 bg-black/90 backdrop-blur-md cursor-pointer"
               data-cursor-hover
               data-cursor-text="CLOSE"
@@ -250,8 +270,19 @@ export default function ReelsSection() {
             {/* Modal Content */}
             <motion.div
               layoutId={`project-${selectedProject.id}`}
-              className="relative w-full max-w-xl aspect-[3/4] md:aspect-[3/4] rounded-sm overflow-hidden shadow-2xl bg-[#0A0A0A] border border-white/5"
+              drag="y"
+              dragConstraints={{ top: 0, bottom: 0 }}
+              dragElastic={0.6}
+              onDragEnd={(_, info) => {
+                if (info.offset.y > 150 || info.velocity.y > 500) {
+                  closeModal();
+                }
+              }}
+              className="relative w-full max-w-xl aspect-[3/4] md:aspect-[3/4] rounded-sm overflow-hidden shadow-2xl bg-[#0A0A0A] border border-white/5 touch-none md:touch-auto"
             >
+              {/* Swipe Handle (Mobile Only) */}
+              <div className="md:hidden w-12 h-1 bg-white/20 rounded-full mx-auto mt-3 mb-1" />
+
               {/* Image */}
               <Image
                 src={selectedProject.image}
@@ -266,12 +297,12 @@ export default function ReelsSection() {
               <button
                 onClick={(e) => {
                   e.stopPropagation();
-                  setSelectedProject(null);
+                  closeModal();
                 }}
-                className="absolute top-4 right-4 md:top-6 md:right-6 z-50 p-2 bg-black/40 hover:bg-black/80 backdrop-blur-md rounded-full text-white/50 hover:text-white transition-all border border-white/10 group"
+                className="absolute top-4 right-4 md:top-6 md:right-6 z-50 p-2.5 bg-black/40 hover:bg-black/80 backdrop-blur-md rounded-full text-white/50 hover:text-white transition-all border border-white/10 group active:scale-95"
                 data-cursor-hover
               >
-                <X size={20} className="group-hover:rotate-90 transition-transform duration-500" />
+                <X size={24} className="group-hover:rotate-90 transition-transform duration-500" />
               </button>
 
               {/* Info Overlay (Team Member Style) */}

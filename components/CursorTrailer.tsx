@@ -25,8 +25,10 @@ export default function CursorTrailer() {
   const [isHovering, setIsHovering] = useState(false);
   const [cursorText, setCursorText] = useState('');
   const [mounted, setMounted] = useState(false);
+  const [isTouchDevice, setIsTouchDevice] = useState(false);
 
   const handleMouseOver = useCallback((e: MouseEvent) => {
+    if (isTouchDevice) return;
     const target = e.target as HTMLElement;
     const hoverTarget = target.closest('a, button, input, textarea, select, [role="button"], [data-cursor-hover]');
     
@@ -38,10 +40,18 @@ export default function CursorTrailer() {
       setIsHovering(false);
       setCursorText('');
     }
-  }, []);
+  }, [isTouchDevice]);
 
   useEffect(() => {
     setMounted(true);
+    
+    const checkTouch = () => {
+      setIsTouchDevice('ontouchstart' in window || navigator.maxTouchPoints > 0);
+    };
+    checkTouch();
+
+    if (isTouchDevice) return;
+
     const move = (e: MouseEvent) => {
       cursorX.set(e.clientX);
       cursorY.set(e.clientY);
@@ -58,9 +68,9 @@ export default function CursorTrailer() {
       window.removeEventListener('mouseover', handleMouseOver);
       document.removeEventListener('mouseleave', leave);
     };
-  }, [cursorX, cursorY, handleMouseOver]);
+  }, [cursorX, cursorY, handleMouseOver, isTouchDevice]);
 
-  if (!mounted) return null;
+  if (!mounted || isTouchDevice) return null;
 
   const ringSize = cursorText ? 80 : isHovering ? 50 : 32;
 
