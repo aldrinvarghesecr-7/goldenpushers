@@ -33,9 +33,9 @@ function Counter({ value, suffix }: { value: number; suffix: string }) {
 }
 
 const stats = [
-  { value: 50, suffix: '+', label: 'Films Crafted', sub: 'Global Projects' },
-  { value: 15, suffix: '+', label: 'Luxury Brands', sub: 'Partnerships' },
-  { value: 10, suffix: 'M+', label: 'Organic Views', sub: 'Digital Reach' },
+  { value: 50, suffix: '+', label: 'Professional Brand & Event', sub: 'Films Crafted' },
+  { value: 15, suffix: '+', label: 'Luxury & Lifestyle', sub: 'Brand Partnerships' },
+  { value: 10, suffix: 'M+', label: 'Organic Views', sub: 'Across Digital Platforms' },
 ];
 
 export default function EthosSection() {
@@ -115,9 +115,7 @@ export default function EthosSection() {
               ref={bodyRef}
               className="text-lg md:text-2xl text-white/40 font-sans font-light tracking-wide leading-[1.8] max-w-4xl mb-32 md:mb-48 opacity-0"
             >
-              Golden Pushers isn't an agency. It's a sanctuary for cinematic obsession.
-              From breathtaking brand films to bespoke luxury productions, we forge
-              visual gold with unrelenting precision and artistic truth.
+              GoldenPushers is a cinematic production house that brings stories to life through professional video production. From brand films and corporate videos to event coverage and creative visual storytelling, we craft high-quality cinematic experiences that captivate audiences and elevate your vision.
             </p>
 
             {/* Gold divider line */}

@@ -11,9 +11,9 @@ import React, { useEffect, useState, useRef } from 'react';
 import { motion, useInView, useSpring, useTransform } from 'framer-motion';
 
 const stats = [
-  { value: 50, suffix: '+', label: 'Films Crafted', sub: 'Global Projects' },
-  { value: 15, suffix: '+', label: 'Luxury Brands', sub: 'Partnerships' },
-  { value: 10, suffix: 'M+', label: 'Organic Views', sub: 'Digital Reach' },
+  { value: 50, suffix: '+', label: 'Professional Brand & Event', sub: 'Films Crafted' },
+  { value: 15, suffix: '+', label: 'Luxury & Lifestyle', sub: 'Brand Partnerships' },
+  { value: 10, suffix: 'M+', label: 'Organic Views', sub: 'Across Digital Platforms' },
 ];
 
 function Counter({ value, suffix }: { value: number; suffix: string }) {
