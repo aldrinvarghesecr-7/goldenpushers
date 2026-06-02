@@ -102,10 +102,10 @@ export default function CursorTrailer() {
             border: cursorText 
               ? 'none' 
               : isHovering 
-                ? '1px solid rgba(212,175,119,0.6)' 
-                : '1px solid rgba(255,255,255,0.15)',
+                ? '1px solid rgba(139,30,31,0.6)' 
+                : '1px solid rgba(26,26,24,0.15)',
             background: cursorText 
-              ? 'rgba(212,175,119,0.95)' 
+              ? 'rgba(139,30,31,0.95)' 
               : 'transparent',
           }} 
         >
@@ -113,7 +113,7 @@ export default function CursorTrailer() {
             <motion.span 
               initial={{ opacity: 0, scale: 0.5 }}
               animate={{ opacity: 1, scale: 1 }}
-              className="text-[#0A0A0A] font-sans font-bold text-[9px] tracking-[0.15em] uppercase whitespace-nowrap"
+              className="text-white font-sans font-bold text-[9px] tracking-[0.15em] uppercase whitespace-nowrap"
             >
               {cursorText}
             </motion.span>
@@ -132,9 +132,9 @@ export default function CursorTrailer() {
         transition={{ type: 'spring', stiffness: 400, damping: 25 }}
       >
         <div 
-          className="w-[5px] h-[5px] -ml-[2.5px] -mt-[2.5px] bg-[#D4AF77] rounded-full"
+          className="w-[5px] h-[5px] -ml-[2.5px] -mt-[2.5px] bg-[#8B1E1F] rounded-full"
           style={{ 
-            boxShadow: '0 0 6px rgba(212,175,119,0.5)' 
+            boxShadow: '0 0 6px rgba(139,30,31,0.5)' 
           }} 
         />
       </motion.div>

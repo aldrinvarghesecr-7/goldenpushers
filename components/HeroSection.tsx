@@ -1,15 +1,13 @@
 'use client';
 
 // ═══════════════════════════════════════════════════════════════
-// HERO SECTION — $50K CINEMATIC ENTRANCE
-// Staggered line-by-line reveal with GSAP,
-// scroll-linked parallax fade, breathing gold glow,
-// and a cinematic scroll cue.
+// HERO SECTION — Modern Production House
+// Full-bleed dark. Left-aligned power typography.
+// Horizontal rule as separator. Clean film-industry aesthetics.
 // ═══════════════════════════════════════════════════════════════
 
 import { useRef, useState, useEffect } from 'react';
 import { motion, useScroll, useTransform } from 'framer-motion';
-import { ChevronDown } from 'lucide-react';
 import gsap from 'gsap';
 import { useGSAP } from '@gsap/react';
 
@@ -19,7 +17,7 @@ export default function HeroSection() {
   const line2 = useRef<HTMLHeadingElement>(null);
   const subRef = useRef<HTMLParagraphElement>(null);
   const badgeRef = useRef<HTMLDivElement>(null);
-  const lineAccent = useRef<HTMLDivElement>(null);
+  const hrRef = useRef<HTMLDivElement>(null);
 
   const [mounted, setMounted] = useState(false);
 
@@ -27,68 +25,32 @@ export default function HeroSection() {
     setMounted(true);
   }, []);
 
-  // Parallax Scroll Effects
   const { scrollY } = useScroll();
   const yText1 = useTransform(scrollY, [0, 800], [0, 120]);
   const yText2 = useTransform(scrollY, [0, 800], [0, 80]);
   const ySub = useTransform(scrollY, [0, 800], [0, 40]);
   const opacityFade = useTransform(scrollY, [0, 400], [1, 0]);
-  const scale = useTransform(scrollY, [0, 600], [1, 0.95]);
+  const scale = useTransform(scrollY, [0, 600], [1, 0.97]);
 
-  // GSAP staggered entrance — only fires after mounted
   useGSAP(
     () => {
       if (!mounted) return;
+      const tl = gsap.timeline({ delay: 0.3 });
 
-      const tl = gsap.timeline({ delay: 0.2 });
-
-      // Horizontal accent line sweeps in
-      if (lineAccent.current) {
-        tl.fromTo(
-          lineAccent.current,
-          { scaleX: 0 },
-          { scaleX: 1, duration: 1.2, ease: 'power3.inOut' }
-        );
+      if (hrRef.current) {
+        tl.fromTo(hrRef.current, { scaleX: 0 }, { scaleX: 1, duration: 1.4, ease: 'power3.inOut', transformOrigin: 'left' });
       }
-
-      // Badge fades in
       if (badgeRef.current) {
-        tl.fromTo(
-          badgeRef.current,
-          { opacity: 0, y: -15, filter: 'blur(10px)' },
-          { opacity: 1, y: 0, filter: 'blur(0px)', duration: 1, ease: 'power3.out' },
-          '-=0.8'
-        );
+        tl.fromTo(badgeRef.current, { opacity: 0, x: -20 }, { opacity: 1, x: 0, duration: 0.8, ease: 'power3.out' }, '-=0.6');
       }
-
-      // Title line 1 — clips up from below with rotation
       if (line1.current) {
-        tl.fromTo(
-          line1.current,
-          { y: 100, opacity: 0, rotateX: 35 },
-          { y: 0, opacity: 1, rotateX: 0, duration: 1.4, ease: 'power4.out' },
-          '-=0.6'
-        );
+        tl.fromTo(line1.current, { y: 120, opacity: 0, rotateX: 25 }, { y: 0, opacity: 1, rotateX: 0, duration: 1.4, ease: 'power4.out' }, '-=0.5');
       }
-
-      // Title line 2 — clips up from opposite
       if (line2.current) {
-        tl.fromTo(
-          line2.current,
-          { y: 100, opacity: 0, rotateX: -25 },
-          { y: 0, opacity: 1, rotateX: 0, duration: 1.4, ease: 'power4.out' },
-          '-=1.0'
-        );
+        tl.fromTo(line2.current, { y: 120, opacity: 0, rotateX: -15 }, { y: 0, opacity: 1, rotateX: 0, duration: 1.4, ease: 'power4.out' }, '-=1.0');
       }
-
-      // Subtitle with blur dissolve
       if (subRef.current) {
-        tl.fromTo(
-          subRef.current,
-          { opacity: 0, y: 25, filter: 'blur(8px)' },
-          { opacity: 1, y: 0, filter: 'blur(0px)', duration: 1.2, ease: 'power2.out' },
-          '-=0.6'
-        );
+        tl.fromTo(subRef.current, { opacity: 0, y: 20, filter: 'blur(8px)' }, { opacity: 1, y: 0, filter: 'blur(0px)', duration: 1.0, ease: 'power2.out' }, '-=0.8');
       }
     },
     { scope: container, dependencies: [mounted] }
@@ -98,97 +60,88 @@ export default function HeroSection() {
     <section
       ref={container}
       id="hero"
-      className="relative w-full h-screen flex flex-col items-center justify-center overflow-hidden"
+      className="relative w-full h-screen bg-[#111110] flex flex-col justify-end overflow-hidden"
     >
+      {/* Subtle diagonal noise texture overlay */}
+      <div className="absolute inset-0 opacity-[0.025] pointer-events-none" style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg viewBox=\'0 0 256 256\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cfilter id=\'noise\'%3E%3CfeTurbulence type=\'fractalNoise\' baseFrequency=\'0.9\' numOctaves=\'4\' stitchTiles=\'stitch\'/%3E%3C/filter%3E%3Crect width=\'100%25\' height=\'100%25\' filter=\'url(%23noise)\'/%3E%3C/svg%3E")' }} />
+
+      {/* Crimson accent — very subtle, top-right corner */}
+      <div className="absolute top-0 right-0 w-[35vw] h-[35vh] bg-[#8B1E1F]/[0.06] blur-[120px] pointer-events-none" />
+
       {mounted && (
-        <>
-          {/* Breathing Gold Glow — slow pulse */}
-          <motion.div 
-            animate={{
-              opacity: [0.03, 0.08, 0.03],
-              scale: [0.95, 1.05, 0.95],
-            }}
-            transition={{ duration: 8, ease: 'easeInOut', repeat: Infinity }}
-            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[60vw] h-[60vh] bg-[#D4AF77] blur-[100px] rounded-full pointer-events-none mix-blend-screen will-change-transform" 
+        <motion.div
+          style={{ opacity: opacityFade, scale }}
+          className="relative z-10 w-full pb-16 md:pb-24 px-8 md:px-16 lg:px-24 will-change-transform"
+        >
+          {/* Top row — badge + scene number */}
+          <div
+            ref={badgeRef}
+            className="flex items-center justify-between mb-12 opacity-0"
+          >
+            <span className="text-[#8B1E1F] text-[9px] tracking-[0.6em] uppercase font-sans font-bold" data-cursor-hover>
+              Est. 2024 — Premium Productions
+            </span>
+            <span className="text-white/15 text-[9px] tracking-[0.4em] uppercase font-sans hidden md:block">
+              Scene 01 / 00:00:00:00
+            </span>
+          </div>
+
+          {/* Full-width horizontal rule */}
+          <div
+            ref={hrRef}
+            className="w-full h-px bg-white/10 mb-10 origin-left"
+            style={{ transform: 'scaleX(0)' }}
           />
 
-          {/* Content — parallax group */}
-          <motion.div 
-            style={{ opacity: opacityFade, scale }}
-            className="relative z-10 text-center px-6 max-w-7xl mx-auto will-change-transform"
-          >
-            {/* Horizontal accent line */}
-            <div
-              ref={lineAccent}
-              className="w-16 h-[1px] mx-auto mb-8 bg-gradient-to-r from-transparent via-[#D4AF77] to-transparent origin-center"
-              style={{ transform: 'scaleX(0)' }}
-            />
-
-            {/* Top badge */}
-            <div
-              ref={badgeRef}
-              className="inline-flex items-center gap-3 mb-10 opacity-0"
+          {/* Main Headline — left-aligned, massive */}
+          <div className="perspective-container overflow-hidden mb-1">
+            <motion.h1
+              ref={line1}
+              style={{ y: yText1 }}
+              data-cursor-hover
+              className="text-[13vw] sm:text-[11vw] md:text-[10vw] lg:text-[9vw] tracking-[-0.06em] leading-[0.85] font-serif text-white opacity-0 cursor-default will-change-transform"
             >
-              <span className="text-[#D4AF77] text-[10px] md:text-xs tracking-[0.5em] uppercase font-sans font-bold" data-cursor-hover>
-                Est. 2024 — Premium Productions
-              </span>
-            </div>
+              PUSHING VISION
+            </motion.h1>
+          </div>
 
-            {/* Main Headline — Two lines, staggered parallax */}
-            <div className="perspective-container overflow-hidden mb-2 md:mb-4">
-              <motion.h1
-                ref={line1}
-                style={{ y: yText1 }}
-                data-cursor-hover
-                className="text-[11vw] sm:text-[9vw] md:text-[8vw] lg:text-[7vw] tracking-[-0.04em] leading-[0.9] font-serif text-transparent bg-clip-text bg-[linear-gradient(110deg,#fff_35%,#D4AF77_50%,#fff_65%)] bg-[length:200%_auto] animate-[shimmer_6s_linear_infinite] opacity-0 cursor-default will-change-transform"
-              >
-                PUSHING VISION
-              </motion.h1>
-            </div>
-            <div className="perspective-container overflow-hidden">
-              <motion.h1
-                ref={line2}
-                style={{ y: yText2 }}
-                data-cursor-hover
-                className="text-[11vw] sm:text-[9vw] md:text-[8vw] lg:text-[7vw] tracking-[-0.04em] leading-[0.9] font-serif text-white/90 opacity-0 cursor-default will-change-transform"
-              >
-                INTO <span className="text-gold-gradient">GOLD</span>
-              </motion.h1>
-            </div>
+          <div className="perspective-container overflow-hidden">
+            <motion.h1
+              ref={line2}
+              style={{ y: yText2 }}
+              data-cursor-hover
+              className="text-[13vw] sm:text-[11vw] md:text-[10vw] lg:text-[9vw] tracking-[-0.06em] leading-[0.85] font-serif text-white/15 opacity-0 cursor-default will-change-transform"
+            >
+              INTO <span className="text-gold-gradient text-white/90">GOLD</span>
+            </motion.h1>
+          </div>
 
-            {/* Subline */}
+          {/* Subline + scroll cue — row layout */}
+          <div className="mt-10 md:mt-14 flex items-end justify-between">
             <motion.p
               ref={subRef}
               style={{ y: ySub }}
-              className="mt-10 md:mt-14 text-sm md:text-base font-sans text-white/40 tracking-[0.2em] uppercase max-w-lg mx-auto leading-relaxed opacity-0"
+              className="text-sm md:text-base font-sans text-white/35 tracking-[0.15em] uppercase max-w-xs leading-relaxed opacity-0"
             >
               A Premium Creative Production House.
-              <br className="hidden md:block" /> Uncompromising Cinematic Excellence.
+              <br />Uncompromising Cinematic Excellence.
             </motion.p>
-          </motion.div>
 
-          {/* Scroll Indicator */}
-          <div className="absolute bottom-10 left-1/2 -translate-x-1/2 z-20 flex flex-col items-center gap-3">
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              transition={{ delay: 3 }}
+              transition={{ delay: 3.5 }}
+              className="flex items-center gap-4 text-white/20 text-[9px] tracking-[0.4em] uppercase font-sans"
             >
-              <span className="text-[#D4AF77]/50 text-[9px] tracking-[0.5em] uppercase font-sans font-bold">
-                Scroll
-              </span>
-            </motion.div>
-            <motion.div
-              animate={{ y: [0, 8, 0] }}
-              transition={{ repeat: Infinity, duration: 2, ease: 'easeInOut' }}
-            >
-              <ChevronDown size={16} className="text-[#D4AF77]/30" />
+              <span>Scroll</span>
+              <motion.div
+                animate={{ x: [0, 8, 0] }}
+                transition={{ repeat: Infinity, duration: 2, ease: 'easeInOut' }}
+                className="w-8 h-px bg-white/20"
+              />
             </motion.div>
           </div>
-
-          {/* Decorative bottom gradient fade */}
-          <div className="absolute bottom-0 left-0 right-0 h-40 bg-gradient-to-t from-[#0A0A0A] to-transparent pointer-events-none z-[5]" />
-        </>
+        </motion.div>
       )}
     </section>
   );

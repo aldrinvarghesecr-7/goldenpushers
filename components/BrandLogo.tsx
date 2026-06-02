@@ -9,7 +9,7 @@ interface BrandLogoProps {
   size?: number;
 }
 
-const GOLD = '#D4AF77';
+const CRIMSON = '#8B1E1F';
 
 export default function BrandLogo({ className = '', showText = true, size = 100 }: BrandLogoProps) {
   return (
@@ -27,7 +27,7 @@ export default function BrandLogo({ className = '', showText = true, size = 100 
           viewBox="0 0 100 100"
           width="100"
           height="100"
-          className="text-accent"
+          className="text-[#8B1E1F]"
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
         >
@@ -101,7 +101,7 @@ export default function BrandLogo({ className = '', showText = true, size = 100 
         </svg>
 
         {/* Cinematic Glow Background */}
-        <div className="absolute inset-0 bg-accent/10 blur-xl rounded-full -z-10 animate-pulse" />
+        <div className="absolute inset-0 bg-[#8B1E1F]/10 blur-xl rounded-full -z-10 animate-pulse" />
       </motion.div>
 
       {showText && (
@@ -110,7 +110,7 @@ export default function BrandLogo({ className = '', showText = true, size = 100 
             initial={{ x: 10, opacity: 0 }}
             animate={{ x: 0, opacity: 1 }}
             transition={{ delay: 0.5, duration: 1 }}
-            className="text-xl font-serif font-black tracking-[0.2em] text-white uppercase leading-none"
+            className="text-xl font-serif font-black tracking-[0.2em] text-current uppercase leading-none"
           >
             Golden Pushers
           </motion.span>
@@ -118,7 +118,7 @@ export default function BrandLogo({ className = '', showText = true, size = 100 
             initial={{ x: 10, opacity: 0 }}
             animate={{ x: 0, opacity: 1 }}
             transition={{ delay: 0.7, duration: 1 }}
-            className="text-[9px] tracking-[0.5em] text-accent font-sans font-light mt-1.5 uppercase"
+            className="text-[9px] tracking-[0.5em] text-[#8B1E1F] font-sans font-light mt-1.5 uppercase"
           >
             Productions LLP
           </motion.span>

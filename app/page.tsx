@@ -2,7 +2,7 @@
 
 // ═══════════════════════════════════════════════════════════════
 // HOME PAGE — Golden Pushers Productions LLP
-// Single-page cinematic experience with marquee dividers.
+// Modern production house — single dark page, no page breaks.
 // ═══════════════════════════════════════════════════════════════
 
 import dynamic from 'next/dynamic';
@@ -43,23 +43,16 @@ export default function Home() {
       <main className="relative z-10">
         <HeroSection />
 
-        {/* Marquee Divider — Cinematic */}
-        <Marquee 
-          text="CINEMATIC EXCELLENCE" 
-          speed={35} 
-          className="py-6 text-[10vw] md:text-[6vw] font-serif font-black text-white/[0.015] leading-none border-y border-white/[0.03]" 
-        />
+        {/* Ticker divider */}
+        <div className="border-t border-b border-white/[0.04] overflow-hidden py-5 bg-[#111110]">
+          <Marquee
+            text="CINEMATIC EXCELLENCE — BRAND FILMS — COMMERCIAL — MUSIC VIDEO — EDITORIAL — EVENT COVERAGE —"
+            speed={30}
+            className="text-[11px] md:text-xs font-sans font-bold tracking-[0.5em] text-white/[0.12] uppercase leading-none"
+          />
+        </div>
 
         <EthosSection />
-
-        {/* Marquee Divider — Services */}
-        <Marquee 
-          text="CRAFT & PRECISION" 
-          speed={40} 
-          reverse 
-          className="py-4 text-[8vw] md:text-[5vw] font-serif font-black text-white/[0.02] leading-none" 
-        />
-
         <CraftSection />
         <ReelsSection />
         <ArchitectsSection />

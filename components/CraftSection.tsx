@@ -2,17 +2,16 @@
 
 // ═══════════════════════════════════════════════════════════════
 // THE CRAFT — Services Section
-// 6 categories with all bullet points. GSAP staggered reveals.
-// Cards with gold accents and hover glow effects.
-// Added 3D Magnetic Tilt Micro-interactions.
-// Desktop: 3-column grid | Mobile: clean vertical stack
+// Modern production house editorial. Numbered service rows.
+// Each service expands on hover. Full dark. Zero whitespace waste.
 // ═══════════════════════════════════════════════════════════════
 
-import React, { useRef } from 'react';
-import { motion, useMotionValue, useSpring, useTransform } from 'framer-motion';
+import React, { useRef, useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { useGSAP } from '@gsap/react';
+import { Plus, Minus } from 'lucide-react';
 
 const categories = [
   {
@@ -101,78 +100,66 @@ const categories = [
   },
 ];
 
-function TiltCard({ cat }: { cat: typeof categories[0] }) {
-  const ref = useRef<HTMLDivElement>(null);
-  const x = useMotionValue(0);
-  const y = useMotionValue(0);
-
-  const mouseXSpring = useSpring(x);
-  const mouseYSpring = useSpring(y);
-
-  const rotateX = useTransform(mouseYSpring, [-0.5, 0.5], ["7deg", "-7deg"]);
-  const rotateY = useTransform(mouseXSpring, [-0.5, 0.5], ["-7deg", "7deg"]);
-
-  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (!ref.current) return;
-    const rect = ref.current.getBoundingClientRect();
-    const width = rect.width;
-    const height = rect.height;
-    const mouseX = e.clientX - rect.left;
-    const mouseY = e.clientY - rect.top;
-    const xPct = mouseX / width - 0.5;
-    const yPct = mouseY / height - 0.5;
-    x.set(xPct);
-    y.set(yPct);
-  };
-
-  const handleMouseLeave = () => {
-    x.set(0);
-    y.set(0);
-  };
+function ServiceRow({ cat, index }: { cat: typeof categories[0]; index: number }) {
+  const [open, setOpen] = useState(false);
 
   return (
     <motion.div
-      ref={ref}
-      onMouseMove={handleMouseMove}
-      onMouseLeave={handleMouseLeave}
-      style={{ rotateX, rotateY, transformStyle: "preserve-3d" }}
-      className="craft-card group relative p-8 md:p-10 rounded-sm border border-white/[0.04] hover:border-[#D4AF77]/40 bg-white/[0.015] hover:bg-white/[0.03] transition-colors duration-700 perspective-1000"
-      data-cursor-hover
+      initial={{ opacity: 0, y: 20 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: '-60px' }}
+      transition={{ duration: 0.6, delay: index * 0.06, ease: [0.23, 1, 0.32, 1] }}
+      className="craft-card border-b border-white/[0.06] group"
     >
-      <div style={{ transform: "translateZ(30px)" }}>
-        {/* Card Number + Divider */}
-        <div className="flex items-baseline gap-4 mb-6">
-          <span className="text-[#D4AF77]/25 font-sans font-black text-4xl tracking-tighter group-hover:text-[#D4AF77]/80 transition-colors duration-500">
+      <button
+        onClick={() => setOpen(!open)}
+        className="w-full flex items-center justify-between py-7 md:py-8 gap-6 text-left group cursor-default"
+        data-cursor-hover
+      >
+        {/* Left: Number + Title */}
+        <div className="flex items-baseline gap-6 md:gap-10 flex-1 min-w-0">
+          <span className="text-[#8B1E1F]/40 font-sans font-black text-sm tracking-[0.2em] shrink-0 group-hover:text-[#8B1E1F] transition-colors duration-400">
             {cat.id}
           </span>
-          <div className="h-px flex-grow bg-white/5 group-hover:bg-[#D4AF77]/30 transition-all duration-700" />
+          <h3 className="text-lg md:text-2xl lg:text-3xl font-serif font-black text-white/70 uppercase tracking-tight group-hover:text-white transition-colors duration-400 truncate">
+            {cat.title}
+          </h3>
         </div>
 
-        {/* Title */}
-        <h3 className="text-white text-lg md:text-xl font-sans font-black uppercase tracking-tight mb-3 group-hover:translate-x-2 group-hover:text-[#D4AF77] transition-all duration-700">
-          {cat.title}
-        </h3>
+        {/* Right: Description (hidden on mobile) + icon */}
+        <div className="flex items-center gap-6 shrink-0">
+          <span className="hidden md:block text-white/20 text-xs font-sans italic tracking-wide group-hover:text-white/40 transition-colors duration-400">
+            {cat.description}
+          </span>
+          <div className={`w-8 h-8 border rounded-full flex items-center justify-center transition-all duration-400 ${open ? 'border-[#8B1E1F] text-[#8B1E1F]' : 'border-white/10 text-white/30 group-hover:border-white/30 group-hover:text-white/60'}`}>
+            {open ? <Minus size={12} /> : <Plus size={12} />}
+          </div>
+        </div>
+      </button>
 
-        {/* Description */}
-        <p className="text-white/30 text-sm font-sans italic mb-8">
-          {cat.description}
-        </p>
-
-        {/* Items List */}
-        <ul className="space-y-3">
-          {cat.items.map((item, idx) => (
-            <li key={idx} className="flex items-start gap-3">
-              <div className="w-1 h-1 flex-shrink-0 rounded-full bg-[#D4AF77]/30 mt-[7px] group-hover:bg-[#D4AF77]/90 group-hover:shadow-[0_0_8px_#D4AF77] transition-all duration-500" />
-              <span className="text-white/25 text-xs font-sans tracking-wide leading-relaxed group-hover:text-white/70 transition-colors duration-500">
-                {item}
-              </span>
-            </li>
-          ))}
-        </ul>
-      </div>
-
-      {/* Hover glow effect behind content */}
-      <div className="absolute inset-0 rounded-sm opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none shadow-[inset_0_0_60px_rgba(212,175,119,0.05)]" />
+      {/* Expandable items */}
+      <AnimatePresence>
+        {open && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: 'auto', opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.4, ease: [0.23, 1, 0.32, 1] }}
+            className="overflow-hidden"
+          >
+            <div className="pb-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 pl-0 md:pl-[calc(14px+40px)]">
+              {cat.items.map((item, idx) => (
+                <div key={idx} className="flex items-start gap-3 py-2">
+                  <div className="w-px h-full min-h-[1em] bg-[#8B1E1F]/30 mt-1.5 shrink-0 self-stretch" />
+                  <span className="text-white/40 text-sm font-sans leading-relaxed hover:text-white/70 transition-colors duration-300 cursor-default">
+                    {item}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </motion.div>
   );
 }
@@ -180,86 +167,59 @@ function TiltCard({ cat }: { cat: typeof categories[0] }) {
 export default function CraftSection() {
   const container = useRef<HTMLDivElement>(null);
 
-  useGSAP(
-    () => {
-      gsap.registerPlugin(ScrollTrigger);
-
-      // Stagger-reveal each card as it enters the viewport
-      const cards = container.current?.querySelectorAll('.craft-card');
-      if (cards && cards.length > 0) {
-        gsap.fromTo(
-          cards,
-          { opacity: 0, y: 80, rotateX: -10 },
-          {
-            opacity: 1,
-            y: 0,
-            rotateX: 0,
-            stagger: 0.15,
-            duration: 1.2,
-            ease: 'power3.out',
-            scrollTrigger: {
-              trigger: container.current,
-              start: 'top 75%',
-              toggleActions: 'play none none none',
-            },
-          }
-        );
-      }
-    },
-    { scope: container }
-  );
+  useGSAP(() => {
+    gsap.registerPlugin(ScrollTrigger);
+  }, { scope: container });
 
   return (
-    <section ref={container} id="services" className="relative py-32 md:py-40 px-6 md:px-12 overflow-hidden perspective-1000">
-      <div className="max-w-[1400px] mx-auto">
+    <section ref={container} id="services" className="relative py-32 md:py-48 bg-[#111110] overflow-hidden">
+      <div className="max-w-[90vw] mx-auto">
+
         {/* Section Header */}
-        <div className="mb-20 md:mb-28">
-          <motion.div
-            initial={{ opacity: 0, x: -20 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }}
-            className="flex items-center gap-6 mb-8"
-          >
-            <div className="h-px w-12 bg-[#D4AF77]/40" />
-            <span className="text-[#D4AF77] font-sans text-[10px] md:text-xs tracking-[0.5em] uppercase font-bold" data-cursor-hover>
-              Our Expertise
-            </span>
-          </motion.div>
+        <motion.div
+          initial={{ opacity: 0, x: -20 }}
+          whileInView={{ opacity: 1, x: 0 }}
+          viewport={{ once: true }}
+          className="flex items-center gap-6 mb-16"
+        >
+          <span className="text-[#8B1E1F] text-[9px] tracking-[0.6em] uppercase font-sans font-bold">Our Expertise</span>
+          <div className="h-px flex-1 bg-white/[0.06]" />
+          <span className="text-white/15 text-[9px] tracking-[0.4em] font-sans hidden md:block">03 / Craft</span>
+        </motion.div>
 
-          <motion.h2
-            initial={{ opacity: 0, y: 40, filter: 'blur(15px)' }}
-            whileInView={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
-            viewport={{ once: true }}
-            transition={{ duration: 1.2, ease: [0.23, 1, 0.32, 1] }}
-            className="text-5xl sm:text-6xl md:text-8xl lg:text-9xl font-serif font-black text-white uppercase tracking-tighter leading-none mb-8 cursor-default"
-            data-cursor-hover
-          >
-            The <span className="text-gold-gradient">Craft</span>
-          </motion.h2>
+        {/* Heading */}
+        <motion.h2
+          initial={{ opacity: 0, y: 50 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 1.0, ease: [0.23, 1, 0.32, 1] }}
+          className="text-[13vw] sm:text-[10vw] md:text-[9vw] font-serif font-black text-white uppercase tracking-[-0.05em] leading-[0.9] mb-6 cursor-default"
+          data-cursor-hover
+        >
+          The <span className="text-gold-gradient">Craft</span>
+        </motion.h2>
 
-          <motion.p
-            initial={{ opacity: 0, y: 30, filter: 'blur(10px)' }}
-            whileInView={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
-            viewport={{ once: true }}
-            transition={{ duration: 1.2, delay: 0.3, ease: [0.23, 1, 0.32, 1] }}
-            className="max-w-lg text-white/30 text-sm md:text-base font-sans font-light leading-relaxed"
-          >
-            From first spark to final frame — every stage is crafted with
-            uncompromising cinematic excellence and technical masterwork.
-          </motion.p>
-        </div>
+        <motion.p
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.8, delay: 0.2 }}
+          className="max-w-md text-white/30 text-sm md:text-base font-sans font-light leading-relaxed mb-20"
+        >
+          From first spark to final frame — every stage crafted with
+          uncompromising cinematic excellence.
+        </motion.p>
 
-        {/* Cards Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-10">
-          {categories.map((cat) => (
-            <TiltCard key={cat.id} cat={cat} />
+        {/* Top border */}
+        <div className="w-full h-px bg-white/[0.06] mb-0" />
+
+        {/* Service Rows — accordion */}
+        <div>
+          {categories.map((cat, idx) => (
+            <ServiceRow key={cat.id} cat={cat} index={idx} />
           ))}
         </div>
-      </div>
 
-      {/* Section divider */}
-      <div className="max-w-[1400px] mx-auto mt-32">
-        <div className="section-divider" />
       </div>
     </section>
   );
