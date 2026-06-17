@@ -9,8 +9,6 @@ interface BrandLogoProps {
   size?: number;
 }
 
-const CRIMSON = '#8B1E1F';
-
 export default function BrandLogo({ className = '', showText = true, size = 100 }: BrandLogoProps) {
   return (
     <div 
@@ -27,7 +25,7 @@ export default function BrandLogo({ className = '', showText = true, size = 100 
           viewBox="0 0 100 100"
           width="100"
           height="100"
-          className="text-[#8B1E1F]"
+          className="text-[#00E5FF]"
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
         >
@@ -40,6 +38,7 @@ export default function BrandLogo({ className = '', showText = true, size = 100 
             initial={{ pathLength: 0 }}
             animate={{ pathLength: 1 }}
             transition={{ duration: 2, ease: "easeInOut" }}
+            style={{ filter: 'drop-shadow(0px 0px 4px rgba(0,229,255,0.4))' }}
           />
 
           {/* Inner Wave Layers */}
@@ -58,7 +57,7 @@ export default function BrandLogo({ className = '', showText = true, size = 100 
             className="opacity-40"
           />
 
-          {/* Sharp Decorative Wave Peaks (at bottom-right) */}
+          {/* Sharp Decorative Wave Peaks */}
           <path
             d="M45 78L50 72L55 78L60 74L65 78"
             stroke="currentColor"
@@ -71,7 +70,7 @@ export default function BrandLogo({ className = '', showText = true, size = 100 
           <defs>
             <linearGradient id="shimmer" x1="0" y1="0" x2="1" y2="1">
               <stop offset="0%" stopColor="white" stopOpacity="0" />
-              <stop offset="50%" stopColor="white" stopOpacity="0.5" />
+              <stop offset="50%" stopColor="white" stopOpacity="0.8" />
               <stop offset="100%" stopColor="white" stopOpacity="0" />
             </linearGradient>
             <mask id="logo-mask">
@@ -101,7 +100,7 @@ export default function BrandLogo({ className = '', showText = true, size = 100 
         </svg>
 
         {/* Cinematic Glow Background */}
-        <div className="absolute inset-0 bg-[#8B1E1F]/10 blur-xl rounded-full -z-10 animate-pulse" />
+        <div className="absolute inset-0 bg-[#00E5FF]/10 blur-xl rounded-full -z-10 animate-pulse" />
       </motion.div>
 
       {showText && (
@@ -110,7 +109,7 @@ export default function BrandLogo({ className = '', showText = true, size = 100 
             initial={{ x: 10, opacity: 0 }}
             animate={{ x: 0, opacity: 1 }}
             transition={{ delay: 0.5, duration: 1 }}
-            className="text-xl font-serif font-black tracking-[0.2em] text-current uppercase leading-none"
+            className="text-xl font-display font-bold tracking-[0.2em] text-current uppercase leading-none"
           >
             Golden Pushers
           </motion.span>
@@ -118,7 +117,7 @@ export default function BrandLogo({ className = '', showText = true, size = 100 
             initial={{ x: 10, opacity: 0 }}
             animate={{ x: 0, opacity: 1 }}
             transition={{ delay: 0.7, duration: 1 }}
-            className="text-[9px] tracking-[0.5em] text-[#8B1E1F] font-sans font-light mt-1.5 uppercase"
+            className="text-[9px] tracking-[0.5em] text-[#00E5FF] font-sans font-medium mt-1.5 uppercase"
           >
             Productions LLP
           </motion.span>

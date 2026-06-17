@@ -1,35 +1,35 @@
 import React from "react";
 import type { Metadata } from "next";
-import { Cinzel, Inter, Playfair_Display } from "next/font/google";
+import { Syne, Plus_Jakarta_Sans, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import { siteConfig } from "@/lib/config";
 import CursorTrailer from "@/components/CursorTrailer";
 
 // ═══════════════════════════════════════════════════════════════
 // ROOT LAYOUT — Golden Pushers Productions LLP
-// Clean layout with luxury typography, smooth scroll provider,
-// persistent R3F canvas, navbar, film grain, and footer.
+// Cinematic Reveal Design System
+// Syne + Plus Jakarta Sans + JetBrains Mono
 // ═══════════════════════════════════════════════════════════════
 
 // Typography System
-const serif = Cinzel({
+const display = Syne({
   subsets: ["latin"],
-  variable: "--font-serif",
-  weight: ["400", "500", "600", "700", "800", "900"],
+  variable: "--font-display",
+  weight: ["400", "500", "600", "700", "800"],
   display: "swap",
 });
 
-const sans = Inter({
+const sans = Plus_Jakarta_Sans({
   subsets: ["latin"],
   variable: "--font-sans",
-  weight: ["300", "400", "500", "600", "700", "900"],
+  weight: ["300", "400", "500", "600", "700", "800"],
   display: "swap",
 });
 
-const body = Playfair_Display({
+const mono = JetBrains_Mono({
   subsets: ["latin"],
-  variable: "--font-body",
-  weight: ["400", "500", "600", "700"],
+  variable: "--font-mono",
+  weight: ["300", "400", "500", "600", "700"],
   display: "swap",
 });
 
@@ -60,10 +60,11 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${serif.variable} ${sans.variable} ${body.variable}`}
+      className={`${display.variable} ${sans.variable} ${mono.variable}`}
     >
-      <body className="bg-[#0A0A0A] text-white font-sans antialiased overflow-x-hidden">
-        <div className="cinematic-vignette" />
+      <body className="bg-[#0B0D1A] text-[#E8ECF4] font-sans antialiased overflow-x-hidden">
+        {/* Ambient glow overlay */}
+        <div className="ambient-glow" />
         <CursorTrailer />
         {children}
       </body>

@@ -1,7 +1,7 @@
 'use client';
 
 // ═══════════════════════════════════════════════════════════════
-// CURSOR TRAILER — $50K Custom Cursor System
+// CURSOR TRAILER — Custom Cursor System
 // Layered dot + ring with spring physics, text-pill mode,
 // and smooth scale transitions. Hidden on mobile.
 // ═══════════════════════════════════════════════════════════════
@@ -23,6 +23,7 @@ export default function CursorTrailer() {
   const dotY = useSpring(cursorY, { stiffness: 300, damping: 28, mass: 0.3 });
 
   const [isHovering, setIsHovering] = useState(false);
+  const [isGold, setIsGold] = useState(false);
   const [cursorText, setCursorText] = useState('');
   const [mounted, setMounted] = useState(false);
   const [isTouchDevice, setIsTouchDevice] = useState(false);
@@ -30,15 +31,21 @@ export default function CursorTrailer() {
   const handleMouseOver = useCallback((e: MouseEvent) => {
     if (isTouchDevice) return;
     const target = e.target as HTMLElement;
-    const hoverTarget = target.closest('a, button, input, textarea, select, [role="button"], [data-cursor-hover]');
+    const hoverTarget = target.closest('a, button, input, textarea, select, [role="button"], [data-cursor-hover], .glass-premium-gold');
     
     if (hoverTarget) {
       setIsHovering(true);
       const text = hoverTarget.getAttribute('data-cursor-text');
       setCursorText(text || '');
+      
+      const hasGold = hoverTarget.classList.contains('glass-premium-gold') || 
+                      !!hoverTarget.closest('.glass-premium-gold') || 
+                      hoverTarget.getAttribute('data-cursor-gold') === 'true';
+      setIsGold(hasGold);
     } else {
       setIsHovering(false);
       setCursorText('');
+      setIsGold(false);
     }
   }, [isTouchDevice]);
 
@@ -102,18 +109,29 @@ export default function CursorTrailer() {
             border: cursorText 
               ? 'none' 
               : isHovering 
-                ? '1px solid rgba(139,30,31,0.6)' 
-                : '1px solid rgba(26,26,24,0.15)',
+                ? isGold 
+                  ? '1px solid rgba(212,175,119,0.7)' 
+                  : '1px solid rgba(0,229,255,0.7)' 
+                : '1px solid rgba(90,98,133,0.15)',
             background: cursorText 
-              ? 'rgba(139,30,31,0.95)' 
+              ? isGold 
+                ? 'rgba(212,175,119,0.95)' 
+                : 'rgba(0,229,255,0.95)' 
               : 'transparent',
+            boxShadow: isHovering && !cursorText 
+              ? isGold 
+                ? '0 0 15px rgba(212,175,119,0.25)' 
+                : '0 0 10px rgba(0,229,255,0.2)' 
+              : 'none'
           }} 
         >
           {cursorText && (
             <motion.span 
               initial={{ opacity: 0, scale: 0.5 }}
               animate={{ opacity: 1, scale: 1 }}
-              className="text-white font-sans font-bold text-[9px] tracking-[0.15em] uppercase whitespace-nowrap"
+              className={`font-sans font-bold text-[9px] tracking-[0.15em] uppercase whitespace-nowrap ${
+                isGold ? 'text-black' : 'text-[#0B0D1A]'
+              }`}
             >
               {cursorText}
             </motion.span>
@@ -132,9 +150,13 @@ export default function CursorTrailer() {
         transition={{ type: 'spring', stiffness: 400, damping: 25 }}
       >
         <div 
-          className="w-[5px] h-[5px] -ml-[2.5px] -mt-[2.5px] bg-[#8B1E1F] rounded-full"
+          className={`w-[5px] h-[5px] -ml-[2.5px] -mt-[2.5px] rounded-full transition-all duration-300 ${
+            isGold ? 'bg-[#D4AF77]' : 'bg-[#00E5FF]'
+          }`}
           style={{ 
-            boxShadow: '0 0 6px rgba(139,30,31,0.5)' 
+            boxShadow: isGold 
+              ? '0 0 6px rgba(212,175,119,0.6)' 
+              : '0 0 6px rgba(0,229,255,0.5)' 
           }} 
         />
       </motion.div>

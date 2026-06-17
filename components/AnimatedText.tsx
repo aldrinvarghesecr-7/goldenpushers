@@ -1,9 +1,8 @@
 'use client';
 
 // ═══════════════════════════════════════════════════════════════
-// ANIMATED TEXT — $50k Scroll-Linked Word Reveal
+// ANIMATED TEXT — Scroll-Linked Word Reveal
 // Words reveal with opacity + blur + Y-transform as you scroll.
-// Uses Framer Motion's useScroll for buttery smooth tracking.
 // ═══════════════════════════════════════════════════════════════
 
 import React, { useRef } from 'react';
