@@ -1,632 +1,662 @@
 'use client';
 
 // ═══════════════════════════════════════════════════════════════
-// THE REELS — Redesigned Glassmorphic Portfolio Carousel & Menu
+// REELS / WORK SECTION — Instagram Grid System + Reel Cover System
+//
+// 3-Column Structure:
+//   Col 1 — Featured Projects
+//   Col 2 — Behind The Scenes
+//   Col 3 — Story Frames (editorial quotes)
+//
+// Reel Cover System:
+//   Top-Left: GP
+//   Center:   Project Name
+//   Bottom:   Location • Year
 // ═══════════════════════════════════════════════════════════════
 
 import { useRef, useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronLeft, ChevronRight, X, Heart, MessageCircle, Instagram, Play, Pause, Volume2, VolumeX, Eye } from 'lucide-react';
+import { X, Play, Instagram } from 'lucide-react';
 import Image from 'next/image';
 
-const CATEGORIES = [
-  { id: 'all', label: 'All Projects' },
-  { id: 'brand', label: 'Brand Films' },
-  { id: 'wedding', label: 'Weddings' },
-  { id: 'stills', label: 'Editorial Stills' },
-  { id: 'podcast', label: 'Podcasts' },
-  { id: 'bts', label: 'Behind the Scenes' },
-];
+// ─── Grid Types ───────────────────────────────────────────────
+type ColType = 'featured' | 'bts' | 'story';
 
-const instagramFeed = [
+interface GridItem {
+  id: number;
+  colType: ColType;
+  title: string;
+  category: string;
+  location: string;
+  year: string;
+  image: string;
+  videoUrl?: string;
+  quote?: string;
+  caption: string;
+  specs?: { camera: string; format: string };
+}
+
+// ─── Grid Data ────────────────────────────────────────────────
+const gridItems: GridItem[] = [
+  // Row 1
   {
-    id: 1,
-    type: 'reel',
-    title: 'MAD++ Podcast: Episode 04',
-    category: 'PODCAST PRODUCTION',
-    catGroupId: 'podcast',
-    image: '/work/ig-1.jpg',
-    fallbackImage: 'https://images.unsplash.com/photo-1590602847861-f357a9332bbc?q=80&w=800&auto=format&fit=crop',
-    videoUrl: 'https://assets.mixkit.co/videos/preview/mixkit-young-man-recording-a-podcast-in-a-studio-40306-large.mp4',
-    likes: '1,248',
-    comments: '64',
-    views: '12.4k',
-    caption: 'Directing and editing video for the Mad++ Podcast. Diving into startup life, developer flows, and tech stacks. Full clip on YouTube.',
-    date: '2d ago',
-    specs: { camera: 'Sony FX6', lens: 'Sony G-Master 24-70mm', format: '4K ProRes', color: 'Rec.709 S-Log3' }
-  },
-  {
-    id: 2,
-    type: 'reel',
-    title: 'Monochrome Editorial Campaign',
-    category: 'FASHION FILM',
-    catGroupId: 'brand',
-    image: '/work/ig-2.jpg',
-    fallbackImage: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=800&auto=format&fit=crop',
-    videoUrl: 'https://assets.mixkit.co/videos/preview/mixkit-girl-in-sunglasses-posing-for-a-photo-shoot-41584-large.mp4',
-    likes: '2,104',
-    comments: '112',
-    views: '24.9k',
-    caption: 'Stills and film from our monochrome study with @merin_monroe. Lighting is everything. Shot on Arri Alexa Mini LF.',
-    date: '5d ago',
-    specs: { camera: 'Arri Alexa Mini LF', lens: 'Cooke Anamorphic Primes', format: 'Open Gate 4.5K', color: 'Custom LUT (Monochrome)' }
-  },
-  {
-    id: 3,
-    type: 'post',
-    title: 'Muted Linen Lookbook',
-    category: 'EDITORIAL STILLS',
-    catGroupId: 'stills',
-    image: '/work/ig-3.jpg',
-    fallbackImage: 'https://images.unsplash.com/photo-1485846234645-a62644f84728?q=80&w=800&auto=format&fit=crop',
-    videoUrl: '', // static image
-    likes: '954',
-    comments: '38',
-    views: '',
-    caption: 'Frame studies from the Muted Linen campaign. Minimal palettes, organic textures, and natural light. Styled by @linda_styling.',
-    date: '1w ago',
-    specs: { camera: 'Phase One XF', lens: 'Schneider Kreuznach 80mm', format: '100MP TIFF', color: 'Capture One Warm Profile' }
-  },
-  {
-    id: 4,
-    type: 'reel',
-    title: 'Kochi Startup Hub Campaign',
-    category: 'BRAND FILM',
-    catGroupId: 'brand',
-    image: '/work/ig-4.jpg',
-    fallbackImage: 'https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?q=80&w=800&auto=format&fit=crop',
+    id: 1, colType: 'featured',
+    title: 'Summer Brand Campaign', category: 'Commercial Film',
+    location: 'KOCHI', year: '2026',
+    image: 'https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?q=80&w=800&auto=format&fit=crop',
     videoUrl: 'https://assets.mixkit.co/videos/preview/mixkit-editor-working-on-a-video-in-a-production-studio-40348-large.mp4',
-    likes: '1,420',
-    comments: '85',
-    views: '16.2k',
-    caption: 'Building corporate narratives. A short sneak peek into the brand film produced for Kochi\'s premium co-working hub.',
-    date: '2w ago',
-    specs: { camera: 'Red Komodo 6K', lens: 'DZOFilm Vespid Retro', format: '6K REDCODE RAW', color: 'DaVinci Wide Gamut' }
+    caption: 'A 60-second commercial produced for a Kochi-based lifestyle brand. Warm palettes, natural light, and deliberate pacing.',
+    specs: { camera: 'Sony FX6', format: '4K ProRes' },
   },
   {
-    id: 5,
-    type: 'reel',
-    title: 'Munnar Whispering Pines Wedding',
-    category: 'WEDDING TEASER',
-    catGroupId: 'wedding',
-    image: '/work/ig-5.jpg',
-    fallbackImage: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?q=80&w=800&auto=format&fit=crop',
+    id: 2, colType: 'bts',
+    title: 'Lighting Setup — Product Shoot', category: 'Behind The Scenes',
+    location: 'THRISSUR', year: '2026',
+    image: 'https://images.unsplash.com/photo-1533107862482-0e6974b06ec4?q=80&w=800&auto=format&fit=crop',
+    caption: 'Three-point setup built for our muted linen product campaign. Natural light supplemented with Aputure 600D.',
+    specs: { camera: 'Phase One XF', format: '100MP TIFF' },
+  },
+  {
+    id: 3, colType: 'story',
+    title: 'On Storytelling', category: 'Studio Thought',
+    location: 'STUDIO', year: '2026',
+    image: 'https://images.unsplash.com/photo-1517604931442-7e0c8ed2963c?q=80&w=800&auto=format&fit=crop',
+    quote: '"Stories are remembered longer than advertisements."',
+    caption: 'The reason we frame every project as a story — not a deliverable.',
+  },
+
+  // Row 2
+  {
+    id: 4, colType: 'featured',
+    title: 'Akhil & Divya Wedding Film', category: 'Wedding Film',
+    location: 'MUNNAR', year: '2025',
+    image: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?q=80&w=800&auto=format&fit=crop',
     videoUrl: 'https://assets.mixkit.co/videos/preview/mixkit-wedding-couple-walking-in-a-beautiful-garden-40234-large.mp4',
-    likes: '3,842',
-    comments: '241',
-    views: '48.5k',
-    caption: 'Dancing through the morning mist. A tiny teaser of Akhil & Divya\'s wedding story in Munnar. Cinematic film launching soon.',
-    date: '3w ago',
-    specs: { camera: 'Sony FX3 + FX6', lens: 'Sirui Anamorphic 50mm', format: '4K XAVC-I', color: 'S-Cinetone Grade' }
+    caption: 'Cinematic wedding film for Akhil & Divya. Morning mist, soft light, and two people in their truest moment.',
+    specs: { camera: 'Arri Alexa Mini LF', format: 'Open Gate 4.5K' },
   },
   {
-    id: 6,
-    type: 'post',
-    title: 'BTS: Arri Alexa Rig Setup',
-    category: 'BEHIND THE SCENES',
-    catGroupId: 'bts',
-    image: '/work/ig-6.jpg',
-    fallbackImage: 'https://images.unsplash.com/photo-1533107862482-0e6974b06ec4?q=80&w=800&auto=format&fit=crop',
-    videoUrl: '', // static image
-    likes: '1,895',
-    comments: '73',
-    views: '',
-    caption: 'Ready for action. Our Alexa setup loaded with Cooke Anamorphic prime lenses, prepped for the upcoming luxury campaign shoot.',
-    date: '1m ago',
-    specs: { camera: 'Arri Alexa Mini', lens: 'Cooke S4/i Prime', format: 'Rig Presentation', color: 'Production Reference' }
-  }
+    id: 5, colType: 'bts',
+    title: 'Camera Rig — Brand Film', category: 'Behind The Scenes',
+    location: 'KOCHI', year: '2025',
+    image: 'https://images.unsplash.com/photo-1574717024458-868582236a39?q=80&w=800&auto=format&fit=crop',
+    caption: 'Gimbal rig assembly for the Corporate Campus film. Movi Pro with Tilta wireless follow focus.',
+    specs: { camera: 'Red Komodo 6K', format: '6K REDCODE RAW' },
+  },
+  {
+    id: 6, colType: 'story',
+    title: 'On Attention', category: 'Brand Philosophy',
+    location: 'STUDIO', year: '2026',
+    image: 'https://images.unsplash.com/photo-1485846234645-a62644f84728?q=80&w=800&auto=format&fit=crop',
+    quote: '"Attention is earned. Every frame must justify its presence."',
+    caption: 'Our editing philosophy — cut anything that doesn\'t serve the story.',
+  },
+
+  // Row 3
+  {
+    id: 7, colType: 'featured',
+    title: 'MAD++ Podcast — Season 02', category: 'Podcast Production',
+    location: 'KOCHI', year: '2026',
+    image: 'https://images.unsplash.com/photo-1590602847861-f357a9332bbc?q=80&w=800&auto=format&fit=crop',
+    videoUrl: 'https://assets.mixkit.co/videos/preview/mixkit-young-man-recording-a-podcast-in-a-studio-40306-large.mp4',
+    caption: 'Three-camera podcast production for the MAD++ series. Natural light studio, clean sound design.',
+    specs: { camera: 'Sony FX3 ×3', format: '4K XAVC-I' },
+  },
+  {
+    id: 8, colType: 'bts',
+    title: 'Production Crew at Work', category: 'Behind The Scenes',
+    location: 'KOZHIKODE', year: '2025',
+    image: 'https://images.unsplash.com/photo-1505686994434-e3cc5abf1330?q=80&w=800&auto=format&fit=crop',
+    caption: 'Full crew of eight for the Vistara Campaign. Everyone with a role. No wasted motion.',
+    specs: { camera: 'Canon EOS R5', format: '8K RAW Light' },
+  },
+  {
+    id: 9, colType: 'story',
+    title: 'On Value', category: 'Creative Direction',
+    location: 'STUDIO', year: '2025',
+    image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=800&auto=format&fit=crop',
+    quote: '"Emotion creates value. Design creates recall."',
+    caption: 'Why we approach every project as a combination of feeling and architecture.',
+  },
 ];
 
-function PortfolioCard({ 
-  post, 
-  index, 
-  onClick 
-}: { 
-  post: (typeof instagramFeed)[0]; 
-  index: number; 
-  onClick: () => void 
-}) {
-  const videoRef = useRef<HTMLVideoElement>(null);
-  const [isHovered, setIsHovered] = useState(false);
-  const [imgSrc, setImgSrc] = useState(post.image);
+// ─── Column config ───────────────────────────────────────────
+const COL_CONFIG: Record<ColType, { label: string; accent: string; border: string }> = {
+  featured: { label: 'Featured Projects', accent: '#39463A', border: '#39463A' },
+  bts:      { label: 'Behind The Scenes', accent: '#A66B45', border: '#A66B45' },
+  story:    { label: 'Story Frames',      accent: '#9B9B9B', border: '#C8C2B8' },
+};
 
-  useEffect(() => {
-    if (post.type !== 'reel' || !videoRef.current) return;
-    if (isHovered) {
-      videoRef.current.play().catch(() => {});
-    } else {
-      videoRef.current.pause();
-      videoRef.current.currentTime = 0;
-    }
-  }, [isHovered, post.type]);
-
+// ─── Reel Cover Overlay ──────────────────────────────────────
+function ReelCover({ item }: { item: GridItem }) {
+  if (item.colType === 'story') return null;
   return (
-    <motion.div
-      layout
-      initial={{ opacity: 0, scale: 0.95 }}
-      animate={{ opacity: 1, scale: 1 }}
-      exit={{ opacity: 0, scale: 0.95 }}
-      transition={{ duration: 0.6, ease: [0.25, 1, 0.5, 1] }}
-      onClick={onClick}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
-      className="group relative w-[290px] md:w-[330px] flex-shrink-0 snap-center cursor-none glass-premium hover:border-[#00E5FF]/40 p-4 transition-all duration-500 rounded-sm"
-      data-cursor-hover
-      data-cursor-text={post.type === 'reel' ? 'PLAY' : 'VIEW'}
-    >
-      {/* 4:5 Instagram Aspect Ratio Container */}
-      <div className="w-full aspect-[4/5] relative overflow-hidden bg-[#070811] rounded-sm">
-        {/* Cover Image */}
-        <Image
-          src={imgSrc}
-          alt={post.title}
-          fill
-          sizes="(max-width: 768px) 100vw, 30vw"
-          onError={() => setImgSrc(post.fallbackImage)}
-          className="object-cover transition-all duration-700 group-hover:scale-105 group-hover:rotate-1 mix-blend-luminosity group-hover:mix-blend-normal ease-[cubic-bezier(0.25,1,0.3,1)]"
-          quality={85}
-          loading="lazy"
-        />
-
-        {/* Hover Silent Autoplay Video */}
-        {post.type === 'reel' && post.videoUrl && (
-          <video
-            ref={videoRef}
-            src={post.videoUrl}
-            muted
-            loop
-            playsInline
-            className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-500 z-10 ${isHovered ? 'opacity-100' : 'opacity-0'}`}
-          />
-        )}
-
-        {/* Hover Information Layer */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-20 flex flex-col justify-end p-4">
-          <div className="flex items-center gap-3 text-white/90 mb-2">
-            <div className="flex items-center gap-1">
-              <Heart size={14} className="text-red-500" fill="currentColor" />
-              <span className="text-[11px] font-mono">{post.likes}</span>
-            </div>
-            <div className="flex items-center gap-1">
-              <MessageCircle size={14} className="text-sky-400" fill="currentColor" />
-              <span className="text-[11px] font-mono">{post.comments}</span>
-            </div>
-            {post.type === 'reel' && (
-              <div className="flex items-center gap-1 ml-auto">
-                <Eye size={12} className="text-[#00E5FF]" />
-                <span className="text-[10px] font-mono text-[#00E5FF]">{post.views}</span>
-              </div>
-            )}
-          </div>
-          
-          <p className="text-[10px] text-white/80 font-sans leading-relaxed line-clamp-2 italic">
-            "{post.caption}"
-          </p>
-        </div>
-
-        {/* Top Badges */}
-        <div className="absolute top-3 right-3 z-30 bg-black/60 backdrop-blur-md p-1.5 rounded-full border border-white/10 text-white/60 group-hover:text-[#00E5FF] group-hover:border-[#00E5FF]/30 transition-all duration-300">
-          <Instagram size={13} />
-        </div>
-
-        {post.type === 'reel' && !isHovered && (
-          <div className="absolute bottom-3 right-3 z-30 bg-black/70 backdrop-blur-md px-2 py-0.5 rounded-sm text-[8px] font-mono text-white/60 flex items-center gap-1 border border-white/10">
-            <Play size={7} fill="currentColor" /> REEL
-          </div>
-        )}
+    <div className="reel-cover">
+      {/* Top row — GP badge */}
+      <div className="flex items-start justify-between">
+        <span className="reel-gp">GP</span>
+        <span
+          style={{
+            fontFamily: 'var(--font-sans)',
+            fontSize: '8px',
+            fontWeight: 400,
+            letterSpacing: '0.2em',
+            textTransform: 'uppercase',
+            color: 'rgba(248,244,238,0.55)',
+          }}
+        >
+          {item.category}
+        </span>
       </div>
 
-      {/* Title Details Row */}
-      <div className="mt-4 px-1">
-        <span className="text-[#00E5FF]/60 text-[8px] tracking-[0.4em] font-sans font-bold uppercase block mb-1">
-          {post.category}
+      {/* Center — Project Name */}
+      <div className="flex flex-col items-center text-center">
+        <span className="reel-title">{item.title}</span>
+      </div>
+
+      {/* Bottom — Location • Year */}
+      <div className="flex justify-center">
+        <span className="reel-meta">{item.location} • {item.year}</span>
+      </div>
+    </div>
+  );
+}
+
+// ─── Story Frame Card ────────────────────────────────────────
+function StoryCard({ item, onClick }: { item: GridItem; onClick: () => void }) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: '-40px' }}
+      transition={{ duration: 0.6, ease: [0.25, 1, 0.5, 1] }}
+      onClick={onClick}
+      data-cursor-hover
+      data-cursor-text="READ"
+      className="relative aspect-square bg-[#F0EAE0] border border-[#C8C2B8]/40 flex flex-col justify-between p-6 cursor-none group hover:border-[#C8C2B8] transition-all duration-400"
+    >
+      {/* Eyebrow */}
+      <span
+        style={{
+          fontFamily: 'var(--font-sans)',
+          fontSize: '8px',
+          fontWeight: 500,
+          letterSpacing: '0.3em',
+          textTransform: 'uppercase',
+          color: '#9B9B9B',
+        }}
+      >
+        {item.category}
+      </span>
+
+      {/* Quote */}
+      <blockquote
+        className="flex-1 flex items-center"
+        style={{
+          fontFamily: 'var(--font-display)',
+          fontStyle: 'italic',
+          fontSize: 'clamp(16px, 1.8vw, 22px)',
+          fontWeight: 300,
+          lineHeight: 1.35,
+          color: '#1E1E1E',
+          letterSpacing: '-0.005em',
+        }}
+      >
+        {item.quote}
+      </blockquote>
+
+      {/* Bottom — thin rule + label */}
+      <div className="flex items-center gap-3">
+        <div className="w-4 h-px bg-[#C8C2B8] group-hover:w-8 group-hover:bg-[#39463A] transition-all duration-400" />
+        <span
+          style={{
+            fontFamily: 'var(--font-sans)',
+            fontSize: '8px',
+            fontWeight: 400,
+            letterSpacing: '0.2em',
+            textTransform: 'uppercase',
+            color: '#9B9B9B',
+          }}
+        >
+          {item.year}
         </span>
-        <div className="flex justify-between items-baseline gap-4">
-          <h3 className="text-xs md:text-sm font-display font-bold text-[#E8ECF4]/80 uppercase tracking-tight group-hover:text-[#00E5FF] transition-colors truncate">
-            {post.title}
-          </h3>
-          <span className="text-[#5A6285] text-[9px] font-mono shrink-0">{post.date}</span>
-        </div>
       </div>
     </motion.div>
   );
 }
 
-export default function ReelsSection() {
-  const scrollRef = useRef<HTMLDivElement>(null);
-  const [selectedCategory, setSelectedCategory] = useState('all');
-  const [scrollProgress, setScrollProgress] = useState(0);
-  const [selectedPost, setSelectedPost] = useState<(typeof instagramFeed)[0] | null>(null);
-
-  // sound and play controls
-  const modalVideoRef = useRef<HTMLVideoElement>(null);
-  const [isModalPlaying, setIsModalPlaying] = useState(true);
-  const [isModalMuted, setIsModalMuted] = useState(false);
-  const [volume, setVolume] = useState(0.8);
-
-  // Filter items
-  const filteredFeed = instagramFeed.filter(
-    (item) => selectedCategory === 'all' || item.catGroupId === selectedCategory
-  );
+// ─── Main Portfolio Card ─────────────────────────────────────
+function PortfolioCard({ item, onClick }: { item: GridItem; onClick: () => void }) {
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const [hovered, setHovered] = useState(false);
 
   useEffect(() => {
-    const el = scrollRef.current;
-    if (!el) return;
-    const handleScroll = () => {
-      const { scrollLeft, scrollWidth, clientWidth } = el;
-      const progress = scrollWidth - clientWidth > 0 ? (scrollLeft / (scrollWidth - clientWidth)) * 100 : 0;
-      setScrollProgress(progress);
-    };
-    el.addEventListener('scroll', handleScroll, { passive: true });
-    // Trigger scroll update on category change
-    handleScroll();
-    return () => el.removeEventListener('scroll', handleScroll);
-  }, [selectedCategory]);
+    if (!videoRef.current || !item.videoUrl) return;
+    if (hovered) videoRef.current.play().catch(() => {});
+    else { videoRef.current.pause(); videoRef.current.currentTime = 0; }
+  }, [hovered, item.videoUrl]);
 
-  useEffect(() => {
-    if (selectedPost) {
-      document.body.style.overflow = 'hidden';
-      window.history.pushState({ modalOpen: true }, '');
-      const handlePopState = () => setSelectedPost(null);
-      const handleEsc = (e: KeyboardEvent) => { if (e.key === 'Escape') window.history.back(); };
-      window.addEventListener('popstate', handlePopState);
-      window.addEventListener('keydown', handleEsc);
-      
-      // Reset play states
-      setIsModalPlaying(true);
-      setIsModalMuted(false);
-      
-      return () => {
-        document.body.style.overflow = '';
-        window.removeEventListener('popstate', handlePopState);
-        window.removeEventListener('keydown', handleEsc);
-      };
-    }
-  }, [selectedPost]);
-
-  const closeModal = () => { if (selectedPost) window.history.back(); };
-
-  const handleModalPlayPause = () => {
-    if (!modalVideoRef.current) return;
-    if (isModalPlaying) {
-      modalVideoRef.current.pause();
-    } else {
-      modalVideoRef.current.play().catch(() => {});
-    }
-    setIsModalPlaying(!isModalPlaying);
-  };
-
-  const handleModalMuteToggle = () => {
-    if (!modalVideoRef.current) return;
-    modalVideoRef.current.muted = !isModalMuted;
-    setIsModalMuted(!isModalMuted);
-  };
-
-  const handleVolumeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const v = parseFloat(e.target.value);
-    setVolume(v);
-    if (modalVideoRef.current) {
-      modalVideoRef.current.volume = v;
-      modalVideoRef.current.muted = v === 0;
-      setIsModalMuted(v === 0);
-    }
-  };
-
-  const scroll = (dir: 'left' | 'right') => {
-    if (!scrollRef.current) return;
-    const move = dir === 'left' ? -scrollRef.current.clientWidth * 0.7 : scrollRef.current.clientWidth * 0.7;
-    scrollRef.current.scrollTo({ left: scrollRef.current.scrollLeft + move, behavior: 'smooth' });
-  };
+  if (item.colType === 'story') {
+    return <StoryCard item={item} onClick={onClick} />;
+  }
 
   return (
-    <section id="work" className="py-24 md:py-36 bg-[#070814] relative overflow-hidden">
-      {/* Background Accent Mesh */}
-      <div className="absolute top-1/4 left-1/4 w-[40vw] h-[40vh] bg-[#00E5FF]/[0.02] blur-[150px] rounded-full pointer-events-none" />
-      <div className="absolute bottom-1/4 right-1/4 w-[50vw] h-[50vh] bg-[#8B5CF6]/[0.02] blur-[180px] rounded-full pointer-events-none" />
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: '-40px' }}
+      transition={{ duration: 0.6, ease: [0.25, 1, 0.5, 1] }}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      onClick={onClick}
+      data-cursor-hover
+      data-cursor-text={item.videoUrl ? 'PLAY' : 'VIEW'}
+      className="relative aspect-square overflow-hidden cursor-none group"
+    >
+      {/* Cover image */}
+      <Image
+        src={item.image}
+        alt={item.title}
+        fill
+        sizes="(max-width: 768px) 100vw, 33vw"
+        className="object-cover image-editorial group-hover:scale-[1.03] transition-transform duration-700 ease-[cubic-bezier(0.25,1,0.5,1)]"
+        quality={85}
+      />
 
-      {/* Header section */}
-      <div className="max-w-[90vw] mx-auto mb-12">
+      {/* Video on hover */}
+      {item.videoUrl && (
+        <video
+          ref={videoRef}
+          src={item.videoUrl}
+          muted loop playsInline
+          className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-500 z-10 ${hovered ? 'opacity-100' : 'opacity-0'}`}
+        />
+      )}
+
+      {/* Reel Cover System Overlay */}
+      <div className="z-20 absolute inset-0">
+        <ReelCover item={item} />
+      </div>
+
+      {/* Hover detail layer */}
+      <motion.div
+        animate={{ opacity: hovered ? 1 : 0 }}
+        transition={{ duration: 0.25 }}
+        className="absolute bottom-0 left-0 right-0 z-30 p-5 bg-gradient-to-t from-[#1E1E1E]/85 to-transparent"
+      >
+        {item.specs && (
+          <div className="flex items-center gap-3 mb-1">
+            <span
+              style={{
+                fontFamily: 'var(--font-sans)',
+                fontSize: '8px',
+                fontWeight: 400,
+                letterSpacing: '0.2em',
+                textTransform: 'uppercase',
+                color: 'rgba(248,244,238,0.6)',
+              }}
+            >
+              {item.specs.camera} — {item.specs.format}
+            </span>
+          </div>
+        )}
+        <p
+          style={{
+            fontFamily: 'var(--font-sans)',
+            fontSize: '11px',
+            fontWeight: 300,
+            color: 'rgba(248,244,238,0.85)',
+            lineHeight: 1.5,
+          }}
+          className="line-clamp-2"
+        >
+          {item.caption}
+        </p>
+      </motion.div>
+
+      {/* Play indicator */}
+      {item.videoUrl && !hovered && (
+        <div className="absolute top-4 right-4 z-30 w-7 h-7 border border-[rgba(248,244,238,0.4)] flex items-center justify-center">
+          <Play size={10} fill="rgba(248,244,238,0.8)" color="rgba(248,244,238,0.8)" />
+        </div>
+      )}
+    </motion.div>
+  );
+}
+
+// ─── Main Section ─────────────────────────────────────────────
+export default function ReelsSection() {
+  const [selectedItem, setSelectedItem] = useState<GridItem | null>(null);
+  const [filter, setFilter] = useState<ColType | 'all'>('all');
+  const modalVideoRef = useRef<HTMLVideoElement>(null);
+
+  const filtered = filter === 'all' ? gridItems : gridItems.filter(i => i.colType === filter);
+
+  useEffect(() => {
+    if (selectedItem) {
+      document.body.style.overflow = 'hidden';
+      const esc = (e: KeyboardEvent) => { if (e.key === 'Escape') setSelectedItem(null); };
+      window.addEventListener('keydown', esc);
+      return () => { document.body.style.overflow = ''; window.removeEventListener('keydown', esc); };
+    }
+  }, [selectedItem]);
+
+  return (
+    <section id="work" className="relative py-24 md:py-40 bg-[#F8F4EE] overflow-hidden">
+      <div className="max-w-[90vw] mx-auto">
+
+        {/* Section header */}
         <motion.div
-          initial={{ opacity: 0, x: -20 }}
+          initial={{ opacity: 0, x: -16 }}
           whileInView={{ opacity: 1, x: 0 }}
           viewport={{ once: true }}
-          className="flex items-center gap-6 mb-16"
+          className="flex items-center gap-6 mb-16 md:mb-20"
         >
-          <span className="text-[#00E5FF] text-[9px] tracking-[0.6em] uppercase font-sans font-bold">Selected Work</span>
-          <div className="h-px flex-1 bg-gradient-to-r from-[#00E5FF]/20 to-transparent" />
-          <span className="text-[#5A6285] text-[9px] tracking-[0.4em] font-mono hidden md:block">04 / Portfolio</span>
+          <span className="label-olive">Selected Work</span>
+          <div className="h-px flex-1 bg-[#C8C2B8]/60" />
+          <span className="label-editorial hidden md:block">04 / Portfolio</span>
         </motion.div>
 
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-8">
-          <div>
-            <motion.h2
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.8, ease: [0.25, 1, 0.5, 1] }}
-              className="text-[13vw] sm:text-[10vw] md:text-[8vw] font-display font-bold tracking-[-0.03em] text-[#E8ECF4] uppercase leading-[0.9]"
-            >
-              The <span className="text-cyan-gradient">Reels</span>
-            </motion.h2>
-            <motion.p
-              initial={{ opacity: 0, y: 15 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.8, delay: 0.1 }}
-              className="text-[#5A6285] text-xs md:text-sm font-sans font-light mt-4 tracking-wide max-w-lg"
-            >
-              Step into the visual archive. Hover to preview clips from our Instagram <a href="https://instagram.com/goldenpushersproductions" target="_blank" rel="noopener noreferrer" className="text-[#00E5FF] hover:underline cursor-none" data-cursor-hover>@goldenpushers</a>.
-            </motion.p>
-          </div>
+        {/* Title + filter */}
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 mb-12 md:mb-16">
+          <motion.h2
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
+            style={{
+              fontFamily: 'var(--font-display)',
+              fontSize: 'clamp(40px, 8vw, 100px)',
+              fontWeight: 300,
+              letterSpacing: '-0.02em',
+              lineHeight: 0.9,
+              color: '#1E1E1E',
+            }}
+          >
+            The{' '}
+            <em style={{ color: '#39463A', fontStyle: 'italic' }}>Work</em>
+          </motion.h2>
 
-          {/* Carousel Arrows */}
-          <div className="flex items-center gap-3 self-start md:self-end">
-            <button 
-              onClick={() => scroll('left')} 
-              className="group w-12 h-12 border border-white/10 hover:border-[#00E5FF]/50 flex items-center justify-center text-white/50 hover:text-[#00E5FF] hover:shadow-[0_0_15px_rgba(0,229,255,0.15)] rounded-full transition-all duration-400 cursor-none" 
-              aria-label="Previous posts"
-              data-cursor-hover
-            >
-              <ChevronLeft size={16} className="group-hover:-translate-x-0.5 transition-transform" />
-            </button>
-            <button 
-              onClick={() => scroll('right')} 
-              className="group w-12 h-12 border border-white/10 hover:border-[#00E5FF]/50 flex items-center justify-center text-white/50 hover:text-[#00E5FF] hover:shadow-[0_0_15px_rgba(0,229,255,0.15)] rounded-full transition-all duration-400 cursor-none" 
-              aria-label="Next posts"
-              data-cursor-hover
-            >
-              <ChevronRight size={16} className="group-hover:translate-x-0.5 transition-transform" />
-            </button>
+          {/* Filter pills */}
+          <div className="flex items-center gap-2 flex-wrap">
+            {(['all', 'featured', 'bts', 'story'] as const).map(f => (
+              <button
+                key={f}
+                onClick={() => setFilter(f)}
+                data-cursor-hover
+                className="px-4 py-2 border transition-all duration-300 cursor-none"
+                style={{
+                  fontFamily: 'var(--font-sans)',
+                  fontSize: '9px',
+                  fontWeight: 500,
+                  letterSpacing: '0.2em',
+                  textTransform: 'uppercase',
+                  background: filter === f ? '#39463A' : 'transparent',
+                  borderColor: filter === f ? '#39463A' : '#C8C2B8',
+                  color: filter === f ? '#F8F4EE' : '#6F6F6F',
+                }}
+              >
+                {f === 'all' ? 'All' : f === 'featured' ? 'Projects' : f === 'bts' ? 'BTS' : 'Story Frames'}
+              </button>
+            ))}
           </div>
         </div>
-      </div>
 
-      {/* REDESIGNED: Glassmorphic Category Selector Menu */}
-      <div className="max-w-[90vw] mx-auto mb-10 overflow-x-auto scrollbar-hide py-2">
-        <div className="flex items-center gap-2 border border-white/[0.06] rounded-full p-1 bg-white/[0.02] backdrop-blur-md w-fit whitespace-nowrap">
-          {CATEGORIES.map((cat) => (
-            <button
-              key={cat.id}
-              onClick={() => setSelectedCategory(cat.id)}
-              className={`relative px-5 py-2 text-[9px] md:text-[10px] tracking-[0.25em] font-sans font-bold uppercase transition-all duration-300 rounded-full cursor-none`}
-              data-cursor-hover
+        {/* Column type labels */}
+        <div className="hidden md:grid grid-cols-3 gap-px mb-1">
+          {(['featured', 'bts', 'story'] as ColType[]).map(col => (
+            <div
+              key={col}
+              className="px-1 pb-2 flex items-center gap-2"
+              style={{ borderBottom: `2px solid ${COL_CONFIG[col].border}` }}
             >
-              {/* Background Bubble */}
-              {selectedCategory === cat.id && (
-                <motion.div
-                  layoutId="activeCategoryPill"
-                  className="absolute inset-0 bg-[#00E5FF]/15 border border-[#00E5FF]/30 rounded-full"
-                  transition={{ type: 'spring', stiffness: 350, damping: 28 }}
-                />
-              )}
-              <span className={`relative z-10 ${selectedCategory === cat.id ? 'text-[#00E5FF]' : 'text-[#5A6285] hover:text-[#E8ECF4]'}`}>
-                {cat.label}
+              <span
+                style={{
+                  fontFamily: 'var(--font-sans)',
+                  fontSize: '8px',
+                  fontWeight: 500,
+                  letterSpacing: '0.3em',
+                  textTransform: 'uppercase',
+                  color: COL_CONFIG[col].accent,
+                }}
+              >
+                {COL_CONFIG[col].label}
               </span>
-            </button>
+            </div>
           ))}
         </div>
-      </div>
 
-      {/* Horizontal Carousel Snap-Track */}
-      <div className="relative z-10 w-full overflow-hidden">
-        <div
-          ref={scrollRef}
-          className="flex gap-6 px-[5vw] overflow-x-auto snap-x snap-mandatory scrollbar-hide py-4 relative z-10"
-        >
-          <AnimatePresence mode="popLayout">
-            {filteredFeed.map((post, i) => (
-              <PortfolioCard key={post.id} post={post} index={i} onClick={() => setSelectedPost(post)} />
+        {/* Instagram 3-column grid */}
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={filter}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.3 }}
+            className={`grid gap-px bg-[#C8C2B8]/30 ${
+              filter === 'all' ? 'grid-cols-1 sm:grid-cols-2 md:grid-cols-3' : 'grid-cols-1 sm:grid-cols-2 md:grid-cols-3'
+            }`}
+          >
+            {filtered.map(item => (
+              <div key={item.id} className="bg-[#F8F4EE]">
+                <PortfolioCard item={item} onClick={() => setSelectedItem(item)} />
+              </div>
             ))}
-          </AnimatePresence>
+          </motion.div>
+        </AnimatePresence>
 
-          {filteredFeed.length === 0 && (
-            <div className="flex flex-col items-center justify-center w-full min-h-[300px] text-[#5A6285] font-sans text-sm tracking-widest py-10 uppercase">
-              No files currently matching category
-            </div>
-          )}
-
-          {/* Carousel Spacing Buffer */}
-          <div className="min-w-[5vw] h-1 flex-shrink-0" />
-        </div>
+        {/* Instagram CTA */}
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          className="mt-12 flex items-center justify-between border-t border-[#C8C2B8]/40 pt-8"
+        >
+          <span
+            style={{
+              fontFamily: 'var(--font-sans)',
+              fontSize: '11px',
+              fontWeight: 300,
+              color: '#9B9B9B',
+            }}
+          >
+            More work available on Instagram
+          </span>
+          <a
+            href="https://instagram.com/goldenpushersproductions"
+            target="_blank"
+            rel="noopener noreferrer"
+            data-cursor-hover
+            className="flex items-center gap-2 btn-olive cursor-none"
+          >
+            <Instagram size={13} strokeWidth={1.5} />
+            <span>@goldenpushersproductions</span>
+          </a>
+        </motion.div>
       </div>
 
-      {/* Progress Bar indicator */}
-      <div className="max-w-[90vw] mx-auto mt-10">
-        <div className="w-full h-[1px] bg-white/[0.06] relative overflow-hidden">
-          <motion.div 
-            className="absolute top-0 left-0 h-full bg-[#00E5FF] shadow-[0_0_8px_#00E5FF]" 
-            animate={{ width: `${scrollProgress}%` }}
-            transition={{ type: 'spring', stiffness: 200, damping: 25 }}
-          />
-        </div>
-        <div className="flex justify-between mt-3 text-[8px] font-mono tracking-[0.4em] text-[#5A6285] uppercase font-bold">
-          <span>01</span>
-          <span className="text-[#00E5FF]">{filteredFeed.length} Items Listed</span>
-          <span>06</span>
-        </div>
-      </div>
-
-      {/* Immersive Instagram Lightbox Modal */}
+      {/* ─── Detail Modal ─── */}
       <AnimatePresence>
-        {selectedPost && (
-          <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 md:p-8 overflow-hidden bg-black/95 backdrop-blur-2xl">
-            {/* Modal Backdrop overlay for close click */}
+        {selectedItem && (
+          <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 md:p-10">
+            {/* Backdrop */}
             <motion.div
-              initial={{ opacity: 0 }} 
-              animate={{ opacity: 1 }} 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              onClick={closeModal}
-              className="absolute inset-0 cursor-none"
+              onClick={() => setSelectedItem(null)}
+              className="absolute inset-0 bg-[#1E1E1E]/80 backdrop-blur-sm"
               data-cursor-hover
               data-cursor-text="CLOSE"
             />
 
-            {/* Split Screen Media Modal container */}
+            {/* Modal content */}
             <motion.div
-              layoutId={`instagram-${selectedPost.id}`}
-              className="relative w-full max-w-5xl bg-[#090A13] border border-[#00E5FF]/20 grid grid-cols-1 md:grid-cols-12 overflow-hidden shadow-[0_0_60px_rgba(0,229,255,0.12)] max-h-[90dvh]"
+              initial={{ opacity: 0, y: 30, scale: 0.97 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 20, scale: 0.98 }}
+              transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+              className="relative w-full max-w-4xl bg-[#F8F4EE] flex flex-col md:flex-row overflow-hidden max-h-[90dvh]"
             >
-              {/* Close Button */}
+              {/* Close */}
               <button
-                onClick={closeModal}
-                className="absolute top-4 right-4 md:top-5 md:right-5 z-50 p-2 bg-black/60 hover:bg-[#00E5FF] text-white hover:text-[#0B0D1A] transition-all border border-white/10 rounded-full group cursor-none"
+                onClick={() => setSelectedItem(null)}
+                className="absolute top-4 right-4 z-50 w-8 h-8 border border-[#C8C2B8] flex items-center justify-center bg-[#F8F4EE] hover:bg-[#39463A] hover:border-[#39463A] transition-all duration-300 group"
                 data-cursor-hover
               >
-                <X size={15} className="group-hover:rotate-90 transition-transform duration-400" />
+                <X size={14} strokeWidth={1.5} className="text-[#6F6F6F] group-hover:text-[#F8F4EE]" />
               </button>
 
-              {/* LEFT SIDE: Media Presentation */}
-              <div className="relative md:col-span-7 bg-black flex items-center justify-center min-h-[280px] md:min-h-[500px] aspect-[4/5] md:aspect-auto">
-                {selectedPost.type === 'reel' && selectedPost.videoUrl ? (
-                  <div className="relative w-full h-full flex items-center justify-center group/video bg-[#030303]">
-                    <video
-                      ref={modalVideoRef}
-                      src={selectedPost.videoUrl}
-                      autoPlay
-                      loop
-                      playsInline
-                      muted={isModalMuted}
-                      className="w-full h-full object-contain max-h-[85vh]"
-                      onClick={handleModalPlayPause}
-                    />
-
-                    {/* Custom Video Controls Overlay */}
-                    <div className="absolute bottom-4 inset-x-4 flex items-center justify-between z-20 opacity-0 group-hover/video:opacity-100 transition-opacity duration-300 bg-black/70 p-3 rounded-sm border border-white/10 backdrop-blur-md">
-                      <div className="flex items-center gap-3">
-                        {/* Play/Pause control */}
-                        <button 
-                          onClick={handleModalPlayPause} 
-                          className="text-white hover:text-[#00E5FF] transition-colors cursor-none p-1"
-                          data-cursor-hover
-                        >
-                          {isModalPlaying ? <Pause size={13} fill="currentColor" /> : <Play size={13} fill="currentColor" />}
-                        </button>
-
-                        {/* Mute toggle */}
-                        <button 
-                          onClick={handleModalMuteToggle} 
-                          className="text-white hover:text-[#00E5FF] transition-colors cursor-none p-1"
-                          data-cursor-hover
-                        >
-                          {isModalMuted ? <VolumeX size={13} /> : <Volume2 size={13} />}
-                        </button>
-
-                        {/* Volume bar */}
-                        <input
-                          type="range"
-                          min="0"
-                          max="1"
-                          step="0.05"
-                          value={isModalMuted ? 0 : volume}
-                          onChange={handleVolumeChange}
-                          className="w-16 md:w-24 accent-[#00E5FF] bg-white/20 h-0.5 rounded-lg cursor-none"
-                          data-cursor-hover
-                        />
-                      </div>
-                      
-                      <span className="text-[8px] font-mono text-[#00E5FF] tracking-[0.2em] uppercase">
-                        Cinema Audio
-                      </span>
-                    </div>
-                  </div>
+              {/* Media */}
+              <div className="relative w-full md:w-[52%] aspect-square md:aspect-auto overflow-hidden bg-[#1E1E1E] shrink-0">
+                {selectedItem.videoUrl && selectedItem.colType !== 'story' ? (
+                  <video
+                    ref={modalVideoRef}
+                    src={selectedItem.videoUrl}
+                    autoPlay loop muted playsInline
+                    className="w-full h-full object-cover"
+                  />
                 ) : (
-                  <div className="relative w-full h-full">
-                    <Image
-                      src={selectedPost.image}
-                      alt={selectedPost.title}
-                      fill
-                      className="object-contain"
-                      quality={95}
-                      priority
-                    />
+                  <Image src={selectedItem.image} alt={selectedItem.title} fill className="object-cover image-editorial" quality={90} priority />
+                )}
+                {/* Reel cover on modal */}
+                {selectedItem.colType !== 'story' && (
+                  <div className="absolute inset-0 z-10">
+                    <ReelCover item={selectedItem} />
                   </div>
                 )}
               </div>
 
-              {/* RIGHT SIDE: Cinema Details & Specifications */}
-              <div className="md:col-span-5 flex flex-col justify-between p-6 md:p-8 bg-[#0b0c16] border-t md:border-t-0 md:border-l border-white/[0.06]">
+              {/* Details */}
+              <div className="flex-1 p-8 md:p-10 flex flex-col justify-between overflow-y-auto">
                 <div>
-                  {/* Title Row */}
-                  <div className="flex items-center gap-3 pb-4 border-b border-white/5">
-                    <div className="w-8 h-8 rounded-full border border-[#00E5FF]/20 flex items-center justify-center bg-[#111326] text-[#00E5FF] text-[10px] font-bold">
+                  <div className="flex items-center gap-3 mb-6 pb-5 border-b border-[#C8C2B8]/40">
+                    <div
+                      className="w-7 h-7 border border-[#C8C2B8] flex items-center justify-center"
+                      style={{
+                        fontFamily: 'var(--font-display)',
+                        fontSize: '10px',
+                        fontWeight: 600,
+                        color: '#39463A',
+                      }}
+                    >
                       GP
                     </div>
                     <div>
-                      <h4 className="text-xs font-mono font-bold text-white tracking-wider flex items-center gap-1.5">
+                      <p
+                        style={{
+                          fontFamily: 'var(--font-sans)',
+                          fontSize: '10px',
+                          fontWeight: 500,
+                          letterSpacing: '0.1em',
+                          color: '#1E1E1E',
+                        }}
+                      >
                         goldenpushers
-                        <span className="w-1.5 h-1.5 bg-[#00E5FF] rounded-full inline-block shadow-[0_0_5px_#00E5FF]" />
-                      </h4>
-                      <p className="text-[8px] font-sans text-[#5A6285] tracking-widest uppercase">Kochi, Kerala</p>
+                      </p>
+                      <p
+                        style={{
+                          fontFamily: 'var(--font-sans)',
+                          fontSize: '8px',
+                          fontWeight: 400,
+                          letterSpacing: '0.2em',
+                          textTransform: 'uppercase',
+                          color: '#9B9B9B',
+                        }}
+                      >
+                        {selectedItem.location}
+                      </p>
                     </div>
                   </div>
 
-                  {/* Body description */}
-                  <div className="py-5 overflow-y-auto max-h-[25vh] scrollbar-hide">
-                    <span className="text-[#00E5FF]/70 text-[8px] font-mono tracking-[0.3em] font-bold block mb-2 uppercase">
-                      {selectedPost.category}
-                    </span>
-                    <h3 className="text-base md:text-lg font-display font-bold text-white tracking-tight leading-tight uppercase mb-3">
-                      {selectedPost.title}
-                    </h3>
-                    <p className="text-xs font-sans text-white/70 leading-relaxed font-light mb-4">
-                      {selectedPost.caption}
-                    </p>
-                  </div>
-
-                  {/* Director Spec Sheet Section */}
-                  <div className="mt-2 pt-4 border-t border-white/5">
-                    <span className="text-[#5A6285] text-[8px] tracking-[0.25em] font-mono font-bold block mb-3 uppercase">
-                      TECHNICAL METADATA
-                    </span>
-                    <div className="grid grid-cols-2 gap-3 text-[9px] font-mono">
-                      <div className="bg-[#111326]/40 p-2 border border-white/[0.04]">
-                        <span className="text-[#5A6285] block text-[7px] tracking-wider uppercase mb-1">SYSTEM</span>
-                        <span className="text-white font-medium truncate block">{selectedPost.specs.camera}</span>
-                      </div>
-                      <div className="bg-[#111326]/40 p-2 border border-white/[0.04]">
-                        <span className="text-[#5A6285] block text-[7px] tracking-wider uppercase mb-1">OPTICS</span>
-                        <span className="text-white font-medium truncate block">{selectedPost.specs.lens}</span>
-                      </div>
-                      <div className="bg-[#111326]/40 p-2 border border-white/[0.04]">
-                        <span className="text-[#5A6285] block text-[7px] tracking-wider uppercase mb-1">CAPTURE</span>
-                        <span className="text-white font-medium truncate block">{selectedPost.specs.format}</span>
-                      </div>
-                      <div className="bg-[#111326]/40 p-2 border border-white/[0.04]">
-                        <span className="text-[#5A6285] block text-[7px] tracking-wider uppercase mb-1">COLOR WORK</span>
-                        <span className="text-white font-medium truncate block">{selectedPost.specs.color}</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Footer (likes & CTA) */}
-                <div className="pt-4 border-t border-white/5 mt-6">
-                  <div className="flex items-center justify-between text-xs text-[#5A6285] mb-4">
-                    <div className="flex items-center gap-4">
-                      <span className="flex items-center gap-1.5 text-white">
-                        <Heart size={13} className="text-red-500" fill="currentColor" />
-                        <span className="font-mono text-xs">{selectedPost.likes}</span>
-                      </span>
-                      <span className="flex items-center gap-1.5 text-white">
-                        <MessageCircle size={13} className="text-sky-400" fill="currentColor" />
-                        <span className="font-mono text-xs">{selectedPost.comments}</span>
-                      </span>
-                    </div>
-                    <span className="font-mono text-[9px]">{selectedPost.date}</span>
-                  </div>
-
-                  {/* View on Instagram CTA */}
-                  <a
-                    href="https://instagram.com/goldenpushersproductions"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="w-full flex items-center justify-center gap-2 py-3 bg-[#00E5FF] hover:bg-[#00E5FF]/90 text-[#090A13] text-[10px] font-mono font-bold tracking-widest uppercase transition-all duration-300 cursor-none"
-                    data-cursor-hover
+                  <span
+                    className="block mb-2"
+                    style={{
+                      fontFamily: 'var(--font-sans)',
+                      fontSize: '9px',
+                      fontWeight: 500,
+                      letterSpacing: '0.3em',
+                      textTransform: 'uppercase',
+                      color: '#A66B45',
+                    }}
                   >
-                    <Instagram size={13} />
-                    <span>View Post on Instagram</span>
-                  </a>
+                    {selectedItem.category}
+                  </span>
+
+                  <h3
+                    className="mb-4"
+                    style={{
+                      fontFamily: 'var(--font-display)',
+                      fontSize: 'clamp(22px, 3vw, 32px)',
+                      fontWeight: 300,
+                      letterSpacing: '-0.01em',
+                      color: '#1E1E1E',
+                      lineHeight: 1.15,
+                    }}
+                  >
+                    {selectedItem.title}
+                  </h3>
+
+                  {selectedItem.colType === 'story' && selectedItem.quote && (
+                    <blockquote
+                      className="mb-4 border-accent-olive"
+                      style={{
+                        fontFamily: 'var(--font-display)',
+                        fontStyle: 'italic',
+                        fontSize: 'clamp(16px, 1.8vw, 20px)',
+                        fontWeight: 300,
+                        color: '#39463A',
+                        lineHeight: 1.4,
+                      }}
+                    >
+                      {selectedItem.quote}
+                    </blockquote>
+                  )}
+
+                  <p
+                    style={{
+                      fontFamily: 'var(--font-sans)',
+                      fontSize: '13px',
+                      fontWeight: 300,
+                      color: '#6F6F6F',
+                      lineHeight: 1.8,
+                    }}
+                  >
+                    {selectedItem.caption}
+                  </p>
+
+                  {selectedItem.specs && (
+                    <div className="mt-6 pt-5 border-t border-[#C8C2B8]/40 grid grid-cols-2 gap-4">
+                      {[
+                        { label: 'Camera', value: selectedItem.specs.camera },
+                        { label: 'Format', value: selectedItem.specs.format },
+                        { label: 'Location', value: selectedItem.location },
+                        { label: 'Year', value: selectedItem.year },
+                      ].map(({ label, value }) => (
+                        <div key={label}>
+                          <p style={{ fontFamily: 'var(--font-sans)', fontSize: '8px', fontWeight: 500, letterSpacing: '0.25em', textTransform: 'uppercase', color: '#9B9B9B' }}>
+                            {label}
+                          </p>
+                          <p style={{ fontFamily: 'var(--font-sans)', fontSize: '12px', fontWeight: 400, color: '#1E1E1E', marginTop: '2px' }}>
+                            {value}
+                          </p>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
+
+                <a
+                  href="https://instagram.com/goldenpushersproductions"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  data-cursor-hover
+                  className="mt-8 w-full flex items-center justify-center gap-2 btn-copper cursor-none"
+                >
+                  <Instagram size={13} strokeWidth={1.5} />
+                  <span>View on Instagram</span>
+                </a>
               </div>
             </motion.div>
           </div>

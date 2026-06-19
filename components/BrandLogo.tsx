@@ -1,126 +1,85 @@
 'use client';
 
+// ═══════════════════════════════════════════════════════════════
+// BRAND LOGO — Editorial wordmark: GP monogram + text
+// ═══════════════════════════════════════════════════════════════
+
 import React from 'react';
-import { motion } from 'framer-motion';
 
 interface BrandLogoProps {
   className?: string;
   showText?: boolean;
   size?: number;
+  inverted?: boolean; // For dark backgrounds
 }
 
-export default function BrandLogo({ className = '', showText = true, size = 100 }: BrandLogoProps) {
+export default function BrandLogo({ className = '', showText = true, size = 32, inverted = false }: BrandLogoProps) {
+  const primary = inverted ? '#F8F4EE' : '#39463A';
+  const secondary = inverted ? 'rgba(248,244,238,0.5)' : '#A66B45';
+
   return (
-    <div 
-      className={`relative flex items-center gap-4 ${className}`}
-      style={{ scale: size / 100 }}
-    >
-      <motion.div 
-        className="relative"
-        initial={{ rotate: -5, opacity: 0 }}
-        animate={{ rotate: 0, opacity: 1 }}
-        transition={{ duration: 1.5, ease: [0.23, 1, 0.32, 1] }}
+    <div className={`relative flex items-center gap-3 ${className}`}>
+      {/* GP Monogram */}
+      <div
+        className="flex items-center justify-center shrink-0"
+        style={{ width: size, height: size }}
       >
         <svg
-          viewBox="0 0 100 100"
-          width="100"
-          height="100"
-          className="text-[#00E5FF]"
+          viewBox="0 0 40 40"
+          width={size}
+          height={size}
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
         >
-          {/* Main Outer Circular Wave */}
-          <motion.path
-            d="M82.5 35C85 45 85 55 82.5 65C78 78 65 88 50 88C30 88 12 72 12 50C12 28 28 12 50 12C62 12 73 18 80 28"
-            stroke="currentColor"
-            strokeWidth="3.5"
-            strokeLinecap="round"
-            initial={{ pathLength: 0 }}
-            animate={{ pathLength: 1 }}
-            transition={{ duration: 2, ease: "easeInOut" }}
-            style={{ filter: 'drop-shadow(0px 0px 4px rgba(0,229,255,0.4))' }}
-          />
-
-          {/* Inner Wave Layers */}
-          <motion.path
-            d="M18 55C25 45 35 48 45 58C55 68 65 65 75 55"
-            stroke="currentColor"
-            strokeWidth="2.5"
-            strokeLinecap="round"
-            className="opacity-60"
-          />
-          <motion.path
-            d="M22 65C30 58 40 60 48 68C56 76 66 74 74 66"
-            stroke="currentColor"
-            strokeWidth="1.5"
-            strokeLinecap="round"
-            className="opacity-40"
-          />
-
-          {/* Sharp Decorative Wave Peaks */}
-          <path
-            d="M45 78L50 72L55 78L60 74L65 78"
-            stroke="currentColor"
-            strokeWidth="1"
-            strokeLinecap="round"
-            className="opacity-30"
-          />
-
-          {/* Shimmer Effect Gradient */}
-          <defs>
-            <linearGradient id="shimmer" x1="0" y1="0" x2="1" y2="1">
-              <stop offset="0%" stopColor="white" stopOpacity="0" />
-              <stop offset="50%" stopColor="white" stopOpacity="0.8" />
-              <stop offset="100%" stopColor="white" stopOpacity="0" />
-            </linearGradient>
-            <mask id="logo-mask">
-               <circle cx="50" cy="50" r="50" fill="white" />
-            </mask>
-          </defs>
-
-          {/* Animated Glint */}
-          <motion.rect
-            width="200"
-            height="10"
-            fill="url(#shimmer)"
-            rotate={45}
-            y="-50"
-            animate={{ 
-              x: [-100, 200],
-              y: [-100, 200]
+          {/* Outer thin square */}
+          <rect x="1" y="1" width="38" height="38" stroke={primary} strokeWidth="0.75" opacity="0.3" />
+          {/* GP text */}
+          <text
+            x="50%"
+            y="54%"
+            dominantBaseline="middle"
+            textAnchor="middle"
+            fill={primary}
+            style={{
+              fontFamily: 'serif',
+              fontSize: '14px',
+              fontWeight: 600,
+              letterSpacing: '0.05em',
             }}
-            transition={{ 
-              duration: 3, 
-              repeat: Infinity, 
-              repeatDelay: 5,
-              ease: "linear" 
-            }}
-            style={{ pointerEvents: 'none' }}
-          />
+          >
+            GP
+          </text>
+          {/* Bottom thin rule */}
+          <line x1="8" y1="34" x2="32" y2="34" stroke={secondary} strokeWidth="0.75" />
         </svg>
-
-        {/* Cinematic Glow Background */}
-        <div className="absolute inset-0 bg-[#00E5FF]/10 blur-xl rounded-full -z-10 animate-pulse" />
-      </motion.div>
+      </div>
 
       {showText && (
-        <div className="flex flex-col">
-          <motion.span 
-            initial={{ x: 10, opacity: 0 }}
-            animate={{ x: 0, opacity: 1 }}
-            transition={{ delay: 0.5, duration: 1 }}
-            className="text-xl font-display font-bold tracking-[0.2em] text-current uppercase leading-none"
+        <div className="flex flex-col leading-none">
+          <span
+            className="uppercase tracking-[0.18em] leading-none"
+            style={{
+              fontFamily: 'var(--font-display)',
+              fontSize: '11px',
+              fontWeight: 600,
+              color: primary,
+              letterSpacing: '0.2em',
+            }}
           >
             Golden Pushers
-          </motion.span>
-          <motion.span 
-            initial={{ x: 10, opacity: 0 }}
-            animate={{ x: 0, opacity: 1 }}
-            transition={{ delay: 0.7, duration: 1 }}
-            className="text-[9px] tracking-[0.5em] text-[#00E5FF] font-sans font-medium mt-1.5 uppercase"
+          </span>
+          <span
+            className="uppercase tracking-[0.25em] mt-1"
+            style={{
+              fontFamily: 'var(--font-sans)',
+              fontSize: '8px',
+              fontWeight: 400,
+              color: secondary,
+              letterSpacing: '0.25em',
+            }}
           >
-            Productions LLP
-          </motion.span>
+            Production
+          </span>
         </div>
       )}
     </div>

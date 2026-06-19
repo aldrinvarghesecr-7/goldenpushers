@@ -1,162 +1,140 @@
 @import "tailwindcss";
 
 /* ═══════════════════════════════════════════════════════════════
-   GOLDEN PUSHERS — CINEMATIC REVEAL DESIGN SYSTEM
-   Deep Indigo × Electric Cyan × Soft Violet
+   GOLDEN PUSHERS PRODUCTION
+   Editorial Visual Identity System
+   Warm Ivory × Deep Olive × Muted Copper × Stone Grey
+   Reference: Kinfolk · Monocle · Aesop · Apple Campaign
    ═══════════════════════════════════════════════════════════════ */
 
 :root {
   /* ─── Core Palette ─── */
-  --color-bg-deep: #0B0D1A;
-  --color-bg-primary: #0F1128;
-  --color-bg-surface: #141832;
-  --color-bg-elevated: #1A1F45;
+  --color-ivory:        #F8F4EE;
+  --color-ivory-deep:   #F0EAE0;
+  --color-stone:        #C8C2B8;
+  --color-stone-light:  #E5E0D8;
+  --color-stone-deep:   #A8A49C;
 
   /* ─── Accent Colors ─── */
-  --color-cyan: #00E5FF;
-  --color-cyan-dim: rgba(0, 229, 255, 0.15);
-  --color-cyan-glow: rgba(0, 229, 255, 0.25);
-  --color-violet: #8B5CF6;
-  --color-violet-dim: rgba(139, 92, 246, 0.15);
-  --color-violet-glow: rgba(139, 92, 246, 0.25);
-  --color-ember: #FF6B35;
-  --color-ember-dim: rgba(255, 107, 53, 0.15);
+  --color-olive:        #39463A;
+  --color-olive-mid:    #4D5E4E;
+  --color-olive-light:  #8A9E8B;
+  --color-copper:       #A66B45;
+  --color-copper-light: #C08B65;
+  --color-copper-dim:   rgba(166, 107, 69, 0.15);
 
   /* ─── Text ─── */
-  --color-text: #E8ECF4;
-  --color-text-muted: #5A6285;
-  --color-text-dim: #3A3F5C;
+  --color-charcoal:     #1E1E1E;
+  --color-grey:         #6F6F6F;
+  --color-grey-light:   #9B9B9B;
+  --color-white:        #FFFFFF;
+
+  /* ─── Borders ─── */
+  --border-editorial:   rgba(30, 30, 30, 0.10);
+  --border-stone:       rgba(200, 194, 184, 0.60);
+  --border-olive:       rgba(57, 70, 58, 0.20);
 
   /* ─── Easing Curves ─── */
-  --ease-reveal: cubic-bezier(0.16, 1, 0.3, 1);
-  --ease-whip: cubic-bezier(0.77, 0, 0.175, 1);
-  --ease-cinematic: cubic-bezier(0.23, 1, 0.32, 1);
-  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-editorial:  cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-smooth:     cubic-bezier(0.25, 1, 0.5, 1);
+  --ease-precise:    cubic-bezier(0.77, 0, 0.175, 1);
 }
 
 /* ─── BASE RESETS & TYPOGRAPHY ─── */
 @layer base {
   html {
-    scroll-behavior: auto;
-    background-color: var(--color-bg-deep);
+    scroll-behavior: smooth;
+    background-color: var(--color-ivory);
   }
 
   body {
-    font-feature-settings: "kern" 1, "liga" 1;
+    font-feature-settings: "kern" 1, "liga" 1, "onum" 1;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    background-color: var(--color-bg-deep);
-    color: var(--color-text);
+    background-color: var(--color-ivory);
+    color: var(--color-charcoal);
   }
 
-  h1, h2, h3, h4, h5 {
+  h1, h2, h3 {
     font-family: var(--font-display);
-    font-weight: 700;
-    letter-spacing: -0.03em;
+    font-weight: 400;
+    letter-spacing: -0.01em;
     line-height: 1.0;
-    text-transform: uppercase;
+  }
+
+  h4, h5, h6 {
+    font-family: var(--font-display);
+    font-weight: 500;
+    letter-spacing: 0;
+    line-height: 1.2;
   }
 
   p, span, li {
+    font-family: var(--font-sans);
     letter-spacing: 0.01em;
-    line-height: 1.7;
+    line-height: 1.75;
   }
 
   *:focus-visible {
-    outline: 2px solid var(--color-cyan);
+    outline: 1px solid var(--color-olive);
     outline-offset: 4px;
-    border-radius: 2px;
-    transition: outline-offset 0.2s ease;
+    border-radius: 1px;
   }
 
   a {
-    transition: color 0.4s var(--ease-cinematic);
+    transition: color 0.3s var(--ease-smooth);
   }
 
   ::selection {
-    background: var(--color-violet);
-    color: #FFFFFF;
+    background: var(--color-olive);
+    color: var(--color-ivory);
   }
 
-  /* Cinematic scrollbar */
+  /* Editorial scrollbar */
   ::-webkit-scrollbar {
-    width: 3px;
+    width: 2px;
   }
   ::-webkit-scrollbar-track {
-    background: var(--color-bg-deep);
+    background: var(--color-ivory-deep);
   }
   ::-webkit-scrollbar-thumb {
-    background: var(--color-cyan);
-    border-radius: 3px;
+    background: var(--color-stone);
+    border-radius: 2px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--color-olive-light);
   }
 }
 
 /* ─── UTILITY CLASSES ─── */
 @layer utilities {
 
-  /* Glassmorphism — Indigo Glass */
-  .glass-indigo {
-    background-color: rgba(20, 24, 50, 0.6);
-    backdrop-filter: blur(24px) saturate(1.4);
-    -webkit-backdrop-filter: blur(24px) saturate(1.4);
-    border: 1px solid rgba(0, 229, 255, 0.08);
+  /* Editorial thin line */
+  .rule-editorial {
+    height: 1px;
+    background: var(--border-editorial);
   }
 
-  .glass-indigo-hover {
-    transition: all 500ms var(--ease-cinematic);
-  }
-  .glass-indigo-hover:hover {
-    background-color: rgba(20, 24, 50, 0.8);
-    border-color: rgba(0, 229, 255, 0.2);
-    box-shadow: 0 0 30px rgba(0, 229, 255, 0.05);
+  .rule-olive {
+    height: 1px;
+    background: var(--color-olive);
   }
 
-  /* Premium Glassmorphism classes */
-  .glass-premium {
-    background: rgba(11, 13, 26, 0.45);
-    backdrop-filter: blur(20px) saturate(1.8);
-    -webkit-backdrop-filter: blur(20px) saturate(1.8);
-    border: 1px solid rgba(255, 255, 255, 0.06);
-    box-shadow: 
-      0 4px 30px rgba(0, 0, 0, 0.4),
-      inset 0 0 12px rgba(255, 255, 255, 0.02);
+  .rule-stone {
+    height: 1px;
+    background: var(--border-stone);
   }
 
-  .glass-premium-gold {
-    background: rgba(15, 12, 5, 0.45);
-    backdrop-filter: blur(20px) saturate(1.6);
-    -webkit-backdrop-filter: blur(20px) saturate(1.6);
-    border: 1px solid rgba(212, 175, 119, 0.15);
-    box-shadow: 
-      0 4px 30px rgba(0, 0, 0, 0.5),
-      inset 0 0 12px rgba(212, 175, 119, 0.03);
+  /* Vertical rule */
+  .rule-vertical {
+    width: 1px;
+    background: var(--border-editorial);
   }
 
-  .glass-premium-hover {
-    transition: all 400ms var(--ease-cinematic);
-  }
-  .glass-premium-hover:hover {
-    background: rgba(11, 13, 26, 0.65);
-    border-color: rgba(0, 229, 255, 0.35);
-    box-shadow: 
-      0 10px 40px rgba(0, 229, 255, 0.08),
-      inset 0 0 16px rgba(0, 229, 255, 0.04);
-  }
-
-  /* Gold text gradient */
-  .text-gold-gradient {
-    background: linear-gradient(135deg, #FFE082, #D4AF37, #996515);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-  }
-
-  /* 3D perspective */
-  .perspective-container {
-    perspective: 1200px;
-  }
-  .preserve-3d {
-    transform-style: preserve-3d;
+  /* Large white space block */
+  .space-editorial {
+    padding-top: clamp(80px, 10vw, 160px);
+    padding-bottom: clamp(80px, 10vw, 160px);
   }
 
   /* Hidden scrollbar */
@@ -168,190 +146,255 @@
     scrollbar-width: none;
   }
 
-  /* Cyan text gradient */
-  .text-cyan-gradient {
-    background: linear-gradient(135deg, #00E5FF, #8B5CF6);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+  /* 3D perspective */
+  .perspective-container {
+    perspective: 1200px;
+  }
+  .preserve-3d {
+    transform-style: preserve-3d;
   }
 
-  /* Violet text gradient */
-  .text-violet-gradient {
-    background: linear-gradient(135deg, #8B5CF6, #C084FC, #8B5CF6);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+  /* Editorial card — minimal border */
+  .card-editorial {
+    background: var(--color-ivory);
+    border: 1px solid var(--border-editorial);
+    transition: border-color 0.4s var(--ease-smooth);
+  }
+  .card-editorial:hover {
+    border-color: var(--color-olive);
   }
 
-  /* Ember gradient for CTAs */
-  .text-ember-gradient {
-    background: linear-gradient(135deg, #FF6B35, #FF8F65);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+  /* Stone surface card */
+  .card-stone {
+    background: var(--color-ivory-deep);
+    border: 1px solid var(--border-stone);
   }
 
-  /* Glow effects */
-  .glow-cyan {
-    box-shadow:
-      0 0 20px rgba(0, 229, 255, 0.1),
-      0 0 60px rgba(0, 229, 255, 0.05),
-      inset 0 0 20px rgba(0, 229, 255, 0.03);
+  /* Olive text */
+  .text-olive {
+    color: var(--color-olive);
   }
 
-  .glow-violet {
-    box-shadow:
-      0 0 20px rgba(139, 92, 246, 0.1),
-      0 0 60px rgba(139, 92, 246, 0.05);
+  /* Copper text */
+  .text-copper {
+    color: var(--color-copper);
   }
 
-  .text-glow-cyan {
-    text-shadow: 0 0 30px rgba(0, 229, 255, 0.4), 0 0 60px rgba(0, 229, 255, 0.15);
+  /* Charcoal text */
+  .text-charcoal {
+    color: var(--color-charcoal);
   }
 
-  .text-glow-violet {
-    text-shadow: 0 0 30px rgba(139, 92, 246, 0.4), 0 0 60px rgba(139, 92, 246, 0.15);
+  /* Soft grey text */
+  .text-soft-grey {
+    color: var(--color-grey);
   }
 
-  /* Section divider — gradient line */
-  .section-divider {
-    height: 1px;
-    background: linear-gradient(90deg, transparent, var(--color-cyan-dim), var(--color-violet-dim), transparent);
+  /* Label — uppercase spaced Inter */
+  .label-editorial {
+    font-family: var(--font-sans);
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--color-grey);
   }
 
-  /* Reveal mask — clip-path utility */
-  .reveal-mask {
-    clip-path: inset(0 0 0 0);
+  /* Eyebrow label — olive */
+  .label-olive {
+    font-family: var(--font-sans);
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--color-olive);
   }
 
-  .reveal-mask-hidden {
-    clip-path: inset(50% 0 50% 0);
+  /* Cormorant italic quote style */
+  .quote-editorial {
+    font-family: var(--font-display);
+    font-style: italic;
+    font-weight: 300;
+    letter-spacing: -0.01em;
+    line-height: 1.3;
   }
 
-  /* Blueprint grid background */
-  .bg-blueprint {
-    background-image:
-      linear-gradient(rgba(0, 229, 255, 0.03) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(0, 229, 255, 0.03) 1px, transparent 1px);
-    background-size: 60px 60px;
+  /* Thin olive left border accent */
+  .border-accent-olive {
+    border-left: 2px solid var(--color-olive);
+    padding-left: 1.25rem;
   }
 
-  /* Ambient glow overlay */
-  .ambient-glow {
-    pointer-events: none;
-    position: fixed;
-    inset: 0;
-    z-index: 1;
-    background:
-      radial-gradient(ellipse 80% 50% at 20% 10%, rgba(139, 92, 246, 0.06) 0%, transparent 60%),
-      radial-gradient(ellipse 60% 40% at 80% 90%, rgba(0, 229, 255, 0.04) 0%, transparent 60%);
+  /* Copper CTA button */
+  .btn-copper {
+    background: var(--color-copper);
+    color: var(--color-ivory);
+    font-family: var(--font-sans);
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    padding: 14px 32px;
+    border: 1px solid var(--color-copper);
+    transition: all 0.35s var(--ease-smooth);
+    cursor: none;
+  }
+  .btn-copper:hover {
+    background: var(--color-olive);
+    border-color: var(--color-olive);
   }
 
-  /* GSAP reveal helper */
+  /* Olive outline button */
+  .btn-olive {
+    background: transparent;
+    color: var(--color-olive);
+    font-family: var(--font-sans);
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    padding: 13px 31px;
+    border: 1px solid var(--color-olive);
+    transition: all 0.35s var(--ease-smooth);
+    cursor: none;
+  }
+  .btn-olive:hover {
+    background: var(--color-olive);
+    color: var(--color-ivory);
+  }
+
+  /* Ambient warm overlay for images */
+  .image-warm {
+    filter: saturate(0.85) brightness(1.02);
+  }
+
+  /* GSAP reveal start state */
   .gsap-reveal {
     opacity: 0;
-    transform: translateY(40px);
+    transform: translateY(32px);
   }
 
-  /* Film-strip perforation pattern */
-  .film-perforations {
-    background-image:
-      repeating-linear-gradient(
-        0deg,
-        transparent,
-        transparent 20px,
-        rgba(0, 229, 255, 0.04) 20px,
-        rgba(0, 229, 255, 0.04) 24px,
-        transparent 24px,
-        transparent 40px
-      );
-  }
-
-  /* Scan line effect */
-  .scan-line {
+  /* Reel cover system — consistent overlay */
+  .reel-cover {
     position: absolute;
-    width: 2px;
-    height: 100%;
-    background: linear-gradient(180deg, transparent, var(--color-cyan), transparent);
-    opacity: 0.6;
-    filter: blur(1px);
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 20px;
+    background: linear-gradient(
+      to bottom,
+      rgba(30, 30, 30, 0.45) 0%,
+      transparent 35%,
+      transparent 60%,
+      rgba(30, 30, 30, 0.70) 100%
+    );
+    pointer-events: none;
   }
+
+  /* Reel cover — GP badge top-left */
+  .reel-gp {
+    font-family: var(--font-display);
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.15em;
+    color: rgba(248, 244, 238, 0.90);
+  }
+
+  /* Reel cover — project name center */
+  .reel-title {
+    font-family: var(--font-display);
+    font-size: clamp(14px, 2vw, 18px);
+    font-weight: 400;
+    letter-spacing: 0.08em;
+    text-align: center;
+    color: var(--color-ivory);
+    text-transform: uppercase;
+    line-height: 1.2;
+  }
+
+  /* Reel cover — location • year bottom */
+  .reel-meta {
+    font-family: var(--font-sans);
+    font-size: 9px;
+    font-weight: 400;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: rgba(248, 244, 238, 0.65);
+    text-align: center;
+  }
+
+  /* Instagram grid column type markers */
+  .col-type-featured { border-top: 2px solid var(--color-olive); }
+  .col-type-bts { border-top: 2px solid var(--color-copper); }
+  .col-type-story { border-top: 2px solid var(--color-stone); }
 }
 
 /* ─── KEYFRAME ANIMATIONS ─── */
 
-@keyframes curtain-wipe {
-  from { clip-path: inset(50% 0 50% 0); }
-  to { clip-path: inset(0 0 0 0); }
-}
-
-@keyframes text-unblur {
+@keyframes fade-up {
   from {
-    filter: blur(12px);
     opacity: 0;
-    transform: translateY(20px);
+    transform: translateY(28px);
   }
   to {
-    filter: blur(0px);
     opacity: 1;
     transform: translateY(0);
   }
 }
 
-@keyframes glow-pulse {
-  0%, 100% { opacity: 0.4; filter: blur(40px); }
-  50% { opacity: 0.7; filter: blur(60px); }
+@keyframes line-expand {
+  from { transform: scaleX(0); transform-origin: left; }
+  to   { transform: scaleX(1); transform-origin: left; }
 }
 
-@keyframes gradient-shift {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
-}
-
-@keyframes float-gentle {
-  0%, 100% { transform: translateY(0) rotate(0deg); }
-  33% { transform: translateY(-15px) rotate(1deg); }
-  66% { transform: translateY(-8px) rotate(-0.5deg); }
-}
-
-@keyframes line-draw {
+@keyframes line-expand-center {
   from { transform: scaleX(0); }
-  to { transform: scaleX(1); }
+  to   { transform: scaleX(1); }
 }
 
-@keyframes scan-sweep {
-  from { transform: translateX(-100%); }
-  to { transform: translateX(100vw); }
-}
-
-@keyframes char-drop {
+@keyframes text-reveal {
   from {
     opacity: 0;
-    transform: translateY(-40px) rotateX(45deg);
-    filter: blur(4px);
+    filter: blur(6px);
+    transform: translateY(12px);
   }
   to {
     opacity: 1;
-    transform: translateY(0) rotateX(0deg);
     filter: blur(0px);
+    transform: translateY(0);
   }
 }
 
-@keyframes typewriter-cursor {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0; }
+@keyframes char-rise {
+  from {
+    opacity: 0;
+    transform: translateY(40px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes float-subtle {
+  0%, 100% { transform: translateY(0px); }
+  50%       { transform: translateY(-8px); }
+}
+
+@keyframes olive-pulse {
+  0%, 100% { opacity: 0.6; }
+  50%       { opacity: 1; }
 }
 
 /* ─── MARQUEE ANIMATIONS ─── */
 @keyframes marquee {
-  0% { transform: translateX(0); }
+  0%   { transform: translateX(0); }
   100% { transform: translateX(-50%); }
 }
 
 @keyframes marquee-reverse {
-  0% { transform: translateX(-50%); }
+  0%   { transform: translateX(-50%); }
   100% { transform: translateX(0); }
 }
 
@@ -363,32 +406,25 @@
   animation: marquee-reverse linear infinite;
 }
 
-/* ─── GRADIENT MESH BACKGROUND ─── */
-.gradient-mesh {
-  background:
-    radial-gradient(ellipse at 20% 50%, rgba(139, 92, 246, 0.15) 0%, transparent 50%),
-    radial-gradient(ellipse at 80% 20%, rgba(0, 229, 255, 0.1) 0%, transparent 50%),
-    radial-gradient(ellipse at 50% 80%, rgba(255, 107, 53, 0.05) 0%, transparent 50%),
-    var(--color-bg-deep);
-  background-size: 200% 200%;
-  animation: gradient-shift 20s ease infinite;
+/* ─── EDITORIAL GRID BACKGROUND ─── */
+.bg-grid-editorial {
+  background-image:
+    linear-gradient(rgba(57, 70, 58, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(57, 70, 58, 0.04) 1px, transparent 1px);
+  background-size: 64px 64px;
 }
 
-/* ─── GEOMETRIC SHAPE FLOATERS ─── */
-.geo-float {
-  position: absolute;
-  border-radius: 50%;
-  pointer-events: none;
-  animation: float-gentle 12s ease-in-out infinite;
+/* ─── SECTION DIVIDER LINE ─── */
+.section-divider {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--border-stone), transparent);
 }
 
-.geo-float-triangle {
-  position: absolute;
-  pointer-events: none;
-  width: 0;
-  height: 0;
-  border-left: 30px solid transparent;
-  border-right: 30px solid transparent;
-  border-bottom: 52px solid rgba(0, 229, 255, 0.04);
-  animation: float-gentle 15s ease-in-out infinite;
+/* ─── WARM IMAGE TREATMENT ─── */
+.image-editorial {
+  filter: saturate(0.80) brightness(1.03) contrast(0.98);
+  transition: filter 0.6s var(--ease-smooth);
+}
+.image-editorial:hover {
+  filter: saturate(0.92) brightness(1.05) contrast(1.0);
 }

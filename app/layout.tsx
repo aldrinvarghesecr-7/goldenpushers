@@ -1,52 +1,53 @@
 import React from "react";
 import type { Metadata } from "next";
-import { Syne, Plus_Jakarta_Sans, JetBrains_Mono } from "next/font/google";
+import { Cormorant_Garamond, Inter } from "next/font/google";
 import "./globals.css";
 import { siteConfig } from "@/lib/config";
 import CursorTrailer from "@/components/CursorTrailer";
 
 // ═══════════════════════════════════════════════════════════════
-// ROOT LAYOUT — Golden Pushers Productions LLP
-// Cinematic Reveal Design System
-// Syne + Plus Jakarta Sans + JetBrains Mono
+// ROOT LAYOUT — Golden Pushers Production
+// Editorial Identity System
+// Cormorant Garamond (display) + Inter (body)
 // ═══════════════════════════════════════════════════════════════
 
-// Typography System
-const display = Syne({
+// Primary Display Font — Cormorant Garamond
+const display = Cormorant_Garamond({
   subsets: ["latin"],
   variable: "--font-display",
-  weight: ["400", "500", "600", "700", "800"],
+  weight: ["300", "400", "500", "600", "700"],
+  style: ["normal", "italic"],
   display: "swap",
 });
 
-const sans = Plus_Jakarta_Sans({
+// Secondary Body Font — Inter
+const sans = Inter({
   subsets: ["latin"],
   variable: "--font-sans",
-  weight: ["300", "400", "500", "600", "700", "800"],
-  display: "swap",
-});
-
-const mono = JetBrains_Mono({
-  subsets: ["latin"],
-  variable: "--font-mono",
-  weight: ["300", "400", "500", "600", "700"],
+  weight: ["300", "400", "500", "600"],
   display: "swap",
 });
 
 // SEO Metadata
 export const metadata: Metadata = {
-  title: `${siteConfig.fullName} | ${siteConfig.tagline}`,
+  title: `${siteConfig.name} | ${siteConfig.tagline}`,
   description: siteConfig.bio,
   keywords: [
-    "film production",
-    "cinematic",
-    "luxury production house",
+    "visual production",
     "brand films",
-    "commercial production",
-    "Golden Pushers",
+    "commercial films",
+    "music videos",
+    "product photography",
+    "corporate films",
+    "wedding films",
+    "creative direction",
+    "visual storytelling",
+    "Golden Pushers Production",
+    "Kochi",
+    "Kerala",
   ],
   openGraph: {
-    title: siteConfig.fullName,
+    title: siteConfig.name,
     description: siteConfig.bio,
     type: "website",
   },
@@ -60,11 +61,9 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${display.variable} ${sans.variable} ${mono.variable}`}
+      className={`${display.variable} ${sans.variable}`}
     >
-      <body className="bg-[#0B0D1A] text-[#E8ECF4] font-sans antialiased overflow-x-hidden">
-        {/* Ambient glow overlay */}
-        <div className="ambient-glow" />
+      <body className="bg-[#F8F4EE] text-[#1E1E1E] font-sans antialiased overflow-x-hidden">
         <CursorTrailer />
         {children}
       </body>

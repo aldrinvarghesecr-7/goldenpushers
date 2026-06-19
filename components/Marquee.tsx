@@ -1,38 +1,41 @@
 'use client';
 
-// ═══════════════════════════════════════════════════════════════
-// MARQUEE — Infinite horizontal scrolling text ticker
-// Used between sections for that high-end editorial feel.
-// Pure CSS animation for zero JS overhead.
-// ═══════════════════════════════════════════════════════════════
+import type { CSSProperties } from 'react';
 
-import React from 'react';
+// ═══════════════════════════════════════════════════════════════
+// MARQUEE — Editorial ticker on stone background
+// ═══════════════════════════════════════════════════════════════
 
 interface MarqueeProps {
   text: string;
-  speed?: number; // seconds for one full loop
+  speed?: number;
   className?: string;
-  separator?: string;
-  reverse?: boolean;
+  style?: CSSProperties;
 }
 
-export default function Marquee({ 
-  text, 
-  speed = 30, 
-  className = '', 
-  separator = '  ✦  ',
-  reverse = false 
+export default function Marquee({
+  text,
+  speed = 30,
+  className = '',
+  style,
 }: MarqueeProps) {
-  const content = `${text}${separator}`.repeat(8);
-  
+  const doubled = `${text}  —  ${text}  —  `;
+  const textStyle = { ...style, animationDuration: `${speed}s` };
+
   return (
-    <div className={`overflow-hidden whitespace-nowrap pointer-events-none select-none ${className}`}>
-      <div 
-        className={`inline-flex ${reverse ? 'animate-marquee-reverse' : 'animate-marquee'}`}
-        style={{ animationDuration: `${speed}s` }}
+    <div className="relative overflow-hidden w-full flex">
+      <div
+        className={`animate-marquee whitespace-nowrap flex-shrink-0 ${className}`}
+        style={textStyle}
       >
-        <span className="inline-block pr-4">{content}</span>
-        <span className="inline-block pr-4" aria-hidden>{content}</span>
+        {doubled}
+      </div>
+      <div
+        className={`animate-marquee whitespace-nowrap flex-shrink-0 ${className}`}
+        style={textStyle}
+        aria-hidden
+      >
+        {doubled}
       </div>
     </div>
   );

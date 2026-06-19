@@ -1,24 +1,49 @@
 'use client';
 
 // ═══════════════════════════════════════════════════════════════
-// ENQUIRE — The Final Frame
-// Contact form with terminal-aesthetic info and dramatic zoom.
+// ENQUIRE SECTION — Editorial contact form
+// Charcoal/olive dark panel with clean form fields
 // ═══════════════════════════════════════════════════════════════
 
 import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence, useScroll, useTransform } from 'framer-motion';
 import { Check, ArrowRight } from 'lucide-react';
+import { siteConfig } from '@/lib/config';
+
+const INPUT_STYLE = {
+  fontFamily: 'var(--font-sans)',
+  fontSize: '14px',
+  fontWeight: 300,
+  color: '#F8F4EE',
+  background: 'transparent',
+  letterSpacing: '0.02em',
+};
+
+const LABEL_STYLE = {
+  fontFamily: 'var(--font-sans)',
+  fontSize: '9px',
+  fontWeight: 500,
+  letterSpacing: '0.3em',
+  textTransform: 'uppercase' as const,
+  color: '#6F6F6F',
+};
 
 export default function EnquireSection() {
   const container = useRef<HTMLDivElement>(null);
-  const [formData, setFormData] = useState({ name: '', email: '', phone: '', type: '', message: '' });
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    phone: '',
+    type: '',
+    message: '',
+  });
   const [status, setStatus] = useState<'idle' | 'submitting' | 'success'>('idle');
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => { setMounted(true); }, []);
 
-  const { scrollYProgress } = useScroll({ target: container, offset: ["start end", "end start"] });
-  const yTitle = useTransform(scrollYProgress, [0, 1], [30, -30]);
+  const { scrollYProgress } = useScroll({ target: container, offset: ['start end', 'end start'] });
+  const yTitle = useTransform(scrollYProgress, [0, 1], [24, -24]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -31,195 +56,302 @@ export default function EnquireSection() {
       });
       if (!response.ok) throw new Error('Failed to send');
       setStatus('success');
-    } catch (error) {
-      console.error('Failed to send inquiry', error);
+    } catch (err) {
+      console.error('Failed to send inquiry', err);
       setStatus('idle');
-      alert('Transmission failed. Please try again or email us directly at goldenpushers@gmail.com');
+      alert(`Submission failed. Please email us directly at ${siteConfig.email}`);
     }
   };
 
   const handleChange = (field: string, value: string) => {
-    setFormData((prev) => ({ ...prev, [field]: value }));
+    setFormData(prev => ({ ...prev, [field]: value }));
   };
 
   return (
-    <section ref={container} id="contact" className="relative w-full min-h-screen bg-[#0B0D1A] flex flex-col justify-center py-32 overflow-hidden">
-      {/* Top border line */}
-      <div className="absolute top-0 left-0 right-0 h-px bg-[#E8ECF4]/[0.05]" />
+    <section
+      ref={container}
+      id="contact"
+      className="relative w-full min-h-screen flex flex-col justify-center py-28 md:py-40 overflow-hidden"
+      style={{ background: '#1E1E1E' }}
+    >
+      {/* Very subtle warm wash — top right */}
+      <div
+        className="absolute top-0 right-0 w-[40vw] h-[40vh] pointer-events-none"
+        style={{ background: 'radial-gradient(ellipse at 80% 20%, rgba(166,107,69,0.08) 0%, transparent 70%)' }}
+      />
+
+      {/* Thin top rule — stone */}
+      <div className="absolute top-0 left-0 right-0 h-px bg-[rgba(200,194,184,0.12)]" />
 
       {mounted && (
         <div className="relative z-10 w-full max-w-[90vw] mx-auto">
+
           {/* Section label */}
           <motion.div
-            initial={{ opacity: 0, x: -20 }}
+            initial={{ opacity: 0, x: -16 }}
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
-            className="flex items-center gap-6 mb-16"
+            className="flex items-center gap-6 mb-16 md:mb-20"
           >
-            <span className="text-[#00E5FF] text-[9px] tracking-[0.6em] uppercase font-sans font-bold">Get In Touch</span>
-            <div className="h-px flex-1 bg-gradient-to-r from-[#00E5FF]/20 to-transparent" />
-            <span className="text-[#5A6285] text-[9px] tracking-[0.4em] font-mono hidden md:block">06 / Enquire</span>
+            <span style={{ ...LABEL_STYLE, color: '#A66B45' }}>Start a Project</span>
+            <div className="h-px flex-1 bg-[rgba(200,194,184,0.15)]" />
+            <span style={{ ...LABEL_STYLE, color: '#6F6F6F' }} className="hidden md:block">06 / Enquire</span>
           </motion.div>
 
           <AnimatePresence mode="wait">
             {status !== 'success' ? (
               <motion.div
                 key="form"
-                initial={{ opacity: 0, scale: 0.95, filter: 'blur(10px)' }}
-                whileInView={{ opacity: 1, scale: 1, filter: 'blur(0px)' }}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                exit={{ opacity: 0, scale: 0.97 }}
-                transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
                 className="grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-24 items-start"
               >
-                {/* Left: Title & Info */}
-                <div className="flex flex-col justify-between h-full">
+
+                {/* Left — title + info */}
+                <div className="flex flex-col justify-between h-full gap-16">
                   <div>
                     <motion.h2
-                      style={{ y: yTitle }}
-                      className="text-[14vw] sm:text-[10vw] md:text-[8vw] font-display font-bold text-[#E8ECF4] uppercase tracking-[-0.03em] leading-[0.9] cursor-default mb-10"
+                      className="cursor-default mb-6"
                       data-cursor-hover
+                      style={{
+                        y: yTitle,
+                        fontFamily: 'var(--font-display)',
+                        fontSize: 'clamp(48px, 9vw, 110px)',
+                        fontWeight: 300,
+                        letterSpacing: '-0.02em',
+                        lineHeight: 0.88,
+                        color: '#F8F4EE',
+                      }}
                     >
-                      Enquire.
+                      Let's{' '}
+                      <em style={{ color: '#A66B45', fontStyle: 'italic' }}>Work</em>
+                      <br />Together.
                     </motion.h2>
-                    <p className="text-[#00E5FF] font-sans text-sm font-bold tracking-[0.1em] mb-16 uppercase">
-                      Let&apos;s forge your vision into reality.
+
+                    <p
+                      className="mt-8 max-w-sm"
+                      style={{
+                        fontFamily: 'var(--font-sans)',
+                        fontSize: '14px',
+                        fontWeight: 300,
+                        color: '#6F6F6F',
+                        lineHeight: 1.8,
+                      }}
+                    >
+                      Tell us about your project. We'll get back to you within 24 hours to discuss how we can engineer your visual story.
                     </p>
                   </div>
 
-                  <div className="space-y-4 text-[#5A6285] text-[10px] tracking-[0.35em] font-mono uppercase">
-                    <p className="hover:text-[#E8ECF4] transition-colors duration-300 cursor-default">Golden Pushers Productions LLP</p>
-                    <p className="hover:text-[#00E5FF] transition-colors duration-300 cursor-default">goldenpushers@gmail.com</p>
-                    <p className="hover:text-[#E8ECF4] transition-colors duration-300 cursor-default">+91 73063 51867</p>
+                  {/* Contact details */}
+                  <div className="space-y-3 border-t border-[rgba(200,194,184,0.12)] pt-8">
+                    <p style={{ ...LABEL_STYLE, color: '#6F6F6F' }}>Golden Pushers Production</p>
+                    <p style={{ ...LABEL_STYLE, color: '#6F6F6F' }}>Kochi, Kerala, India</p>
+                    <a
+                      href={`mailto:${siteConfig.email}`}
+                      style={{ ...LABEL_STYLE, color: '#A66B45', display: 'block' }}
+                      className="hover:opacity-70 transition-opacity duration-300"
+                    >
+                      {siteConfig.email}
+                    </a>
+                    <a
+                      href={`tel:${siteConfig.phone}`}
+                      style={{ ...LABEL_STYLE, color: '#6F6F6F', display: 'block' }}
+                      className="hover:text-[#F8F4EE] transition-colors duration-300"
+                    >
+                      {siteConfig.phone}
+                    </a>
                   </div>
                 </div>
 
-                {/* Right: Form */}
-                <form onSubmit={handleSubmit} className="flex flex-col gap-6 pt-2">
+                {/* Right — form */}
+                <form onSubmit={handleSubmit} className="flex flex-col gap-0">
+
                   {/* Name */}
-                  <div className="group relative border border-white/[0.06] focus-within:border-[#00E5FF]/40 bg-white/[0.02] backdrop-blur-md transition-all duration-400 p-4 rounded-sm" data-cursor-hover data-cursor-text="TYPE">
+                  <div
+                    className="group relative border-b border-[rgba(200,194,184,0.15)] focus-within:border-[rgba(166,107,69,0.6)] py-5 transition-colors duration-300"
+                    data-cursor-hover
+                    data-cursor-text="TYPE"
+                  >
+                    <label style={LABEL_STYLE} className="block mb-2">Name *</label>
                     <input
-                      required type="text" placeholder="Name"
-                      className="w-full bg-transparent text-[#E8ECF4] font-sans text-sm focus:outline-none peer placeholder-transparent cursor-none mt-2"
-                      value={formData.name} onChange={(e) => handleChange('name', e.target.value)}
+                      required
+                      type="text"
+                      placeholder="Your full name"
+                      style={{ ...INPUT_STYLE, width: '100%', outline: 'none' }}
+                      value={formData.name}
+                      onChange={e => handleChange('name', e.target.value)}
+                      className="cursor-none placeholder-[#3A3A3A]"
                     />
-                    <label className="absolute left-4 top-4 text-[#5A6285] font-sans text-[10px] tracking-[0.2em] uppercase transition-all peer-focus:top-1.5 peer-focus:text-[8px] peer-focus:text-[#00E5FF] peer-focus:tracking-[0.3em] peer-[:not(:placeholder-shown)]:top-1.5 peer-[:not(:placeholder-shown)]:text-[8px] peer-[:not(:placeholder-shown)]:text-[#00E5FF] peer-[:not(:placeholder-shown)]:tracking-[0.3em] pointer-events-none">
-                      Name
-                    </label>
                   </div>
 
                   {/* Email */}
-                  <div className="group relative border border-white/[0.06] focus-within:border-[#00E5FF]/40 bg-white/[0.02] backdrop-blur-md transition-all duration-400 p-4 rounded-sm" data-cursor-hover data-cursor-text="TYPE">
+                  <div
+                    className="group relative border-b border-[rgba(200,194,184,0.15)] focus-within:border-[rgba(166,107,69,0.6)] py-5 transition-colors duration-300"
+                    data-cursor-hover
+                    data-cursor-text="TYPE"
+                  >
+                    <label style={LABEL_STYLE} className="block mb-2">Email Address *</label>
                     <input
-                      required type="email" placeholder="Email"
-                      className="w-full bg-transparent text-[#E8ECF4] font-sans text-sm focus:outline-none peer placeholder-transparent cursor-none mt-2"
-                      value={formData.email} onChange={(e) => handleChange('email', e.target.value)}
+                      required
+                      type="email"
+                      placeholder="your@email.com"
+                      style={{ ...INPUT_STYLE, width: '100%', outline: 'none' }}
+                      value={formData.email}
+                      onChange={e => handleChange('email', e.target.value)}
+                      className="cursor-none placeholder-[#3A3A3A]"
                     />
-                    <label className="absolute left-4 top-4 text-[#5A6285] font-sans text-[10px] tracking-[0.2em] uppercase transition-all peer-focus:top-1.5 peer-focus:text-[8px] peer-focus:text-[#00E5FF] peer-focus:tracking-[0.3em] peer-[:not(:placeholder-shown)]:top-1.5 peer-[:not(:placeholder-shown)]:text-[8px] peer-[:not(:placeholder-shown)]:text-[#00E5FF] peer-[:not(:placeholder-shown)]:tracking-[0.3em] pointer-events-none">
-                      Email
-                    </label>
                   </div>
 
                   {/* Phone */}
-                  <div className="group relative border border-white/[0.06] focus-within:border-[#00E5FF]/40 bg-white/[0.02] backdrop-blur-md transition-all duration-400 p-4 rounded-sm" data-cursor-hover data-cursor-text="TYPE">
+                  <div
+                    className="group relative border-b border-[rgba(200,194,184,0.15)] focus-within:border-[rgba(166,107,69,0.6)] py-5 transition-colors duration-300"
+                    data-cursor-hover
+                    data-cursor-text="TYPE"
+                  >
+                    <label style={LABEL_STYLE} className="block mb-2">Phone</label>
                     <input
-                      type="tel" placeholder="Phone"
-                      className="w-full bg-transparent text-[#E8ECF4] font-sans text-sm focus:outline-none peer placeholder-transparent cursor-none mt-2"
-                      value={formData.phone} onChange={(e) => handleChange('phone', e.target.value)}
+                      type="tel"
+                      placeholder="+91 00000 00000"
+                      style={{ ...INPUT_STYLE, width: '100%', outline: 'none' }}
+                      value={formData.phone}
+                      onChange={e => handleChange('phone', e.target.value)}
+                      className="cursor-none placeholder-[#3A3A3A]"
                     />
-                    <label className="absolute left-4 top-4 text-[#5A6285] font-sans text-[10px] tracking-[0.2em] uppercase transition-all peer-focus:top-1.5 peer-focus:text-[8px] peer-focus:text-[#00E5FF] peer-focus:tracking-[0.3em] peer-[:not(:placeholder-shown)]:top-1.5 peer-[:not(:placeholder-shown)]:text-[8px] peer-[:not(:placeholder-shown)]:text-[#00E5FF] peer-[:not(:placeholder-shown)]:tracking-[0.3em] pointer-events-none">
-                      Phone (optional)
-                    </label>
                   </div>
 
-                  {/* Project Type */}
-                  <div className="relative border border-white/[0.06] focus-within:border-[#00E5FF]/40 bg-white/[0.02] backdrop-blur-md transition-all duration-400 p-4 rounded-sm" data-cursor-hover data-cursor-text="SELECT">
+                  {/* Project type */}
+                  <div
+                    className="group relative border-b border-[rgba(200,194,184,0.15)] focus-within:border-[rgba(166,107,69,0.6)] py-5 transition-colors duration-300"
+                    data-cursor-hover
+                    data-cursor-text="SELECT"
+                  >
+                    <label style={LABEL_STYLE} className="block mb-2">Project Type *</label>
                     <select
                       required
-                      className="w-full bg-transparent text-[#E8ECF4] font-sans text-sm focus:outline-none appearance-none cursor-none transition-colors mt-2"
-                      value={formData.type} onChange={(e) => handleChange('type', e.target.value)}
+                      style={{
+                        ...INPUT_STYLE,
+                        width: '100%',
+                        outline: 'none',
+                        appearance: 'none',
+                        cursor: 'none',
+                        color: formData.type ? '#F8F4EE' : '#3A3A3A',
+                      }}
+                      value={formData.type}
+                      onChange={e => handleChange('type', e.target.value)}
                     >
-                      <option value="" disabled className="bg-[#070814] text-[#5A6285]">Project Type</option>
-                      <option value="Commercial" className="bg-[#070814] text-white">Commercial</option>
-                      <option value="Brand Film" className="bg-[#070814] text-white">Brand Film</option>
-                      <option value="Music Video" className="bg-[#070814] text-white">Music Video</option>
-                      <option value="Wedding Film" className="bg-[#070814] text-white">Wedding Film</option>
-                      <option value="Corporate Film" className="bg-[#070814] text-white">Corporate Film</option>
-                      <option value="Other" className="bg-[#070814] text-white">Other</option>
+                      <option value="" disabled style={{ background: '#1E1E1E', color: '#6F6F6F' }}>Select project type</option>
+                      {siteConfig.services.map(s => (
+                        <option key={s} value={s} style={{ background: '#1E1E1E', color: '#F8F4EE' }}>{s}</option>
+                      ))}
                     </select>
-                    <label className="absolute left-4 top-1.5 text-[#5A6285] font-sans text-[8px] tracking-[0.3em] uppercase pointer-events-none">
-                      Project Category
-                    </label>
                   </div>
 
                   {/* Message */}
-                  <div className="group relative border border-white/[0.06] focus-within:border-[#00E5FF]/40 bg-white/[0.02] backdrop-blur-md transition-all duration-400 p-4 rounded-sm" data-cursor-hover data-cursor-text="TYPE">
+                  <div
+                    className="group relative border-b border-[rgba(200,194,184,0.15)] focus-within:border-[rgba(166,107,69,0.6)] py-5 transition-colors duration-300"
+                    data-cursor-hover
+                    data-cursor-text="TYPE"
+                  >
+                    <label style={LABEL_STYLE} className="block mb-2">Tell Us About Your Project *</label>
                     <textarea
-                      required rows={4} placeholder="Message"
-                      className="w-full bg-transparent text-[#E8ECF4] font-sans text-sm focus:outline-none peer placeholder-transparent resize-none cursor-none mt-2"
-                      value={formData.message} onChange={(e) => handleChange('message', e.target.value)}
+                      required
+                      rows={4}
+                      placeholder="Describe your vision, timeline, and any references you have in mind..."
+                      style={{ ...INPUT_STYLE, width: '100%', outline: 'none', resize: 'none' }}
+                      value={formData.message}
+                      onChange={e => handleChange('message', e.target.value)}
+                      className="cursor-none placeholder-[#3A3A3A]"
                     />
-                    <label className="absolute left-4 top-4 text-[#5A6285] font-sans text-[10px] tracking-[0.2em] uppercase transition-all peer-focus:top-1.5 peer-focus:text-[8px] peer-focus:text-[#00E5FF] peer-focus:tracking-[0.3em] peer-[:not(:placeholder-shown)]:top-1.5 peer-[:not(:placeholder-shown)]:text-[8px] peer-[:not(:placeholder-shown)]:text-[#00E5FF] peer-[:not(:placeholder-shown)]:tracking-[0.3em] pointer-events-none">
-                      Tell us about your vision
-                    </label>
                   </div>
 
                   {/* Submit */}
                   <button
-                    disabled={status === 'submitting'}
                     type="submit"
+                    disabled={status === 'submitting'}
                     data-cursor-hover
                     data-cursor-text="SEND"
-                    className="flex items-center justify-between py-5 px-6 border border-white/[0.06] bg-[#00E5FF]/5 hover:bg-[#00E5FF]/15 text-[#00E5FF] hover:text-white hover:border-[#00E5FF]/50 hover:shadow-[0_0_20px_rgba(0,229,255,0.15)] group transition-all duration-500 disabled:opacity-40 cursor-none rounded-sm"
+                    className="mt-8 self-start flex items-center gap-4 btn-copper disabled:opacity-40 cursor-none group"
                   >
-                    <span className="font-sans font-bold text-xs tracking-[0.3em] uppercase">
-                      {status === 'submitting' ? 'Processing...' : 'Submit Transmission'}
-                    </span>
-                    <ArrowRight size={16} className="group-hover:translate-x-2 group-hover:text-[#00E5FF] transition-all duration-400" />
+                    <span>{status === 'submitting' ? 'Sending...' : 'Send Enquiry'}</span>
+                    <ArrowRight size={14} strokeWidth={1.5} className="group-hover:translate-x-1 transition-transform duration-300" />
                   </button>
                 </form>
+
               </motion.div>
             ) : (
               /* ─── SUCCESS STATE ─── */
               <motion.div
                 key="success"
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-                className="flex flex-col items-start justify-center py-20 max-w-2xl"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
+                className="flex flex-col items-start justify-center py-16 max-w-xl"
               >
-                <div className="relative mb-12">
-                  <motion.div
-                    initial={{ scale: 0 }} animate={{ scale: 1 }}
-                    transition={{ delay: 0.3, type: 'spring', stiffness: 200, damping: 15 }}
-                    className="w-16 h-16 border border-[#00E5FF] flex items-center justify-center relative z-10 shadow-[0_0_20px_rgba(0,229,255,0.2)]"
-                  >
-                    <Check className="text-[#00E5FF]" size={28} />
-                  </motion.div>
-                </div>
+                <motion.div
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  transition={{ delay: 0.2, type: 'spring', stiffness: 220, damping: 18 }}
+                  className="w-14 h-14 border border-[#A66B45] flex items-center justify-center mb-10"
+                >
+                  <Check size={22} strokeWidth={1.5} color="#A66B45" />
+                </motion.div>
 
-                <h2 className="text-5xl md:text-8xl font-display font-bold text-[#E8ECF4] uppercase tracking-[-0.04em] leading-none mb-6">
-                  Scene <br /><span className="text-[#00E5FF]">Complete</span>
+                <h2
+                  className="mb-6 cursor-default"
+                  style={{
+                    fontFamily: 'var(--font-display)',
+                    fontSize: 'clamp(36px, 6vw, 72px)',
+                    fontWeight: 300,
+                    letterSpacing: '-0.02em',
+                    lineHeight: 0.9,
+                    color: '#F8F4EE',
+                  }}
+                >
+                  Message{' '}
+                  <em style={{ color: '#A66B45', fontStyle: 'italic' }}>Received.</em>
                 </h2>
 
-                <div className="w-px h-12 bg-[#00E5FF]/30 my-8" />
+                <div className="w-8 h-px bg-[#A66B45] my-8" />
 
-                <p className="text-lg font-sans text-[#5A6285] font-light max-w-md leading-relaxed mb-12">
-                  Our architects will review your vision and be in touch shortly.
+                <p
+                  style={{
+                    fontFamily: 'var(--font-sans)',
+                    fontSize: '14px',
+                    fontWeight: 300,
+                    color: '#6F6F6F',
+                    lineHeight: 1.8,
+                    maxWidth: '380px',
+                  }}
+                >
+                  We'll review your project and be in touch within 24 hours. We look forward to building something lasting together.
                 </p>
 
                 <motion.button
-                  initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.2 }}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 1 }}
                   onClick={() => setStatus('idle')}
                   data-cursor-hover
-                  className="flex items-center gap-4 text-[9px] font-sans font-bold tracking-[0.5em] text-[#00E5FF] uppercase hover:text-[#E8ECF4] hover:drop-shadow-[0_0_8px_rgba(0,229,255,0.5)] transition-all duration-400 cursor-none"
+                  className="mt-10 flex items-center gap-3 cursor-none group"
+                  style={{
+                    fontFamily: 'var(--font-sans)',
+                    fontSize: '10px',
+                    fontWeight: 500,
+                    letterSpacing: '0.25em',
+                    textTransform: 'uppercase',
+                    color: '#A66B45',
+                  }}
                 >
                   <span>Send Another</span>
-                  <ArrowRight size={12} />
+                  <ArrowRight size={12} strokeWidth={1.5} className="group-hover:translate-x-1 transition-transform duration-300" />
                 </motion.button>
               </motion.div>
             )}
           </AnimatePresence>
+
         </div>
       )}
     </section>

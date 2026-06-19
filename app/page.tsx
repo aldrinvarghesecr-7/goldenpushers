@@ -1,14 +1,15 @@
 'use client';
 
 // ═══════════════════════════════════════════════════════════════
-// HOME PAGE — Golden Pushers Productions LLP
-// Cinematic Reveal Experience — scroll-driven scenes
+// HOME PAGE — Golden Pushers Production
+// Editorial Visual Identity — Stories Engineered To Last.
 // ═══════════════════════════════════════════════════════════════
 
 import SmoothScroll from '@/components/SmoothScroll';
 import Navbar from '@/components/Navbar';
 import ScrollProgress from '@/components/ScrollProgress';
 import HeroSection from '@/components/HeroSection';
+import ProductionProof from '@/components/ProductionProof';
 import EthosSection from '@/components/EthosSection';
 import CraftSection from '@/components/CraftSection';
 import ReelsSection from '@/components/ReelsSection';
@@ -21,45 +22,54 @@ import SceneTransition from '@/components/SceneTransition';
 export default function Home() {
   return (
     <SmoothScroll>
-      {/* ─── Scroll Progress Bar (z-999) ─── */}
+      {/* ─── Scroll Progress Bar ─── */}
       <ScrollProgress />
 
-      {/* ─── Navigation (z-100) ─── */}
+      {/* ─── Navigation ─── */}
       <Navbar />
 
-      {/* ─── Main Content (z-10) ─── */}
-      <main className="relative z-10">
+      {/* ─── Main Content ─── */}
+      <main className="relative">
         <HeroSection />
+        <ProductionProof />
 
-        {/* Ticker divider */}
-        <div className="border-t border-b border-[#00E5FF]/[0.06] overflow-hidden py-5 bg-[#0F1128]">
+        {/* Editorial ticker divider */}
+        <div
+          className="overflow-hidden py-4 border-t border-b border-[#C8C2B8]/40"
+          style={{ background: '#F0EAE0' }}
+        >
           <Marquee
-            text="CINEMATIC EXCELLENCE — BRAND FILMS — COMMERCIAL — MUSIC VIDEO — EDITORIAL — EVENT COVERAGE —"
-            speed={30}
-            className="text-[11px] md:text-xs font-sans font-bold tracking-[0.5em] text-[#5A6285]/40 uppercase leading-none"
+            text="Commercial Films — Brand Campaigns — Product Photography — Music Videos — Podcasts — Wedding Films — Corporate Films — Creative Direction"
+            speed={40}
+            className="text-[#9B9B9B]"
+            style={{
+              fontFamily: 'var(--font-sans)',
+              fontSize: '9px',
+              fontWeight: 400,
+              letterSpacing: '0.3em',
+              textTransform: 'uppercase',
+            }}
           />
         </div>
 
-        <SceneTransition sceneNumber="02" label="Philosophy" />
+        <SceneTransition sceneNumber="02" label="Studio" />
         <EthosSection />
 
-        <SceneTransition sceneNumber="03" label="Expertise" />
+        <SceneTransition sceneNumber="03" label="Services" />
         <CraftSection />
 
-        <SceneTransition sceneNumber="04" label="Portfolio" />
+        <SceneTransition sceneNumber="04" label="Work" />
         <ReelsSection />
 
         <SceneTransition sceneNumber="05" label="Team" />
         <ArchitectsSection />
 
-        <SceneTransition sceneNumber="06" label="Contact" />
+        <SceneTransition sceneNumber="06" label="Enquire" />
         <EnquireSection />
       </main>
 
       {/* ─── Footer ─── */}
-      <div className="relative z-10">
-        <Footer />
-      </div>
+      <Footer />
     </SmoothScroll>
   );
 }
