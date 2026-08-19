@@ -1,0 +1,6 @@
+{
+  "name": "golden-pushers-static",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Plain HTML/CSS/JS site for Golden Pushers Production — static hosting on GoDaddy."
+}
