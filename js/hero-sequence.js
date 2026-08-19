@@ -103,15 +103,24 @@
   }
 
   // ---------- Scroll handler ----------
-  // progress is 0..1 across the FULL document, giving the dolly-through effect.
+  // Scrub 240 frames across the sections, finishing right before the contact form
   function onScroll() {
     const docEl = document.documentElement;
     const scrollTop = window.scrollY || docEl.scrollTop || document.body.scrollTop || 0;
-    const scrollHeight = docEl.scrollHeight - docEl.clientHeight;
-    let progress = scrollHeight > 0 ? scrollTop / scrollHeight : 0;
+    
+    // Find the contact section so the sequence reaches the final frame before contact begins
+    const contactSection = document.getElementById('contact');
+    let maxScrubHeight;
+    if (contactSection) {
+      maxScrubHeight = contactSection.offsetTop - window.innerHeight * 0.4;
+    } else {
+      maxScrubHeight = docEl.scrollHeight - docEl.clientHeight;
+    }
+
+    let progress = maxScrubHeight > 0 ? scrollTop / maxScrubHeight : 0;
     progress = Math.max(0, Math.min(1, progress));
 
-    // --- Frame scrub (entire page) ---
+    // --- Frame scrub (reaches frame 240 right before the contact section) ---
     const frame = Math.min(
       SEQUENCE_CONFIG.totalFrames - 1,
       Math.floor(progress * SEQUENCE_CONFIG.totalFrames)
