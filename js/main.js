@@ -166,21 +166,22 @@ document.addEventListener('click', (e) => {
 
 // ---------- Page-to-Page Smooth Transitions ----------
 function initPageTransitions() {
+  window.addEventListener('pageshow', () => {
+    document.body.classList.remove('page-is-leaving');
+  });
+
   const links = document.querySelectorAll('a[href]:not([target="_blank"]):not([href^="#"]):not([href^="mailto:"]):not([href^="tel:"])');
   links.forEach(link => {
     link.addEventListener('click', (e) => {
       const href = link.getAttribute('href');
       if (!href || href === '#' || href.startsWith('javascript:')) return;
-      
-      // Check if link stays on same domain
-      const targetUrl = new URL(href, window.location.href);
-      if (targetUrl.origin !== window.location.origin) return;
+      if (href.startsWith('http://') || href.startsWith('https://') || href.startsWith('//')) return;
 
       e.preventDefault();
       document.body.classList.add('page-is-leaving');
       setTimeout(() => {
         window.location.href = href;
-      }, 400);
+      }, 350);
     });
   });
 }
