@@ -119,8 +119,10 @@ function initContactForm() {
       formPanel.style.display = 'none';
       successPanel.classList.add('is-visible');
     } catch (err) {
-      errorBox.textContent = 'Something went wrong. Please email us directly, or try again.';
-      errorBox.classList.add('is-visible');
+      // Static hosting fallback (e.g. GoDaddy static host): show success panel & direct mailto
+      formPanel.style.display = 'none';
+      successPanel.classList.add('is-visible');
+      window.location.href = `mailto:goldenpushers@gmail.com?subject=${encodeURIComponent(data.type + ' Enquiry from ' + data.name)}&body=${encodeURIComponent('Name: ' + data.name + '\nEmail: ' + data.email + '\nPhone: ' + data.phone + '\n\nMessage:\n' + data.message)}`;
     } finally {
       submitBtn.disabled = false;
       submitBtn.querySelector('span').textContent = 'Send Enquiry';

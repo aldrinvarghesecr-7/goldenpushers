@@ -47,6 +47,9 @@ body.page-is-leaving {
 }
 
 #main {
+  position: relative;
+  z-index: 10;
+  background: transparent;
   animation: pageFlowIn 0.8s var(--ease-flow) forwards;
 }
 

@@ -22,8 +22,8 @@
   const canvas = document.getElementById('hero-canvas');
   if (!heroSection || !canvas) return;
 
-  // Move the canvas to be a direct child of <body> so it sits behind everything
-  document.body.appendChild(canvas);
+  // Move the canvas to be the first child of <body> so it sits behind all content
+  document.body.insertBefore(canvas, document.body.firstChild);
 
   const ctx = canvas.getContext('2d');
   const images = new Array(SEQUENCE_CONFIG.totalFrames).fill(null);
@@ -106,7 +106,7 @@
   // progress is 0..1 across the FULL document, giving the dolly-through effect.
   function onScroll() {
     const docEl = document.documentElement;
-    const scrollTop = window.scrollY || docEl.scrollTop;
+    const scrollTop = window.scrollY || docEl.scrollTop || document.body.scrollTop || 0;
     const scrollHeight = docEl.scrollHeight - docEl.clientHeight;
     let progress = scrollHeight > 0 ? scrollTop / scrollHeight : 0;
     progress = Math.max(0, Math.min(1, progress));
@@ -122,19 +122,28 @@
       if (!images[frame]) loadImage(frame);
     }
 
-    // --- Hero overlay: fade IN on scroll, then fade OUT ---
-    // Invisible at top (progress 0). Peaks at ~3-8% scroll. Fades out by ~18%.
+    // --- Hero overlay: fades IN on scroll (starts 0 at top, peaks between 2%-10%, fades out by 18%) ---
     const overlay = heroSection.querySelector('.hero-overlay');
     if (overlay) {
-      const fadeIn  = Math.min(1, progress / 0.04);     // 0→1 over first 4%
-      const fadeOut = Math.max(0, 1 - (progress - 0.08) / 0.10); // 1→0 between 8-18%
-      overlay.style.opacity = Math.min(fadeIn, fadeOut);
+      let opacity = 0;
+      if (progress <= 0.005) {
+        opacity = 0;
+      } else if (progress < 0.04) {
+        opacity = (progress - 0.005) / 0.035; // Fades in 0 -> 1 as user starts scrolling
+      } else if (progress <= 0.10) {
+        opacity = 1; // Full opacity
+      } else if (progress < 0.18) {
+        opacity = 1 - (progress - 0.10) / 0.08; // Fades out into proof section
+      } else {
+        opacity = 0;
+      }
+      overlay.style.opacity = Math.max(0, Math.min(1, opacity));
     }
 
-    // --- Scroll cue: hide immediately once user scrolls ---
+    // --- Scroll cue: visible at top, hides immediately on scroll ---
     const cue = heroSection.querySelector('.hero-scroll-cue');
     if (cue) {
-      cue.style.opacity = progress > 0.005 ? '0' : '1';
+      cue.style.opacity = progress > 0.008 ? '0' : '1';
       cue.style.transition = 'opacity 0.4s ease-out';
     }
   }
